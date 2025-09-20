@@ -1,0 +1,32 @@
+{
+  "name": "florist-kiosk",
+  "version": "1.0.0",
+  "description": "Aplikasi kiosk toko bunga offline dengan Electron.js",
+  "main": "main.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./renderer/tailwind.css -o ./renderer/dist/tailwind.generated.css --minify",
+    "dev:css": "tailwindcss -i ./renderer/tailwind.css -o ./renderer/dist/tailwind.generated.css --watch",
+    "start": "npm run build:css && electron .",
+    "dev": "concurrently \"npm:dev:css\" \"electron . --dev\""
+  },
+  "keywords": [
+    "electron",
+    "florist",
+    "kiosk",
+    "offline"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
+    "concurrently": "^8.2.2",
+    "electron": "^27.3.11",
+    "tailwindcss": "^3.4.10"
+  },
+  "dependencies": {
+    "esc-pos-encoder": "^3.0.0",
+    "node-thermal-printer": "^4.5.0",
+    "serialport": "^12.0.0",
+    "sql.js": "^1.13.0"
+  }
+}

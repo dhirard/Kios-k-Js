@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-pink-400/50 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2;
+  }
+  .btn-primary {
+    @apply bg-brand-pink-600 hover:bg-brand-pink-500 text-white shadow-sm active:scale-[.97];
+  }
+  .btn-secondary {
+    @apply bg-brand-pink-400 hover:bg-brand-pink-300 text-white shadow-sm active:scale-[.97];
+  }
+  .btn-danger {
+    @apply bg-brand-pink-800 hover:bg-brand-pink-700 text-white shadow-sm active:scale-[.97];
+  }
+  .btn-large {
+    @apply px-6 py-3 text-base w-full;
+  }
+  .btn-small {
+    @apply px-3 py-1.5 text-sm;
+  }
+  .cart-badge {
+    @apply ml-2 inline-flex items-center justify-center rounded-full bg-brand-pink-600 text-white text-xs font-semibold px-2.5 py-0.5;
+  }
+  .fab-badge {
+    @apply inline-flex items-center justify-center font-bold rounded-xl bg-neutral-800 text-white px-2 h-8 min-w-8;
+  }
+  .notification {
+    @apply fixed z-[1400] flex items-center gap-3 top-5 right-5 max-w-sm px-5 py-4 rounded-xl shadow-lg translate-x-[420px] transition-transform duration-300 bg-neutral-800 text-white;
+  }
+  .notification.show {
+    @apply translate-x-0;
+  }
+  .notification.success {
+    @apply bg-brand-pink-600;
+  }
+  .notification.error {
+    @apply bg-red-600;
+  }
+  .notification.info {
+    @apply bg-brand-pink-400;
+  }
+  #notification-close {
+    @apply ml-auto text-xl leading-none cursor-pointer bg-transparent border-0 p-0;
+  }
+  .modal {
+    @apply hidden fixed inset-0 z-[1000] flex items-center justify-center bg-black/50;
+  }
+  .modal-content {
+    @apply bg-white rounded-2xl p-8 w-[90%] max-w-lg shadow-2xl;
+  }
+  .modal-actions {
+    @apply flex gap-4 justify-center mt-6;
+  }
+}

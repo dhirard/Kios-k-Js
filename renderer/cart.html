@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keranjang - Florist Kiosk</title>
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="kiosk-mode bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
+  >
+    <div class="container">
+      <header class="relative">
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
+        >
+          🌸 Florist Kiosk
+        </h1>
+        <nav class="items-center">
+          <a
+            href="index.html"
+            class="nav-link"
+            onclick="navigateToPage('index.html'); return false;"
+            >Katalog</a
+          >
+          <a
+            href="cart.html"
+            class="nav-link active"
+            onclick="navigateToPage('cart.html'); return false;"
+            >Keranjang</a
+          >
+          <a
+            href="admin-login.html"
+            class="nav-link admin-link"
+            onclick="navigateToPage('admin-login.html'); return false;"
+          >
+            🔐 Admin
+          </a>
+        </nav>
+      </header>
+
+      <main class="animate-fade-in">
+        <section class="cart-section">
+          <h2>Keranjang Belanja</h2>
+
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Memuat keranjang...</p>
+          </div>
+
+          <div id="cart-content">
+            <div class="cart-items" id="cart-items">
+              <!-- Cart items will be loaded here -->
+            </div>
+
+            <div class="cart-summary" id="cart-summary" style="display: none">
+              <div class="summary-row">
+                <span>Total Item:</span>
+                <span id="total-items">0</span>
+              </div>
+              <div class="summary-row total-row">
+                <span>Total Harga:</span>
+                <span id="total-amount">Rp 0</span>
+              </div>
+              <button class="btn btn-primary btn-large" id="checkout-btn">
+                Lanjut ke Checkout
+              </button>
+            </div>
+          </div>
+
+          <div class="empty-cart" id="empty-cart" style="display: none">
+            <div class="empty-cart-icon">🛒</div>
+            <h3>Keranjang Kosong</h3>
+            <p>Belum ada produk di keranjang Anda</p>
+            <a href="index.html" class="btn btn-primary">Mulai Belanja</a>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Florist Kiosk. Bunga segar setiap hari.</p>
+      </footer>
+    </div>
+
+    <!-- Confirmation dialog -->
+    <div id="confirm-dialog" class="modal">
+      <div class="modal-content">
+        <h3>Konfirmasi</h3>
+        <p id="confirm-message"></p>
+        <div class="modal-actions">
+          <button id="confirm-cancel" class="btn btn-secondary btn-small">
+            Batal
+          </button>
+          <button id="confirm-ok" class="btn btn-danger btn-small">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success notification -->
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script>
+      let cartItems = [];
+
+      // Initialize the cart page
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadCartItems();
+        setupEventListeners();
+      });
+
+      async function loadCartItems() {
+        const loading = document.getElementById("loading");
+        const cartContent = document.getElementById("cart-content");
+        const emptyCart = document.getElementById("empty-cart");
+
+        try {
+          loading.style.display = "flex";
+          cartItems = await window.electronAPI.getCartItems();
+
+          if (cartItems.length === 0) {
+            cartContent.style.display = "none";
+            emptyCart.style.display = "block";
+          } else {
+            renderCartItems();
+            updateCartSummary();
+            cartContent.style.display = "block";
+            emptyCart.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error loading cart items:", error);
+          showNotification("Gagal memuat keranjang", "error");
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      function renderCartItems() {
+        const cartItemsContainer = document.getElementById("cart-items");
+
+        cartItemsContainer.innerHTML = cartItems
+          .map(
+            (item) => `
+                <div class="cart-item" data-cart-id="${item.cart_id}">
+                    <div class="item-image">
+                        <img src="${
+                          item.image ||
+                          "https://via.placeholder.com/100x100/e0e0e0/666?text=No+Image"
+                        }" 
+                             alt="${item.name}"
+                             onerror="this.src='https://via.placeholder.com/100x100/e0e0e0/666?text=No+Image'">
+                    </div>
+                    <div class="item-details">
+                        <h4 class="item-name">${item.name}</h4>
+                        <p class="item-price">${window.electronAPI.formatCurrency(
+                          item.price
+                        )}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn" onclick="updateQuantity(${
+                          item.cart_id
+                        }, ${item.quantity - 1})">-</button>
+                        <span class="quantity">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${
+                          item.cart_id
+                        }, ${item.quantity + 1})">+</button>
+                    </div>
+                    <div class="item-subtotal">
+                        ${window.electronAPI.formatCurrency(item.subtotal)}
+                    </div>
+                    <div class="item-actions">
+              <button class="btn btn-danger btn-small" onclick="confirmRemoveItem(${
+                item.cart_id
+              }, '${item.name}')">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function updateCartSummary() {
+        const totalItems = cartItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        const totalAmount = cartItems.reduce(
+          (sum, item) => sum + item.subtotal,
+          0
+        );
+
+        document.getElementById("total-items").textContent = totalItems;
+        document.getElementById("total-amount").textContent =
+          window.electronAPI.formatCurrency(totalAmount);
+        document.getElementById("cart-summary").style.display = "block";
+      }
+
+      async function updateQuantity(cartId, newQuantity) {
+        try {
+          if (newQuantity <= 0) {
+            const item = cartItems.find((item) => item.cart_id === cartId);
+            confirmRemoveItem(cartId, item.name);
+            return;
+          }
+
+          const success = await window.electronAPI.updateCartItem(
+            cartId,
+            newQuantity
+          );
+
+          if (success) {
+            await loadCartItems();
+          } else {
+            showNotification("Gagal mengupdate jumlah produk", "error");
+          }
+        } catch (error) {
+          console.error("Error updating quantity:", error);
+          showNotification("Terjadi kesalahan", "error");
+        }
+      }
+
+      function confirmRemoveItem(cartId, itemName) {
+        const confirmDialog = document.getElementById("confirm-dialog");
+        const confirmMessage = document.getElementById("confirm-message");
+
+        confirmMessage.textContent = `Apakah Anda yakin ingin menghapus "${itemName}" dari keranjang?`;
+        confirmDialog.style.display = "flex";
+
+        // Store the cart ID for the confirm action
+        document.getElementById("confirm-ok").onclick = () =>
+          removeItem(cartId);
+      }
+
+      async function removeItem(cartId) {
+        try {
+          const success = await window.electronAPI.removeFromCart(cartId);
+
+          if (success) {
+            showNotification(
+              "Produk berhasil dihapus dari keranjang",
+              "success"
+            );
+            await loadCartItems();
+          } else {
+            showNotification("Gagal menghapus produk", "error");
+          }
+        } catch (error) {
+          console.error("Error removing item:", error);
+          showNotification("Terjadi kesalahan", "error");
+        } finally {
+          document.getElementById("confirm-dialog").style.display = "none";
+        }
+      }
+
+      function setupEventListeners() {
+        // Checkout button
+        document
+          .getElementById("checkout-btn")
+          .addEventListener("click", () => {
+            if (cartItems.length > 0) {
+              window.electronAPI.navigateTo("checkout.html");
+            }
+          });
+
+        // Confirm dialog buttons
+        document
+          .getElementById("confirm-cancel")
+          .addEventListener("click", () => {
+            document.getElementById("confirm-dialog").style.display = "none";
+          });
+
+        // Close notification
+        document
+          .getElementById("notification-close")
+          .addEventListener("click", () => {
+            document.getElementById("notification").classList.remove("show");
+          });
+
+        // Close modal when clicking outside
+        document
+          .getElementById("confirm-dialog")
+          .addEventListener("click", (e) => {
+            if (e.target.id === "confirm-dialog") {
+              document.getElementById("confirm-dialog").style.display = "none";
+            }
+          });
+
+        // Add navigation event listeners
+        document.addEventListener("click", (e) => {
+          console.log("Cart page click detected:", e.target); // Debug log
+
+          if (
+            e.target.matches('a[href="index.html"]') ||
+            e.target.closest('a[href="index.html"]')
+          ) {
+            e.preventDefault();
+            console.log("Navigating to index.html"); // Debug log
+            if (window.electronAPI && window.electronAPI.navigateTo) {
+              window.electronAPI.navigateTo("index.html");
+            } else {
+              window.location.href = "index.html";
+            }
+          } else if (
+            e.target.matches('a[href="admin-login.html"]') ||
+            e.target.closest('a[href="admin-login.html"]')
+          ) {
+            e.preventDefault();
+            console.log("Navigating to admin-login.html"); // Debug log
+            if (window.electronAPI && window.electronAPI.navigateTo) {
+              window.electronAPI.navigateTo("admin-login.html");
+            } else {
+              window.location.href = "admin-login.html";
+            }
+          }
+        });
+      }
+
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        const notificationText = document.getElementById("notification-text");
+
+        notificationText.textContent = message;
+        notification.className = `notification show ${type}`;
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

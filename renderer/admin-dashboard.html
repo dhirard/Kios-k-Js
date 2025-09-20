@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Florist Kiosk</title>
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
+  >
+    <div class="container">
+      <header class="relative">
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
+        >
+          🌸 Florist Kiosk - Admin Dashboard
+        </h1>
+        <nav class="items-center">
+          <a href="index.html" class="nav-link">Katalog</a>
+          <a href="cart.html" class="nav-link">Keranjang</a>
+          <span class="nav-link active">Admin Panel</span>
+          <button id="logout-btn" class="btn btn-secondary btn-small">
+            Logout
+          </button>
+        </nav>
+      </header>
+
+      <main>
+        <section class="admin-section">
+          <div class="admin-welcome">
+            <h2>Selamat datang, <span id="admin-name">Admin</span>!</h2>
+            <p>Panel administrasi toko bunga</p>
+          </div>
+
+          <!-- Tab Navigation -->
+          <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="dashboard">
+              Dashboard
+            </button>
+            <button class="tab-btn" data-tab="products">Kelola Produk</button>
+            <button class="tab-btn" data-tab="sales">Laporan Penjualan</button>
+            <button class="tab-btn" data-tab="categories">Kategori</button>
+            <button class="tab-btn" data-tab="occasions">Occasion</button>
+          </div>
+
+          <!-- Dashboard Tab -->
+          <div id="dashboard-tab" class="tab-content active">
+            <div class="dashboard-stats">
+              <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                  <h3 id="total-orders">0</h3>
+                  <p>Total Pesanan</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info">
+                  <h3 id="total-items">0</h3>
+                  <p>Item Terjual</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                  <h3 id="total-revenue">Rp 0</h3>
+                  <p>Total Pendapatan</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-info">
+                  <h3 id="avg-order">Rp 0</h3>
+                  <p>Rata-rata Pesanan</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="top-products-section">
+              <h3>🏆 Produk Terlaris</h3>
+              <div class="loading" id="top-products-loading">
+                <div class="spinner"></div>
+                <p>Memuat data...</p>
+              </div>
+              <div class="top-products-list" id="top-products-list">
+                <!-- Top products will be loaded here -->
+              </div>
+            </div>
+
+            <!-- Printer Settings -->
+            <div class="top-products-section" style="margin-top: 16px">
+              <h3>🖨️ Pengaturan Printer</h3>
+              <div
+                class="products-header"
+                style="align-items: center; gap: 8px"
+              >
+                <select id="printer-select" style="min-width: 240px"></select>
+                <button class="btn btn-secondary btn-small" id="save-printer">
+                  Simpan sebagai Default
+                </button>
+                <button
+                  class="btn btn-secondary btn-small"
+                  id="refresh-printers"
+                >
+                  Refresh
+                </button>
+                <button class="btn btn-primary btn-small" id="test-print">
+                  Tes Cetak
+                </button>
+              </div>
+              <div
+                id="printer-status"
+                class="small-note"
+                style="margin-top: 6px; color: #555"
+              ></div>
+            </div>
+
+            <!-- ESC/POS Direct (Serial/USB) -->
+            <div class="top-products-section" style="margin-top: 16px">
+              <h3>🧩 Cetak Langsung ESC/POS (USB/Serial)</h3>
+              <div
+                class="products-header"
+                style="align-items: center; gap: 8px"
+              >
+                <select
+                  id="serial-port-select"
+                  style="min-width: 200px"
+                ></select>
+                <button class="btn btn-secondary btn-small" id="refresh-ports">
+                  Refresh Ports
+                </button>
+                <button class="btn btn-primary btn-small" id="test-escpos">
+                  Tes Cetak ESC/POS
+                </button>
+              </div>
+              <div
+                id="escpos-status"
+                class="small-note"
+                style="margin-top: 6px; color: #555"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Products Management Tab -->
+          <div id="products-tab" class="tab-content">
+            <div class="products-header">
+              <h3>📦 Kelola Produk</h3>
+              <button class="btn btn-primary" id="add-product-btn">
+                + Tambah Produk
+              </button>
+            </div>
+
+            <div class="loading" id="products-loading">
+              <div class="spinner"></div>
+              <p>Memuat produk...</p>
+            </div>
+
+            <div class="products-table-container" id="products-table-container">
+              <table class="admin-table" id="products-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Gambar</th>
+                    <th>Nama Produk</th>
+                    <th>Kategori</th>
+                    <th>Occasion</th>
+                    <th>Harga</th>
+                    <th>Tanggal Dibuat</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table-body">
+                  <!-- Products will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Categories Management Tab -->
+          <div id="categories-tab" class="tab-content">
+            <div class="products-header">
+              <h3>🏷️ Kategori</h3>
+              <div
+                class="flex gap-2"
+                style="display: flex; gap: 0.5rem; align-items: center"
+              >
+                <input
+                  type="text"
+                  id="new-category-name"
+                  placeholder="Nama kategori"
+                  style="max-width: 220px"
+                />
+                <button class="btn btn-primary btn-small" id="add-category-btn">
+                  + Tambah
+                </button>
+              </div>
+            </div>
+            <div class="products-table-container">
+              <table class="admin-table" id="categories-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nama</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="categories-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Occasions Management Tab -->
+          <div id="occasions-tab" class="tab-content">
+            <div class="products-header">
+              <h3>🎉 Occasion</h3>
+              <div
+                class="flex gap-2"
+                style="display: flex; gap: 0.5rem; align-items: center"
+              >
+                <input
+                  type="text"
+                  id="new-occasion-name"
+                  placeholder="Nama occasion"
+                  style="max-width: 220px"
+                />
+                <button class="btn btn-primary btn-small" id="add-occasion-btn">
+                  + Tambah
+                </button>
+              </div>
+            </div>
+            <div class="products-table-container">
+              <table class="admin-table" id="occasions-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nama</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="occasions-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Sales Report Tab -->
+          <div id="sales-tab" class="tab-content">
+            <div class="sales-header">
+              <h3>📈 Laporan Penjualan</h3>
+              <div class="date-filter">
+                <input
+                  type="date"
+                  id="start-date"
+                  placeholder="Tanggal Mulai"
+                />
+                <input type="date" id="end-date" placeholder="Tanggal Akhir" />
+                <button class="btn-secondary" id="filter-sales">Filter</button>
+                <button class="btn-secondary" id="reset-filter">Reset</button>
+              </div>
+            </div>
+
+            <div class="loading" id="sales-loading">
+              <div class="spinner"></div>
+              <p>Memuat laporan...</p>
+            </div>
+
+            <div class="sales-table-container" id="sales-table-container">
+              <table class="admin-table" id="sales-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Produk</th>
+                    <th>Jumlah</th>
+                    <th>Harga Satuan</th>
+                    <th>Subtotal</th>
+                    <th>Total Pesanan</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-body">
+                  <!-- Sales will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Florist Kiosk. Admin Panel.</p>
+      </footer>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="modal">
+      <div class="modal-content">
+        <h3 id="product-modal-title">Tambah Produk</h3>
+        <form id="product-form" class="product-form">
+          <input type="hidden" id="product-id" />
+
+          <div class="form-group">
+            <label for="product-name">Nama Produk:</label>
+            <input
+              type="text"
+              id="product-name"
+              required
+              placeholder="Masukkan nama produk"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="product-price">Harga:</label>
+            <input
+              type="number"
+              id="product-price"
+              required
+              placeholder="Masukkan harga"
+              min="0"
+              step="1000"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="product-image">URL Gambar:</label>
+            <input
+              type="url"
+              id="product-image"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+          <div class="form-group">
+            <label for="product-image-file"
+              >Atau Upload Gambar (pilih salah satu):</label
+            >
+            <input type="file" id="product-image-file" accept="image/*" />
+            <small style="display: block; margin-top: 4px; color: #666"
+              >Jika Anda memilih file, sistem akan menyimpan salinan lokal dan
+              mengabaikan URL di atas.</small
+            >
+            <div
+              id="product-image-preview"
+              style="margin-top: 8px; display: none"
+            >
+              <img
+                id="product-image-preview-img"
+                src=""
+                alt="Preview"
+                style="
+                  max-width: 160px;
+                  border: 1px solid #ddd;
+                  padding: 4px;
+                  border-radius: 6px;
+                  background: #fff;
+                "
+              />
+              <button
+                type="button"
+                id="clear-image-file"
+                class="btn btn-secondary btn-small"
+                style="margin-left: 8px"
+              >
+                Hapus File
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="product-description">Deskripsi:</label>
+            <textarea
+              id="product-description"
+              placeholder="Deskripsi produk"
+              style="
+                width: 100%;
+                min-height: 90px;
+                resize: vertical;
+                padding: 0.75rem;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+              "
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="product-category">Kategori:</label>
+            <select id="product-category">
+              <option value="">-- Pilih Kategori --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="product-occasion">Occasion:</label>
+            <select id="product-occasion">
+              <option value="">-- Pilih Occasion --</option>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancel-product"
+              class="btn btn-secondary btn-small"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              id="save-product"
+              class="btn btn-primary btn-small"
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirm-delete-modal" class="modal">
+      <div class="modal-content">
+        <h3>Konfirmasi Hapus</h3>
+        <p id="delete-message"></p>
+        <div class="modal-actions">
+          <button id="cancel-delete" class="btn btn-secondary btn-small">
+            Batal
+          </button>
+          <button id="confirm-delete" class="btn btn-danger btn-small">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success notification -->
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script src="admin-dashboard.js"></script>
+    <script src="../escpos-utils.js"></script>
+  </body>
+</html>

@@ -1,0 +1,387 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Buket Mawar Merah",
+      "price": 150000,
+      "image": "https://via.placeholder.com/300x200/ff6b6b/ffffff?text=Buket+Mawar",
+      "description": "Buket 12 mawar merah segar melambangkan cinta dan kasih sayang. Dikemas elegan dengan pita satin merah.",
+      "category_id": null,
+      "occasion_id": null,
+      "created_at": "2025-09-19T08:11:49.386Z"
+    },
+    {
+      "id": 2,
+      "name": "Lili Putih Elegan",
+      "price": 120000,
+      "image": "https://via.placeholder.com/300x200/95a5a6/ffffff?text=Lili+Putih",
+      "description": "Rangkaian lili putih harum yang cocok untuk hadiah penuh ketulusan dan ketenangan.",
+      "category_id": null,
+      "occasion_id": null,
+      "created_at": "2025-09-19T08:11:49.390Z"
+    },
+    {
+      "id": 3,
+      "name": "Tulip Kuning",
+      "price": 100000,
+      "image": "https://via.placeholder.com/300x200/f1c40f/ffffff?text=Tulip+Kuning",
+      "description": "Buket tulip kuning cerah melambangkan persahabatan, keceriaan, dan harapan baru.",
+      "category_id": null,
+      "occasion_id": null,
+      "created_at": "2025-09-19T08:11:49.391Z"
+    },
+    {
+      "id": 4,
+      "name": "Buket Campuran",
+      "price": 200000,
+      "image": "https://via.placeholder.com/300x200/9b59b6/ffffff?text=Buket+Campuran",
+      "description": "Kombinasi bunga pilihan berbagai warna untuk setiap perayaan spesial Anda.",
+      "category_id": null,
+      "occasion_id": null,
+      "created_at": "2025-09-19T08:11:49.393Z"
+    },
+    {
+      "id": 5,
+      "name": "Anggrek Ungu",
+      "price": 180000,
+      "image": "https://via.placeholder.com/300x200/8e44ad/ffffff?text=Anggrek+Ungu",
+      "description": "Pot anggrek ungu elegan yang tahan lama dan mewah sebagai dekorasi ruang.",
+      "category_id": null,
+      "occasion_id": null,
+      "created_at": "2025-09-19T08:11:49.394Z"
+    },
+    {
+      "id": 6,
+      "name": "Sunflower Bouquet",
+      "price": 130000,
+      "image": "https://via.placeholder.com/300x200/f39c12/ffffff?text=Sunflower",
+      "description": "Buket bunga matahari ceria yang membawa energi positif dan semangat baru.",
+      "category_id": null,
+      "occasion_id": null,
+      "created_at": "2025-09-19T08:11:49.394Z"
+    },
+    {
+      "id": 7,
+      "name": "Bucket Roses 1",
+      "price": 125000,
+      "image": "uploads/1758269681167-ss_jsflorist.png",
+      "description": "Yaaaaaa",
+      "category_id": 1,
+      "occasion_id": 1,
+      "created_at": "2025-09-19T08:14:41.177Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Bucket Bunga",
+      "created_at": "2025-09-19T08:13:55.962Z"
+    }
+  ],
+  "occasions": [
+    {
+      "id": 1,
+      "name": "Anniversary",
+      "created_at": "2025-09-19T08:14:06.860Z"
+    }
+  ],
+  "cart": [],
+  "orders": [
+    {
+      "id": 1,
+      "order_date": "2025-09-19T08:14:55.384Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 2,
+      "order_date": "2025-09-19T09:05:57.114Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 3,
+      "order_date": "2025-09-19T09:13:20.059Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 4,
+      "order_date": "2025-09-19T09:19:35.647Z",
+      "total_amount": 130000
+    },
+    {
+      "id": 5,
+      "order_date": "2025-09-19T09:24:33.793Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 6,
+      "order_date": "2025-09-19T09:26:59.767Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 7,
+      "order_date": "2025-09-19T09:31:08.102Z",
+      "total_amount": 130000
+    },
+    {
+      "id": 8,
+      "order_date": "2025-09-19T09:34:55.620Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 9,
+      "order_date": "2025-09-19T09:35:35.961Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 10,
+      "order_date": "2025-09-19T09:39:32.864Z",
+      "total_amount": 130000
+    },
+    {
+      "id": 11,
+      "order_date": "2025-09-19T09:47:00.626Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 12,
+      "order_date": "2025-09-19T09:53:58.402Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 13,
+      "order_date": "2025-09-19T09:54:43.052Z",
+      "total_amount": 120000
+    },
+    {
+      "id": 14,
+      "order_date": "2025-09-19T09:59:14.742Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 15,
+      "order_date": "2025-09-19T10:00:04.786Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 16,
+      "order_date": "2025-09-19T10:00:06.728Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 17,
+      "order_date": "2025-09-19T10:00:14.525Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 18,
+      "order_date": "2025-09-19T10:08:32.038Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 19,
+      "order_date": "2025-09-20T05:32:03.639Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 20,
+      "order_date": "2025-09-20T05:37:02.706Z",
+      "total_amount": 120000
+    },
+    {
+      "id": 21,
+      "order_date": "2025-09-20T05:47:18.165Z",
+      "total_amount": 120000
+    },
+    {
+      "id": 22,
+      "order_date": "2025-09-20T05:54:33.991Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 23,
+      "order_date": "2025-09-20T05:55:13.581Z",
+      "total_amount": 200000
+    }
+  ],
+  "admins": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin123",
+      "created_at": "2025-09-19T08:11:49.405Z"
+    }
+  ],
+  "sales": [
+    {
+      "id": 1,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T08:14:55.385Z"
+    },
+    {
+      "id": 2,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:05:57.116Z"
+    },
+    {
+      "id": 3,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:13:20.059Z"
+    },
+    {
+      "id": 4,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-19T09:19:35.647Z"
+    },
+    {
+      "id": 5,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:24:33.793Z"
+    },
+    {
+      "id": 6,
+      "order_id": {},
+      "product_id": 4,
+      "quantity": 1,
+      "unit_price": 200000,
+      "subtotal": 200000,
+      "sale_date": "2025-09-19T09:26:59.767Z"
+    },
+    {
+      "id": 7,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-19T09:31:08.103Z"
+    },
+    {
+      "id": 8,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:34:55.621Z"
+    },
+    {
+      "id": 9,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:35:35.962Z"
+    },
+    {
+      "id": 10,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-19T09:39:32.865Z"
+    },
+    {
+      "id": 11,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:47:00.627Z"
+    },
+    {
+      "id": 12,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:53:58.403Z"
+    },
+    {
+      "id": 13,
+      "order_id": {},
+      "product_id": 2,
+      "quantity": 1,
+      "unit_price": 120000,
+      "subtotal": 120000,
+      "sale_date": "2025-09-19T09:54:43.053Z"
+    },
+    {
+      "id": 14,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T09:59:14.743Z"
+    },
+    {
+      "id": 15,
+      "order_id": {},
+      "product_id": 4,
+      "quantity": 1,
+      "unit_price": 200000,
+      "subtotal": 200000,
+      "sale_date": "2025-09-19T10:00:04.787Z"
+    },
+    {
+      "id": 16,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-19T10:08:32.039Z"
+    },
+    {
+      "id": 17,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T05:32:03.640Z"
+    },
+    {
+      "id": 18,
+      "order_id": {},
+      "product_id": 2,
+      "quantity": 1,
+      "unit_price": 120000,
+      "subtotal": 120000,
+      "sale_date": "2025-09-20T05:37:02.707Z"
+    },
+    {
+      "id": 19,
+      "order_id": {},
+      "product_id": 4,
+      "quantity": 1,
+      "unit_price": 200000,
+      "subtotal": 200000,
+      "sale_date": "2025-09-20T05:54:33.991Z"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - Florist Kiosk</title>
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
+  >
+    <div class="container">
+      <header class="relative">
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
+        >
+          🌸 Florist Kiosk - Admin
+        </h1>
+        <nav class="items-center">
+          <a href="index.html" class="nav-link">Katalog</a>
+          <a href="cart.html" class="nav-link">Keranjang</a>
+          <span class="nav-link active">Admin</span>
+        </nav>
+      </header>
+
+      <main>
+        <section class="login-section">
+          <div class="login-container">
+            <div class="login-card">
+              <h2>🔐 Login Administrator</h2>
+              <p>Masuk untuk mengakses panel admin</p>
+
+              <form id="login-form" class="login-form">
+                <div class="form-group">
+                  <label for="username">Username:</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    placeholder="Masukkan username"
+                    value="admin"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="password">Password:</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Masukkan password"
+                    value="admin123"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-large"
+                  id="login-btn"
+                >
+                  Login
+                </button>
+              </form>
+
+              <div class="login-info">
+                <p><strong>Default Login:</strong></p>
+                <p>Username: admin</p>
+                <p>Password: admin123</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Florist Kiosk. Admin Panel.</p>
+      </footer>
+    </div>
+
+    <!-- Success notification -->
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        setupLoginForm();
+      });
+
+      function setupLoginForm() {
+        const loginForm = document.getElementById("login-form");
+        const loginBtn = document.getElementById("login-btn");
+
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value;
+
+          if (!username || !password) {
+            showNotification("Mohon isi username dan password", "error");
+            return;
+          }
+
+          try {
+            // Set button loading state
+            loginBtn.textContent = "Memproses...";
+            loginBtn.disabled = true;
+
+            const result = await window.electronAPI.adminLogin(
+              username,
+              password
+            );
+
+            if (result.success) {
+              // Store admin session
+              localStorage.setItem(
+                "adminSession",
+                JSON.stringify({
+                  admin: result.admin,
+                  loginTime: new Date().toISOString(),
+                })
+              );
+
+              showNotification("Login berhasil! Mengalihkan...", "success");
+
+              // Redirect to admin dashboard
+              setTimeout(() => {
+                window.electronAPI.navigateTo("admin-dashboard.html");
+              }, 1500);
+            } else {
+              showNotification(result.message || "Login gagal", "error");
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            showNotification("Terjadi kesalahan sistem", "error");
+          } finally {
+            loginBtn.textContent = "Login";
+            loginBtn.disabled = false;
+          }
+        });
+
+        // Auto-focus on username field
+        document.getElementById("username").focus();
+
+        // Enter key to move between fields
+        document
+          .getElementById("username")
+          .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              document.getElementById("password").focus();
+            }
+          });
+      }
+
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        const notificationText = document.getElementById("notification-text");
+
+        notificationText.textContent = message;
+        notification.className = `notification show ${type}`;
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+
+      // Close notification
+      document
+        .getElementById("notification-close")
+        .addEventListener("click", () => {
+          document.getElementById("notification").classList.remove("show");
+        });
+    </script>
+  </body>
+</html>

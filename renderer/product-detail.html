@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detail Produk - Florist Kiosk</title>
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .product-detail {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+      .detail-image {
+        flex: 1 1 320px;
+      }
+      .detail-image img {
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+      .detail-info {
+        flex: 1 1 360px;
+      }
+      .detail-price {
+        font-size: 1.4rem;
+        color: #d35400;
+        margin: 0.5rem 0 1rem;
+      }
+      .detail-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .back-link {
+        text-decoration: none;
+        color: #3498db;
+        font-size: 0.9rem;
+      }
+      .description {
+        margin-top: 1rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+      .skeleton {
+        background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+        border-radius: 6px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      .skeleton.text {
+        height: 14px;
+        margin: 6px 0;
+      }
+      .skeleton.img {
+        width: 100%;
+        height: 260px;
+      }
+    </style>
+  </head>
+  <body
+    class="kiosk-mode bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
+  >
+    <div class="container">
+      <header class="relative">
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
+        >
+          🌸 Florist Kiosk
+        </h1>
+        <nav class="items-center">
+          <a href="index.html" class="nav-link">Katalog</a>
+          <a href="cart.html" class="nav-link">Keranjang</a>
+          <a href="admin-login.html" class="nav-link admin-link">🔐 Admin</a>
+        </nav>
+      </header>
+
+      <main class="animate-fade-in">
+        <a href="index.html" class="back-link">← Kembali ke Katalog</a>
+        <section id="detail-section">
+          <div id="loading" class="product-detail">
+            <div class="detail-image skeleton img"></div>
+            <div class="detail-info" style="flex: 1">
+              <div class="skeleton text" style="width: 60%"></div>
+              <div class="skeleton text" style="width: 30%; height: 22px"></div>
+              <div class="skeleton text" style="width: 90%"></div>
+              <div class="skeleton text" style="width: 85%"></div>
+              <div class="skeleton text" style="width: 80%"></div>
+            </div>
+          </div>
+          <div
+            id="product-detail"
+            class="product-detail"
+            style="display: none"
+          ></div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Florist Kiosk. Detail Produk.</p>
+      </footer>
+    </div>
+
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const productId = parseInt(params.get("id"), 10);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!productId) {
+          showNotification("Produk tidak ditemukan", "error");
+          document.getElementById("detail-section").innerHTML =
+            "<p>Produk tidak valid.</p>";
+          return;
+        }
+        loadProduct();
+      });
+
+      async function loadProduct() {
+        try {
+          const product = await window.electronAPI.getProduct(productId);
+          if (!product) {
+            document.getElementById("detail-section").innerHTML =
+              "<p>Produk tidak ditemukan.</p>";
+            return;
+          }
+          renderProduct(product);
+        } catch (err) {
+          console.error("Gagal memuat produk", err);
+          showNotification("Gagal memuat detail produk", "error");
+        }
+      }
+
+      function renderProduct(product) {
+        document.getElementById("loading").style.display = "none";
+        const container = document.getElementById("product-detail");
+        container.style.display = "flex";
+        const safeDesc =
+          product.description || "Belum ada deskripsi untuk produk ini.";
+        container.innerHTML = `
+        <div class="detail-image">
+          <img src="${
+            product.image ||
+            "https://via.placeholder.com/300x200/e0e0e0/666?text=No+Image"
+          }" 
+               alt="${product.name}" 
+               onerror="this.src='https://via.placeholder.com/300x200/e0e0e0/666?text=No+Image'"/>
+        </div>
+        <div class="detail-info">
+          <h2>${product.name}</h2>
+          <div class="detail-price">${window.electronAPI.formatCurrency(
+            product.price
+          )}</div>
+          <div class="description">${escapeHtml(safeDesc)}</div>
+          <div class="detail-actions flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-primary" id="add-cart-btn">Tambah ke Keranjang</button>
+            <button class="btn btn-secondary" id="back-btn">Kembali</button>
+          </div>
+        </div>`;
+        document
+          .getElementById("add-cart-btn")
+          .addEventListener("click", () => addToCart(product));
+        document
+          .getElementById("back-btn")
+          .addEventListener("click", () =>
+            window.electronAPI.navigateTo("index.html")
+          );
+      }
+
+      async function addToCart(product) {
+        try {
+          const result = await window.electronAPI.addToCart(product.id, 1);
+          if (result) {
+            showNotification(
+              `${product.name} ditambahkan ke keranjang`,
+              "success"
+            );
+          } else {
+            showNotification("Gagal menambahkan ke keranjang", "error");
+          }
+        } catch (err) {
+          console.error("Add to cart error", err);
+          showNotification("Terjadi kesalahan", "error");
+        }
+      }
+
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>"] /g,
+          (c) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] || c)
+        );
+      }
+
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        const notificationText = document.getElementById("notification-text");
+        notificationText.textContent = message;
+        notification.className = `notification show ${type}`;
+        setTimeout(() => notification.classList.remove("show"), 3000);
+      }
+
+      document
+        .getElementById("notification-close")
+        .addEventListener("click", () => {
+          document.getElementById("notification").classList.remove("show");
+        });
+    </script>
+  </body>
+</html>

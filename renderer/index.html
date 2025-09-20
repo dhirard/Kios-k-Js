@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Florist Kiosk - Katalog Produk</title>
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="kiosk-mode bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
+  >
+    <div class="container shadow-xl/30">
+      <header class="relative floral-header">
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm logo-title"
+        >
+          🌷 Florist Kiosk
+        </h1>
+        <nav class="items-center">
+          <a
+            href="index.html"
+            class="nav-link active"
+            onclick="navigateToPage('index.html'); return false;"
+            >Katalog</a
+          >
+          <a
+            href="cart.html"
+            class="nav-link"
+            onclick="navigateToPage('cart.html'); return false;"
+            >Keranjang <span id="cart-count" class="cart-badge">0</span></a
+          >
+          <a
+            href="admin-login.html"
+            class="nav-link admin-link"
+            onclick="navigateToPage('admin-login.html'); return false;"
+            >🔐 Admin</a
+          >
+        </nav>
+      </header>
+
+      <main class="animate-fade-in shop-layout">
+        <!-- Left: Product browsing -->
+        <div class="catalog-column">
+          <section class="hero hero-compact">
+            <div class="hero-banner">
+              <div class="hero-text">
+                <h2 class="store-name">Toko Bunga Segar</h2>
+                <p class="tagline">
+                  Buket & rangkaian indah untuk setiap momen
+                </p>
+                <div class="store-stats">
+                  <div class="stat">
+                    <span id="total-items-stat">0</span><label>Item</label>
+                  </div>
+                  <div class="stat">
+                    <span id="total-categories-stat">0</span
+                    ><label>Kategori</label>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-art" aria-hidden="true"></div>
+            </div>
+          </section>
+
+          <!-- Category chips -->
+          <section
+            class="category-strip"
+            id="category-strip"
+            aria-label="Kategori produk"
+          >
+            <!-- Populated by JS -->
+          </section>
+
+          <!-- Occasion chips -->
+          <section
+            class="category-strip"
+            id="occasion-strip"
+            aria-label="Occasion / Acara"
+          >
+            <!-- Populated by JS -->
+          </section>
+
+          <!-- Text & Price Filters -->
+          <section
+            id="filter-bar"
+            aria-label="Filter tambahan"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.6rem;
+              align-items: center;
+              margin: 0.2rem 0 1rem;
+            "
+          >
+            <div style="flex: 1 1 260px; min-width: 220px">
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Cari produk (nama/deskipsi)..."
+                aria-label="Cari produk"
+              />
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center">
+              <input
+                type="number"
+                id="min-price"
+                placeholder="Min harga"
+                min="0"
+                step="1000"
+                style="width: 140px"
+                aria-label="Harga minimum"
+              />
+              <span style="color: #6e5a67">–</span>
+              <input
+                type="number"
+                id="max-price"
+                placeholder="Max harga"
+                min="0"
+                step="1000"
+                style="width: 140px"
+                aria-label="Harga maksimum"
+              />
+            </div>
+            <button
+              id="clear-price"
+              class="btn btn-secondary btn-small"
+              type="button"
+              aria-label="Reset filter"
+            >
+              Reset
+            </button>
+          </section>
+
+          <section class="products" aria-live="polite">
+            <h3 class="section-title" id="category-title">Semua Produk</h3>
+            <div class="loading" id="loading">
+              <div class="spinner"></div>
+              <p>Memuat produk...</p>
+            </div>
+            <div class="products-grid floral-grid" id="products-grid"></div>
+          </section>
+        </div>
+
+        <!-- Right: Cart sidebar -->
+        <aside
+          class="cart-panel"
+          id="cart-panel"
+          aria-label="Keranjang belanja"
+        >
+          <div class="cart-panel-header">
+            <div class="panel-title">Keranjang Anda</div>
+            <button
+              class="cart-edit-btn"
+              id="refresh-cart"
+              title="Segarkan keranjang"
+            >
+              ⟳
+            </button>
+          </div>
+          <div class="cart-items-panel" id="cart-items-panel">
+            <div class="cart-empty">Keranjang kosong</div>
+          </div>
+          <div class="cart-summary-panel" id="cart-summary-panel">
+            <div class="summary-row total">
+              <span>Total</span><span id="cart-total">Rp 0</span>
+            </div>
+            <button class="pay-btn" id="pay-btn" disabled>Bayar</button>
+            <button class="view-cart-link" id="full-cart-link">
+              Lihat Halaman Keranjang →
+            </button>
+          </div>
+        </aside>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Florist Kiosk. Bunga segar setiap hari.</p>
+      </footer>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="modal" aria-hidden="true">
+      <div class="modal-content" style="max-width: 720px; position: relative">
+        <button
+          id="product-modal-close"
+          aria-label="Tutup"
+          style="
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #666;
+          "
+        >
+          ×
+        </button>
+        <div
+          id="product-modal-body"
+          style="display: flex; gap: 1rem; align-items: stretch"
+        >
+          <div
+            style="
+              flex: 0 0 280px;
+              max-width: 280px;
+              border-radius: 14px;
+              overflow: hidden;
+              background: #f7f7f7;
+            "
+          >
+            <img
+              id="pm-image"
+              src=""
+              alt=""
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                max-height: 320px;
+              "
+              onerror="this.src='https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image'"
+            />
+          </div>
+          <div style="flex: 1 1 auto; min-width: 0">
+            <h3
+              id="pm-name"
+              style="margin: 0 0 0.4rem; font-size: 1.35rem"
+            ></h3>
+            <div
+              id="pm-meta"
+              style="color: #6e5a67; font-size: 0.9rem; margin-bottom: 0.6rem"
+            ></div>
+            <div
+              id="pm-price"
+              style="font-weight: 700; color: #ff2f92; margin-bottom: 0.6rem"
+            ></div>
+            <p
+              id="pm-desc"
+              style="
+                white-space: pre-wrap;
+                line-height: 1.35;
+                margin-bottom: 1rem;
+                color: #513743;
+              "
+            ></p>
+            <div style="display: flex; gap: 0.5rem; align-items: center">
+              <button id="pm-dec" class="qty-btn mini" aria-label="Kurangi">
+                -
+              </button>
+              <span
+                id="pm-qty"
+                style="min-width: 24px; text-align: center; font-weight: 600"
+                >1</span
+              >
+              <button id="pm-inc" class="qty-btn mini" aria-label="Tambah">
+                +
+              </button>
+              <button
+                id="pm-add"
+                class="btn-primary btn-small"
+                style="margin-left: 0.6rem"
+              >
+                + Tambah ke Keranjang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script>
+      /* ==============================
+         PRODUK & UI FLORAL POS LAYOUT
+         ============================== */
+      // Pajak dihapus: semua total = subtotal saja
+
+      // Dynamic filters from DB
+      let DB_CATEGORIES = [];
+      let DB_OCCASIONS = [];
+
+      let allProducts = [];
+      // Active selections: null means "Semua"
+      let activeCategoryId = null; // number | null
+      let activeOccasionId = null; // number | null
+      let searchQuery = ""; // lowercase string
+      let minPriceFilter = null; // number | null
+      let maxPriceFilter = null; // number | null
+      let modalQty = 1; // quantity for modal add-to-cart
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadFilters();
+        await loadProducts();
+        await refreshCart();
+        document
+          .getElementById("refresh-cart")
+          .addEventListener("click", refreshCart);
+        document.getElementById("pay-btn").addEventListener("click", () => {
+          window.electronAPI.navigateTo("checkout.html");
+        });
+        document
+          .getElementById("full-cart-link")
+          .addEventListener("click", () =>
+            window.electronAPI.navigateTo("cart.html")
+          );
+
+        // Wire filter inputs
+        const searchEl = document.getElementById("search-input");
+        const minEl = document.getElementById("min-price");
+        const maxEl = document.getElementById("max-price");
+        const clearBtn = document.getElementById("clear-price");
+        const doFilter = () => filterAndRenderProducts();
+        const debouncedFilter =
+          typeof debounce === "function" ? debounce(doFilter, 250) : doFilter;
+
+        if (searchEl) {
+          searchEl.addEventListener("input", () => {
+            searchQuery = (searchEl.value || "").toLowerCase().trim();
+            debouncedFilter();
+          });
+        }
+        function parseNum(v) {
+          const n = Number(v);
+          return Number.isFinite(n) && n >= 0 ? n : null;
+        }
+        function updatePriceFilters() {
+          minPriceFilter = parseNum(minEl && minEl.value);
+          maxPriceFilter = parseNum(maxEl && maxEl.value);
+          doFilter();
+        }
+        if (minEl) minEl.addEventListener("input", updatePriceFilters);
+        if (maxEl) maxEl.addEventListener("input", updatePriceFilters);
+        if (clearBtn)
+          clearBtn.addEventListener("click", () => {
+            if (searchEl) searchEl.value = "";
+            if (minEl) minEl.value = "";
+            if (maxEl) maxEl.value = "";
+            searchQuery = "";
+            minPriceFilter = null;
+            maxPriceFilter = null;
+            doFilter();
+          });
+      });
+
+      async function loadFilters() {
+        try {
+          const [cats, occs] = await Promise.all([
+            window.electronAPI.getCategories().catch(() => []),
+            window.electronAPI.getOccasions().catch(() => []),
+          ]);
+          DB_CATEGORIES = Array.isArray(cats) ? cats : [];
+          DB_OCCASIONS = Array.isArray(occs) ? occs : [];
+          renderCategoryStrip(DB_CATEGORIES);
+          renderOccasionStrip(DB_OCCASIONS);
+          const catStat = document.getElementById("total-categories-stat");
+          if (catStat) catStat.textContent = DB_CATEGORIES.length;
+        } catch (err) {
+          console.warn("loadFilters error", err);
+          renderCategoryStrip([]);
+          renderOccasionStrip([]);
+        }
+      }
+
+      function renderCategoryStrip(categories) {
+        const wrap = document.getElementById("category-strip");
+        if (!wrap) return;
+        const chips = [
+          { id: "all", name: "Semua", icon: "🌼" },
+          ...categories.map((c) => ({
+            id: String(c.id),
+            name: c.name,
+            icon: "🏷️",
+          })),
+        ];
+        wrap.innerHTML = chips
+          .map(
+            (cat, idx) => `
+          <button class="cat-chip${idx === 0 ? " active" : ""}" data-id="${
+              cat.id
+            }" data-group="category" aria-pressed="${idx === 0}">
+            <span class="icon">${cat.icon}</span>
+            <span class="label">${escapeHtml(cat.name)}</span>
+          </button>`
+          )
+          .join("");
+        // default selection
+        activeCategoryId = null; // "Semua"
+        wrap.addEventListener("click", (e) => {
+          const btn = e.target.closest('.cat-chip[data-group="category"]');
+          if (!btn) return;
+          const id = btn.dataset.id;
+          activeCategoryId = id === "all" ? null : parseInt(id, 10);
+          for (const b of wrap.querySelectorAll(".cat-chip")) {
+            b.classList.toggle("active", b === btn);
+            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+          }
+          filterAndRenderProducts();
+        });
+      }
+
+      function renderOccasionStrip(occasions) {
+        const wrap = document.getElementById("occasion-strip");
+        if (!wrap) return;
+        const chips = [
+          { id: "all", name: "Semua Occasion", icon: "🗂️" },
+          ...occasions.map((o) => ({
+            id: String(o.id),
+            name: o.name,
+            icon: "🎉",
+          })),
+        ];
+        wrap.innerHTML = chips
+          .map(
+            (occ, idx) => `
+          <button class="cat-chip${idx === 0 ? " active" : ""}" data-id="${
+              occ.id
+            }" data-group="occasion" aria-pressed="${idx === 0}">
+            <span class="icon">${occ.icon}</span>
+            <span class="label">${escapeHtml(occ.name)}</span>
+          </button>`
+          )
+          .join("");
+        // default selection
+        activeOccasionId = null; // "Semua"
+        wrap.addEventListener("click", (e) => {
+          const btn = e.target.closest('.cat-chip[data-group="occasion"]');
+          if (!btn) return;
+          const id = btn.dataset.id;
+          activeOccasionId = id === "all" ? null : parseInt(id, 10);
+          for (const b of wrap.querySelectorAll(".cat-chip")) {
+            b.classList.toggle("active", b === btn);
+            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+          }
+          filterAndRenderProducts();
+        });
+      }
+
+      async function loadProducts() {
+        const loading = document.getElementById("loading");
+        const grid = document.getElementById("products-grid");
+        try {
+          loading.style.display = "flex";
+          allProducts = await window.electronAPI.getProducts();
+          document.getElementById("total-items-stat").textContent =
+            allProducts.length;
+          filterAndRenderProducts();
+        } catch (err) {
+          console.error("Error loadProducts", err);
+          grid.innerHTML = '<div class="error">Gagal memuat produk</div>';
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      function categoryFilterFn(product) {
+        // Filter by selected category and occasion (AND logic)
+        const catOk =
+          activeCategoryId == null ||
+          String(product.category_id) === String(activeCategoryId);
+        const occOk =
+          activeOccasionId == null ||
+          String(product.occasion_id) === String(activeOccasionId);
+        return catOk && occOk;
+      }
+
+      function textAndPriceFilterFn(product) {
+        const name = (product.name || "").toLowerCase();
+        const desc = (product.description || "").toLowerCase();
+        const matchesText =
+          !searchQuery ||
+          name.includes(searchQuery) ||
+          desc.includes(searchQuery);
+
+        const price = Number(product.price) || 0;
+        let min = minPriceFilter;
+        let max = maxPriceFilter;
+        if (min != null && max != null && min > max) {
+          // auto-swap for user convenience
+          const t = min;
+          min = max;
+          max = t;
+        }
+        const geMin = min == null || price >= min;
+        const leMax = max == null || price <= max;
+        const matchesPrice = geMin && leMax;
+        return matchesText && matchesPrice;
+      }
+
+      function filterAndRenderProducts() {
+        const grid = document.getElementById("products-grid");
+        const filtered = allProducts.filter(
+          (p) => categoryFilterFn(p) && textAndPriceFilterFn(p)
+        );
+        updateSectionTitle();
+        if (!filtered.length) {
+          grid.innerHTML =
+            '<div class="no-products">Tidak ada produk sesuai filter</div>';
+          return;
+        }
+        grid.innerHTML = filtered.map(renderProductCard).join("");
+      }
+
+      function updateSectionTitle() {
+        const titleEl = document.getElementById("category-title");
+        if (!titleEl) return;
+        const catName = (() => {
+          if (activeCategoryId == null) return null;
+          const c = DB_CATEGORIES.find(
+            (c) => String(c.id) === String(activeCategoryId)
+          );
+          return c ? c.name : null;
+        })();
+        const occName = (() => {
+          if (activeOccasionId == null) return null;
+          const o = DB_OCCASIONS.find(
+            (o) => String(o.id) === String(activeOccasionId)
+          );
+          return o ? o.name : null;
+        })();
+        if (!catName && !occName) {
+          titleEl.textContent = "Semua Produk";
+        } else {
+          const parts = [];
+          if (catName) parts.push(`Kategori: ${catName}`);
+          if (occName) parts.push(`Occasion: ${occName}`);
+          titleEl.textContent = parts.join(" · ");
+        }
+      }
+
+      function renderProductCard(product) {
+        const safeName = escapeHtml(product.name || "Produk");
+        const price = window.electronAPI.formatCurrency(product.price || 0);
+        const img =
+          product.image ||
+          "https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image";
+        return `<div class="floral-card" data-id="${product.id}" tabindex="0">
+          <div class="floral-thumb"><img src="${img}" alt="${safeName}" onerror="this.src='https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image'" /></div>
+          <div class="floral-info">
+            <h3 class="floral-name">${safeName}</h3>
+            <p class="floral-desc line-clamp">${escapeHtml(
+              product.description || " "
+            )}</p>
+            <div class="floral-meta">
+              <span class="price">${price}</span>
+              <button class="add-circle" data-add="${
+                product.id
+              }" aria-label="Tambah ${safeName}">+</button>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      // Event delegation for product actions
+      document.addEventListener("click", (e) => {
+        const addBtn = e.target.closest(".add-circle");
+        const card = e.target.closest(".floral-card");
+        if (addBtn) {
+          e.stopPropagation();
+          const id = parseInt(addBtn.dataset.add, 10);
+          const product = allProducts.find((p) => p.id === id);
+          if (product) addToCart(product);
+          return;
+        }
+        if (card) {
+          openProductDetail(card.dataset.id);
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target.classList.contains("floral-card")
+        ) {
+          e.preventDefault();
+          openProductDetail(e.target.dataset.id);
+        }
+      });
+
+      async function addToCart(product, quantity = 1) {
+        try {
+          const qty = Math.max(1, parseInt(quantity || 1, 10));
+          const res = await window.electronAPI.addToCart(product.id, qty);
+          if (res) {
+            showNotification(`${product.name} ditambahkan`, "success");
+            await refreshCart();
+          } else {
+            showNotification("Gagal menambahkan produk", "error");
+          }
+        } catch (err) {
+          console.error("addToCart error", err);
+          showNotification("Terjadi kesalahan", "error");
+        }
+      }
+
+      async function refreshCart() {
+        try {
+          const items = await window.electronAPI.getCartItems();
+          const badge = document.getElementById("cart-count");
+          const count = items.reduce((s, i) => s + i.quantity, 0);
+          if (badge) badge.textContent = count;
+          renderCartPanel(items);
+        } catch (err) {
+          console.error("refreshCart error", err);
+        }
+      }
+
+      function renderCartPanel(items) {
+        const list = document.getElementById("cart-items-panel");
+        if (!items.length) {
+          list.innerHTML = '<div class="cart-empty">Keranjang kosong</div>';
+          document.getElementById("pay-btn").disabled = true;
+          document.getElementById("cart-total").textContent = "Rp 0";
+          return;
+        }
+        list.innerHTML = items
+          .map(
+            (item) => `
+          <div class="cart-line" data-cart-id="${item.cart_id}">
+            <div class="thumb"><img src="${
+              item.image ||
+              "https://via.placeholder.com/60x60/e0e0e0/666?text=No+Image"
+            }" alt="${escapeHtml(item.name)}" /></div>
+            <div class="info">
+              <h4>${escapeHtml(item.name)}</h4>
+              <div class="price-line">${window.electronAPI.formatCurrency(
+                item.price
+              )}</div>
+            </div>
+            <div class="qty">
+              <button class="qty-btn mini" data-dec="${
+                item.cart_id
+              }" aria-label="Kurangi">-</button>
+              <span class="q">${item.quantity}</span>
+              <button class="qty-btn mini" data-inc="${
+                item.cart_id
+              }" aria-label="Tambah">+</button>
+            </div>
+            <div class="line-sub">${window.electronAPI.formatCurrency(
+              item.subtotal
+            )}</div>
+            <button class="remove-line" data-remove="${
+              item.cart_id
+            }" aria-label="Hapus">×</button>
+          </div>`
+          )
+          .join("");
+        const subtotal = items.reduce((s, i) => s + (i.subtotal || 0), 0);
+        document.getElementById("cart-total").textContent =
+          window.electronAPI.formatCurrency(subtotal);
+        document.getElementById("pay-btn").disabled = false;
+      }
+
+      // Cart quantity & remove handlers
+      document.addEventListener("click", async (e) => {
+        const dec = e.target.closest("[data-dec]");
+        const inc = e.target.closest("[data-inc]");
+        const rem = e.target.closest("[data-remove]");
+        if (dec || inc || rem) e.stopPropagation();
+        try {
+          if (dec) {
+            const id = parseInt(dec.dataset.dec, 10);
+            await adjustCartQuantity(id, -1);
+          } else if (inc) {
+            const id = parseInt(inc.dataset.inc, 10);
+            await adjustCartQuantity(id, 1);
+          } else if (rem) {
+            const id = parseInt(rem.dataset.remove, 10);
+            await window.electronAPI.removeFromCart(id);
+            await refreshCart();
+          }
+        } catch (err) {
+          console.error("cart adjust error", err);
+        }
+      });
+
+      async function adjustCartQuantity(cartId, delta) {
+        // Need current quantity from DOM
+        const line = document.querySelector(
+          `.cart-line[data-cart-id="${cartId}"]`
+        );
+        if (!line) return;
+        const current = parseInt(line.querySelector(".q").textContent, 10) || 1;
+        const next = current + delta;
+        if (next <= 0) {
+          await window.electronAPI.removeFromCart(cartId);
+        } else {
+          await window.electronAPI.updateCartItem(cartId, next);
+        }
+        await refreshCart();
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(
+          /[&"'<>]/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c])
+        );
+      }
+
+      // PRODUCT DETAIL MODAL
+      function showProductModal(product) {
+        const modal = document.getElementById("product-modal");
+        const nameEl = document.getElementById("pm-name");
+        const priceEl = document.getElementById("pm-price");
+        const descEl = document.getElementById("pm-desc");
+        const imgEl = document.getElementById("pm-image");
+        const metaEl = document.getElementById("pm-meta");
+        const qtyEl = document.getElementById("pm-qty");
+        const decBtn = document.getElementById("pm-dec");
+        const incBtn = document.getElementById("pm-inc");
+        const addBtn = document.getElementById("pm-add");
+        if (!modal || !nameEl || !priceEl || !descEl || !imgEl || !metaEl)
+          return;
+        nameEl.textContent = product.name || "Produk";
+        priceEl.textContent = window.electronAPI.formatCurrency(
+          product.price || 0
+        );
+        descEl.textContent = product.description || "";
+        imgEl.src =
+          product.image ||
+          "https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image";
+        imgEl.alt = product.name || "Produk";
+        const tags = [];
+        if (product.category_name)
+          tags.push(`Kategori: ${escapeHtml(product.category_name)}`);
+        if (product.occasion_name)
+          tags.push(`Occasion: ${escapeHtml(product.occasion_name)}`);
+        metaEl.innerHTML = tags.join(" · ");
+        modalQty = 1;
+        if (qtyEl) qtyEl.textContent = String(modalQty);
+        if (decBtn) {
+          decBtn.onclick = () => {
+            modalQty = Math.max(1, modalQty - 1);
+            qtyEl.textContent = String(modalQty);
+          };
+        }
+        if (incBtn) {
+          incBtn.onclick = () => {
+            modalQty = modalQty + 1;
+            qtyEl.textContent = String(modalQty);
+          };
+        }
+        if (addBtn) {
+          addBtn.onclick = async () => {
+            await addToCart(product, modalQty);
+            hideProductModal();
+          };
+        }
+        const closeBtn = document.getElementById("product-modal-close");
+        if (closeBtn) closeBtn.onclick = hideProductModal;
+        modal.style.display = "flex";
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+      }
+
+      function hideProductModal() {
+        const modal = document.getElementById("product-modal");
+        if (modal) {
+          modal.style.display = "none";
+          modal.setAttribute("aria-hidden", "true");
+        }
+        document.body.classList.remove("modal-open");
+      }
+
+      // Close modal if click outside
+      document.addEventListener("click", (e) => {
+        const modal = document.getElementById("product-modal");
+        if (!modal) return;
+        if (e.target === modal) hideProductModal();
+      });
+
+      window.openProductDetail = function (id) {
+        const product = allProducts.find((p) => String(p.id) === String(id));
+        if (product) {
+          showProductModal(product);
+        }
+      };
+    </script>
+  </body>
+</html>

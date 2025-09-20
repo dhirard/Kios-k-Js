@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - Florist Kiosk</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🌸 Florist Kiosk</h1>
+        <nav>
+          <a href="index.html" class="nav-link">Katalog</a>
+          <a href="cart.html" class="nav-link">Keranjang</a>
+          <span class="nav-link active">Checkout</span>
+          <a href="admin-login.html" class="nav-link admin-link"> 🔐 Admin </a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="checkout-section">
+          <h2>Konfirmasi Pesanan</h2>
+
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Memuat pesanan...</p>
+          </div>
+
+          <div id="checkout-content" style="display: none">
+            <div class="checkout-container">
+              <div class="order-summary">
+                <h3>Ringkasan Pesanan</h3>
+                <div class="order-items" id="order-items">
+                  <!-- Order items will be loaded here -->
+                </div>
+
+                <div class="order-total">
+                  <div class="total-row">
+                    <span>Total Item:</span>
+                    <span id="total-items">0</span>
+                  </div>
+                  <div class="total-row grand-total">
+                    <span>Total Pembayaran:</span>
+                    <span id="total-amount">Rp 0</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="payment-section">
+                <h3>Metode Pembayaran</h3>
+                <div class="payment-methods">
+                  <label class="payment-option">
+                    <input type="radio" name="payment" value="cash" checked />
+                    <span class="payment-label">💵 Tunai</span>
+                  </label>
+                  <label class="payment-option">
+                    <input type="radio" name="payment" value="card" />
+                    <span class="payment-label">💳 Kartu Debit/Kredit</span>
+                  </label>
+                  <label class="payment-option">
+                    <input type="radio" name="payment" value="qris" />
+                    <span class="payment-label">📱 QRIS</span>
+                  </label>
+                </div>
+
+                <div class="checkout-actions">
+                  <button class="btn-secondary btn-large" onclick="goBack()">
+                    ← Kembali ke Keranjang
+                  </button>
+                  <button
+                    class="btn-primary btn-large"
+                    id="confirm-payment-btn"
+                  >
+                    Konfirmasi Pembayaran
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-checkout" id="empty-checkout" style="display: none">
+            <div class="empty-icon">🛒</div>
+            <h3>Tidak Ada Pesanan</h3>
+            <p>Keranjang Anda kosong. Silakan tambah produk terlebih dahulu.</p>
+            <a href="index.html" class="btn-primary">Mulai Belanja</a>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Florist Kiosk. Bunga segar setiap hari.</p>
+      </footer>
+    </div>
+
+    <!-- Success modal -->
+    <div id="success-modal" class="modal">
+      <div class="modal-content success-content">
+        <div class="success-icon">✅</div>
+        <h3>Pembayaran Berhasil!</h3>
+        <p>Terima kasih atas pembelian Anda.</p>
+        <div class="order-info">
+          <p><strong>ID Pesanan:</strong> <span id="order-id"></span></p>
+          <p>
+            <strong>Total Pembayaran:</strong> <span id="final-amount"></span>
+          </p>
+          <p><strong>Waktu:</strong> <span id="order-time"></span></p>
+        </div>
+        <div class="modal-actions">
+          <button id="manual-print-btn" class="btn btn-secondary">
+            🖨️ Print Manual
+          </button>
+          <button id="hybrid-print-btn" class="btn btn-secondary">
+            🔄 Print Hybrid
+          </button>
+          <button id="new-order-btn" class="btn-primary">Pesanan Baru</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading modal -->
+    <div id="processing-modal" class="modal">
+      <div class="modal-content">
+        <div class="spinner"></div>
+        <h3>Memproses Pembayaran...</h3>
+        <p>Mohon tunggu sebentar</p>
+      </div>
+    </div>
+
+    <!-- Success notification -->
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script>
+      let cartItems = [];
+      let totalAmount = 0;
+
+      // Initialize the checkout page
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadCheckoutData();
+        setupEventListeners();
+      });
+
+      async function loadCheckoutData() {
+        const loading = document.getElementById("loading");
+        const checkoutContent = document.getElementById("checkout-content");
+        const emptyCheckout = document.getElementById("empty-checkout");
+
+        try {
+          loading.style.display = "flex";
+          cartItems = await window.electronAPI.getCartItems();
+
+          if (cartItems.length === 0) {
+            checkoutContent.style.display = "none";
+            emptyCheckout.style.display = "block";
+          } else {
+            renderOrderSummary();
+            checkoutContent.style.display = "block";
+            emptyCheckout.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error loading checkout data:", error);
+          showNotification("Gagal memuat data pesanan", "error");
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      function renderOrderSummary() {
+        const orderItemsContainer = document.getElementById("order-items");
+
+        orderItemsContainer.innerHTML = cartItems
+          .map(
+            (item) => `
+                <div class="order-item">
+                    <div class="item-image">
+                        <img src="${
+                          item.image ||
+                          "https://via.placeholder.com/60x60/e0e0e0/666?text=No+Image"
+                        }" 
+                             alt="${item.name}"
+                             onerror="this.src='https://via.placeholder.com/60x60/e0e0e0/666?text=No+Image'">
+                    </div>
+                    <div class="item-details">
+                        <h4>${item.name}</h4>
+                        <p>${window.electronAPI.formatCurrency(item.price)} × ${
+              item.quantity
+            }</p>
+                    </div>
+                    <div class="item-total">
+                        ${window.electronAPI.formatCurrency(item.subtotal)}
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+
+        // Calculate totals
+        const totalItems = cartItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        totalAmount = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+        document.getElementById("total-items").textContent = totalItems;
+        document.getElementById("total-amount").textContent =
+          window.electronAPI.formatCurrency(totalAmount);
+      }
+
+      function setupEventListeners() {
+        // Confirm payment button
+        document
+          .getElementById("confirm-payment-btn")
+          .addEventListener("click", async () => {
+            await processPayment();
+          });
+
+        // New order button in success modal
+        document
+          .getElementById("new-order-btn")
+          .addEventListener("click", () => {
+            window.electronAPI.navigateTo("index.html");
+          });
+
+        // Close notification
+        document
+          .getElementById("notification-close")
+          .addEventListener("click", () => {
+            document.getElementById("notification").classList.remove("show");
+          });
+      }
+
+      async function processPayment() {
+        const processingModal = document.getElementById("processing-modal");
+        const successModal = document.getElementById("success-modal");
+
+        try {
+          // Show processing modal
+          processingModal.style.display = "flex";
+
+          // Get selected payment method
+          const selectedPayment = document.querySelector(
+            'input[name="payment"]:checked'
+          ).value;
+
+          // Simulate payment processing delay
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+
+          // Process checkout
+          const orderId = await window.electronAPI.checkout(totalAmount);
+
+          if (orderId) {
+            // Hide processing modal
+            processingModal.style.display = "none";
+
+            // Show success modal
+            document.getElementById("order-id").textContent = `#${orderId
+              .toString()
+              .padStart(6, "0")}`;
+            document.getElementById("final-amount").textContent =
+              window.electronAPI.formatCurrency(totalAmount);
+            document.getElementById("order-time").textContent =
+              new Date().toLocaleString("id-ID");
+
+            successModal.style.display = "flex";
+
+            // Try to auto-print receipt
+            try {
+              console.log("🖨️ Attempting auto print...");
+              const payload = {
+                orderId,
+                total: totalAmount,
+                items: cartItems.map((it) => ({
+                  name: it.name,
+                  quantity: it.quantity,
+                  price: it.price,
+                })),
+                businessName: "Florist Kiosk",
+                address: "Toko Bunga Segar",
+                notes: "Terima kasih atas kunjungan Anda",
+              };
+
+              const printRes = await window.electronAPI.printReceipt(payload);
+              console.log("🖨️ Print receipt result:", printRes);
+
+              if (printRes.success) {
+                console.log(
+                  "✅ Receipt printed successfully to:",
+                  printRes.device || "default printer"
+                );
+                showNotification("Struk berhasil dicetak", "success");
+              } else {
+                console.warn(
+                  "⚠️ Auto print failed:",
+                  printRes.failureReason || printRes.message
+                );
+                // Try to show available printers for troubleshooting
+                const printers = await window.electronAPI.getPrinters();
+                console.log(
+                  "📋 Available printers:",
+                  printers.map((p) => p.name)
+                );
+
+                // Show notification but don't block the success flow
+                showNotification(
+                  "Checkout berhasil, namun gagal mencetak struk otomatis",
+                  "warning"
+                );
+              }
+            } catch (e) {
+              console.warn("❌ Auto print error:", e);
+              showNotification(
+                "Checkout berhasil, struk dapat dicetak manual",
+                "info"
+              );
+            }
+          } else {
+            throw new Error("Checkout failed");
+          }
+        } catch (error) {
+          console.error("Error processing payment:", error);
+          processingModal.style.display = "none";
+          showNotification(
+            "Gagal memproses pembayaran. Silakan coba lagi.",
+            "error"
+          );
+        }
+      }
+
+      function goBack() {
+        window.electronAPI.navigateTo("cart.html");
+      }
+
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        const notificationText = document.getElementById("notification-text");
+
+        notificationText.textContent = message;
+        notification.className = `notification show ${type}`;
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+
+      // Close modals when clicking outside
+      document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("modal")) {
+          if (e.target.id === "success-modal") {
+            // Don't allow closing success modal by clicking outside
+            return;
+          }
+          e.target.style.display = "none";
+        }
+
+        // Handle navigation links
+        if (
+          e.target.matches('a[href="index.html"]') ||
+          e.target.closest('a[href="index.html"]')
+        ) {
+          e.preventDefault();
+          window.electronAPI.navigateTo("index.html");
+        } else if (
+          e.target.matches('a[href="cart.html"]') ||
+          e.target.closest('a[href="cart.html"]')
+        ) {
+          e.preventDefault();
+          window.electronAPI.navigateTo("cart.html");
+        }
+      });
+
+      // Manual print with dialog function
+      async function manualPrintReceipt() {
+        try {
+          console.log("🖨️ Manual print dengan dialog...");
+
+          // Get the last successful order data
+          const orderId = document.getElementById("order-id").textContent;
+          const finalAmount =
+            document.getElementById("final-amount").textContent;
+
+          if (!orderId || !cartItems || cartItems.length === 0) {
+            showNotification("Data pesanan tidak ditemukan", "error");
+            return;
+          }
+
+          const payload = {
+            orderId: orderId,
+            total: totalAmount,
+            items: cartItems.map((item) => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+            businessName: "Florist Kiosk",
+            address: "Toko Bunga Segar",
+            notes: "Terima kasih atas kunjungan Anda",
+            printMode: "dialog", // Force dialog mode
+          };
+
+          console.log("🖨️ Manual print payload:", payload);
+
+          // Call manual print with dialog
+          const printRes = await window.electronAPI.printReceiptManual(payload);
+          console.log("🖨️ Manual print result:", printRes);
+
+          if (printRes && printRes.success) {
+            showNotification("✅ Struk berhasil dicetak", "success");
+          } else {
+            showNotification(
+              "⚠️ Print gagal: " + (printRes?.message || "Unknown error"),
+              "error"
+            );
+          }
+        } catch (error) {
+          console.error("Manual print error:", error);
+          showNotification("❌ Error saat print manual", "error");
+        }
+      }
+
+      // Hybrid print function - EP58M fix
+      async function hybridPrintReceipt() {
+        try {
+          console.log("🔄 Hybrid print untuk EP58M...");
+
+          // Get the last successful order data
+          const orderId = document.getElementById("order-id").textContent;
+          const finalAmount =
+            document.getElementById("final-amount").textContent;
+
+          if (!orderId || !cartItems || cartItems.length === 0) {
+            showNotification("Data pesanan tidak ditemukan", "error");
+            return;
+          }
+
+          const payload = {
+            orderId: orderId,
+            total: totalAmount,
+            items: cartItems.map((item) => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+            businessName: "Florist Kiosk",
+            address: "Toko Bunga Segar",
+            notes: "Terima kasih atas kunjungan Anda",
+            hybridMode: true, // Enable hybrid mode
+          };
+
+          console.log("🔄 Hybrid print payload:", payload);
+
+          // Call hybrid print (try silent first, fallback to dialog)
+          const printRes = await window.electronAPI.printReceipt(payload);
+          console.log("🔄 Hybrid print result:", printRes);
+
+          if (printRes && printRes.success) {
+            showNotification("✅ Struk berhasil dicetak (Hybrid)", "success");
+          } else {
+            showNotification(
+              "⚠️ Hybrid print gagal: " +
+                (printRes?.message || "Unknown error"),
+              "error"
+            );
+          }
+        } catch (error) {
+          console.error("Hybrid print error:", error);
+          showNotification("❌ Error saat hybrid print", "error");
+        }
+      }
+
+      // Event listeners
+      document.addEventListener("DOMContentLoaded", () => {
+        // Existing listeners
+        const newOrderBtn = document.getElementById("new-order-btn");
+        if (newOrderBtn) {
+          newOrderBtn.addEventListener("click", () => {
+            window.electronAPI.navigateTo("index.html");
+          });
+        }
+
+        // Manual print button
+        const manualPrintBtn = document.getElementById("manual-print-btn");
+        if (manualPrintBtn) {
+          manualPrintBtn.addEventListener("click", manualPrintReceipt);
+        }
+
+        // Hybrid print button
+        const hybridPrintBtn = document.getElementById("hybrid-print-btn");
+        if (hybridPrintBtn) {
+          hybridPrintBtn.addEventListener("click", hybridPrintReceipt);
+        }
+      });
+    </script>
+  </body>
+</html>
