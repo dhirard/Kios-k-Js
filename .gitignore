@@ -41,7 +41,12 @@ Thumbs.db
 /db/*.db
 
 # App uploads/media
+# App uploads/media
 /renderer/assets/uploads/
+/renderer/uploads/
+
+# Generated assets inside renderer
+/renderer/dist/
 
 # Electron crash dumps
 *.dmp
