@@ -121,14 +121,14 @@ window.escposUtils = {
   // Get current settings status
   async getStatus() {
     try {
-      const [ports, printModes, preferredPort] = await Promise.all([
+      const [portsRes, printModes, preferredPort] = await Promise.all([
         window.electronAPI.listSerialPorts(),
         window.electronAPI.getPrintModes(),
         window.electronAPI.getPreferredSerialPort(),
       ]);
 
       return {
-        serialPorts: ports,
+        serialPorts: portsRes,
         printModes: printModes,
         preferredSerialPort: preferredPort,
         timestamp: new Date().toLocaleString("id-ID"),

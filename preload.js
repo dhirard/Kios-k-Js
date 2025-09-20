@@ -60,6 +60,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getTopProducts: (limit) => ipcRenderer.invoke("get-top-products", limit),
   // Printing
   printReceipt: (payload) => ipcRenderer.invoke("print-receipt", payload),
+  printReceiptAuto: (payload) =>
+    ipcRenderer.invoke("print-receipt-auto", payload),
   printReceiptDirectUsb: (payload) =>
     ipcRenderer.invoke("print-receipt-direct-usb", payload),
   printReceiptManual: (payload) =>

@@ -282,9 +282,12 @@
                 businessName: "Florist Kiosk",
                 address: "Toko Bunga Segar",
                 notes: "Terima kasih atas kunjungan Anda",
+                printMode: "escpos",
               };
 
-              const printRes = await window.electronAPI.printReceipt(payload);
+              const printRes = await window.electronAPI.printReceiptAuto(
+                payload
+              );
               console.log("🖨️ Print receipt result:", printRes);
 
               if (printRes.success) {

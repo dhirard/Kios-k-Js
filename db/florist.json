@@ -201,6 +201,61 @@
       "id": 23,
       "order_date": "2025-09-20T05:55:13.581Z",
       "total_amount": 200000
+    },
+    {
+      "id": 24,
+      "order_date": "2025-09-20T09:01:33.727Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 25,
+      "order_date": "2025-09-20T09:01:46.833Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 26,
+      "order_date": "2025-09-20T09:05:03.648Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 27,
+      "order_date": "2025-09-20T09:13:01.670Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 28,
+      "order_date": "2025-09-20T09:15:34.709Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 29,
+      "order_date": "2025-09-20T09:28:57.411Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 30,
+      "order_date": "2025-09-20T09:29:19.696Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 31,
+      "order_date": "2025-09-20T09:29:21.923Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 32,
+      "order_date": "2025-09-20T09:29:25.647Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 33,
+      "order_date": "2025-09-20T09:45:05.025Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 34,
+      "order_date": "2025-09-20T09:48:52.339Z",
+      "total_amount": 125000
     }
   ],
   "admins": [
@@ -382,6 +437,51 @@
       "unit_price": 200000,
       "subtotal": 200000,
       "sale_date": "2025-09-20T05:54:33.991Z"
+    },
+    {
+      "id": 20,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T09:01:33.729Z"
+    },
+    {
+      "id": 21,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T09:05:03.648Z"
+    },
+    {
+      "id": 22,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T09:13:01.671Z"
+    },
+    {
+      "id": 23,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T09:28:57.412Z"
+    },
+    {
+      "id": 24,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T09:45:05.026Z"
     }
   ]
 }

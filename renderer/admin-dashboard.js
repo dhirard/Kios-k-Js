@@ -1118,8 +1118,13 @@ async function savePreferredPrinter() {
 async function testPrintReceipt() {
   const select = document.getElementById("printer-select");
   const selectedPrinter = select?.value;
+  const serialSelect = document.getElementById("serial-port-select");
+  const selectedPort = serialSelect?.value;
 
-  console.log("🖨️ Testing print with printer:", selectedPrinter || "default");
+  console.log("🖨️ Testing print:", {
+    printer: selectedPrinter || "default",
+    serialPort: selectedPort || "(auto)",
+  });
 
   try {
     const payload = {
@@ -1134,17 +1139,30 @@ async function testPrintReceipt() {
       notes: "Tes cetak struk thermal",
       deviceName: selectedPrinter,
       allowDialogOnFail: true,
+      printMode: "escpos",
     };
 
     // Show loading
     showNotification("Mengirim ke printer...", "info");
 
-    const res = await window.electronAPI.printReceipt(payload);
+    let res;
+    if (selectedPort) {
+      // Prefer direct ESC/POS using selected serial port
+      res = await window.electronAPI.printEscPos({
+        ...payload,
+        portPath: selectedPort,
+        baudRate: 9600,
+      });
+    } else {
+      // Use auto ESC/POS-first route
+      res = await window.electronAPI.printReceiptAuto(payload);
+    }
+
     console.log("🖨️ Print test result:", res);
 
     if (res && res.success) {
       showNotification(
-        `✅ Tes cetak berhasil ke printer: ${
+        `✅ Tes cetak berhasil ke perangkat: ${
           res.device || selectedPrinter || "default"
         }`,
         "success"
@@ -1152,17 +1170,7 @@ async function testPrintReceipt() {
     } else {
       console.warn("Print failed with result:", res);
       let errorMsg = "Tes cetak gagal";
-      if (res.failureReason) {
-        errorMsg += `: ${res.failureReason}`;
-      } else if (res.message) {
-        errorMsg += `: ${res.message}`;
-      }
-
-      if (res.printers && res.printers.length > 0) {
-        console.log("Available printers:", res.printers);
-        errorMsg += `\nPrinter tersedia: ${res.printers.join(", ")}`;
-      }
-
+      if (res && res.message) errorMsg += `: ${res.message}`;
       showNotification(errorMsg, "error");
     }
   } catch (e) {

@@ -227,6 +227,121 @@ async function autoDetectSerialPort() {
   }
 }
 
+// Core ESC/POS print implementation used by multiple handlers
+// Contract:
+// - Input payload: { portPath?, baudRate?, items[], total, orderId, businessName, address, notes, width?, cut?, drawer? }
+// - Auto-detects serial port if payload.portPath not provided AND settings.preferredSerialPort missing AND autoDetectAllowed flag is true
+// - Returns { success: boolean, message?, device?, mode: 'escpos' }
+async function performEscPosPrint(payload, { autoDetectAllowed = false } = {}) {
+  try {
+    if (!SerialPort?.SerialPort || !EscPosEncoder) {
+      return {
+        success: false,
+        message:
+          "Dependensi ESC/POS tidak tersedia. Install 'serialport' dan 'esc-pos-encoder'",
+      };
+    }
+
+    const settings = loadSettings();
+    let portPath = payload?.portPath || settings.preferredSerialPort || null;
+    const baudRate = Number(
+      payload?.baudRate || settings.serialBaudRate || 9600
+    );
+
+    if (!portPath && autoDetectAllowed) {
+      console.log("[ESC/POS] No port configured, attempting auto-detect...");
+      portPath = await autoDetectSerialPort();
+      if (portPath) {
+        const next = { ...settings, preferredSerialPort: portPath };
+        saveSettings(next);
+        console.log("[ESC/POS] Auto-detected and saved port:", portPath);
+      }
+    }
+
+    if (!portPath) {
+      return { success: false, message: "Port serial belum dikonfigurasi" };
+    }
+
+    // Formatting setup
+    const width = Number(payload?.width || 32);
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    const total = Number(payload?.total) || 0;
+    const orderId = payload?.orderId || "";
+    const businessName = payload?.businessName || "Florist Kiosk";
+    const address = payload?.address || "";
+    const notes = payload?.notes || "Terima kasih";
+    const dateStr = new Date().toLocaleString("id-ID");
+
+    const enc = new EscPosEncoder();
+    enc
+      .initialize()
+      .codepage("cp437")
+      .align("center")
+      .bold(true)
+      .line(businessName)
+      .bold(false);
+    if (address) enc.line(address);
+    enc.align("left");
+    enc.newline();
+    if (orderId) enc.line(`ID: ${String(orderId).padStart(6, "0")}`);
+    enc.line(dateStr);
+    enc.newline();
+    // Items
+    for (const it of items) {
+      const name = String(it?.name || "Item");
+      const qty = Number(it?.quantity) || 1;
+      const price = Number(it?.price) || 0;
+      const sub = qty * price;
+      enc.line(name);
+      const left = `${qty} x ${formatIDR(price)}`;
+      const right = `${formatIDR(sub)}`;
+      enc.line(twoCols(left, right, width));
+    }
+    enc.newline();
+    enc
+      .bold(true)
+      .line(twoCols("TOTAL", formatIDR(total), width))
+      .bold(false);
+    enc.newline();
+    if (notes) enc.align("center").line(notes).align("left");
+    enc.newline();
+    if (payload?.drawer && typeof enc.pulse === "function") enc.pulse();
+    if (payload?.cut !== false) enc.cut();
+
+    const data = enc.encode();
+
+    // Write to serial port
+    await new Promise((resolve, reject) => {
+      const SPClass = SerialPort.SerialPort;
+      const sp = new SPClass({ path: portPath, baudRate }, (err) => {
+        if (err) return reject(err);
+      });
+      sp.on("open", () => {
+        sp.write(Buffer.from(data), (err) => {
+          if (err) {
+            try {
+              sp.close(() => {});
+            } catch (_) {}
+            return reject(err);
+          }
+          sp.drain(() => sp.close(() => resolve()));
+        });
+      });
+      sp.on("error", (err) => {
+        try {
+          sp.close(() => {});
+        } catch (_) {}
+        reject(err);
+      });
+    });
+
+    return { success: true, device: portPath, mode: "escpos" };
+  } catch (error) {
+    console.warn("[ESC/POS] Print failed:", error?.message);
+    return { success: false, message: error?.message };
+  }
+}
+
 // Ensure Chromium does silent printing without showing dialogs
 try {
   // Some devices/driver combos behave better without GPU acceleration
@@ -848,7 +963,7 @@ ipcMain.handle("get-printers", async () => {
 
 ipcMain.handle("get-preferred-printer", async () => {
   const s = loadSettings();
-  return { name: s.preferredPrinterName || null };
+  return s.preferredPrinterName || null;
 });
 
 ipcMain.handle("set-preferred-printer", async (e, name) => {
@@ -860,12 +975,17 @@ ipcMain.handle("set-preferred-printer", async (e, name) => {
 
 ipcMain.handle("list-serial-ports", async () => {
   try {
-    if (!SerialPort?.SerialPort) return [];
+    if (!SerialPort?.SerialPort)
+      return {
+        success: false,
+        message: "serialport tidak tersedia",
+        ports: [],
+      };
     const ports = await SerialPort.SerialPort.list();
-    return ports;
+    return { success: true, ports };
   } catch (e) {
     console.warn("[IPC list-serial-ports]", e?.message);
-    return [];
+    return { success: false, message: e?.message, ports: [] };
   }
 });
 
@@ -916,50 +1036,234 @@ ipcMain.handle("set-print-modes", async (e, modes) => {
 });
 
 ipcMain.handle("print-escpos", async (e, payload) => {
-  try {
-    if (!SerialPort?.SerialPort || !EscPosEncoder) {
-      throw new Error("Serial/ESC-POS dependencies not installed");
-    }
-    const s = loadSettings();
-    const portPath = payload?.portPath || s.preferredSerialPort;
-    const baudRate = Number(payload?.baudRate || s.serialBaudRate || 9600);
-    if (!portPath) throw new Error("No serial port configured");
+  const res = await performEscPosPrint(payload, { autoDetectAllowed: false });
+  return res;
+});
 
-    const enc = new EscPosEncoder();
-    enc
-      .initialize()
-      .codepage("cp437")
-      .align("center")
-      .bold(true)
-      .line(payload?.title || "TEST ESC/POS")
-      .bold(false)
-      .align("left")
-      .line(payload?.line1 || new Date().toLocaleString("id-ID"))
-      .newline()
-      .cut();
-    const data = enc.encode();
-    await new Promise((resolve, reject) => {
-      const sp = new SerialPort.SerialPort(
-        { path: portPath, baudRate },
-        (err) => err && reject(err)
+// New: automatic checkout printing that prioritizes ESC/POS and auto-detects port
+ipcMain.handle("print-receipt-auto", async (e, payload) => {
+  try {
+    // Always attempt ESC/POS with auto-detect first
+    const res = await performEscPosPrint(
+      {
+        ...payload,
+        // allow helper to auto-detect if needed
+      },
+      { autoDetectAllowed: true }
+    );
+    if (res.success) return res;
+
+    console.warn(
+      "[AUTO-PRINT] ESC/POS serial failed:",
+      res?.message || "Unknown error"
+    );
+    // Fallback: try direct USB raw ESC/POS via Windows spooler (printer:Name)
+    try {
+      const POS58_VARIATIONS = [
+        "POS58 Printer",
+        "POS-58",
+        "POS 58",
+        "EP58M",
+        "EPPOS",
+        "Thermal Dot Line Printing",
+        "USB Thermal Printer",
+        "Generic / Text Only",
+      ];
+      const printers = await listPrintersRobust(
+        (mainWindow && mainWindow.webContents) || null,
+        null
       );
-      sp.on("open", () => {
-        sp.write(Buffer.from(data), (err) => {
-          if (err) return sp.close(() => reject(err));
-          sp.drain(() => sp.close(() => resolve()));
-        });
+      const s = loadSettings();
+      let targetPrinterName =
+        payload?.deviceName || s.preferredPrinterName || null;
+      if (!targetPrinterName) {
+        const firstMatch = printers.find((p) =>
+          POS58_VARIATIONS.some((v) =>
+            (p.name || "").toLowerCase().includes(v.toLowerCase())
+          )
+        );
+        targetPrinterName = firstMatch?.name || "POS58 Printer";
+      }
+      console.log("[AUTO-PRINT] Trying direct USB printer:", targetPrinterName);
+      const duRes = await directUsbPrint(payload, targetPrinterName);
+      if (duRes?.success) {
+        // persist discovered printer for stability
+        if (!s.preferredPrinterName && targetPrinterName) {
+          saveSettings({ ...s, preferredPrinterName: targetPrinterName });
+        }
+        return { success: true, device: duRes.printer, mode: duRes.mode };
+      }
+    } catch (usbErr) {
+      console.warn("[AUTO-PRINT] Direct USB fallback failed:", usbErr?.message);
+      // Final fallback: try RAW Windows spooler using 'printer' module
+      try {
+        const POS58_VARIATIONS = [
+          "POS58 Printer",
+          "POS-58",
+          "POS 58",
+          "EP58M",
+          "EPPOS",
+          "Thermal Dot Line Printing",
+          "USB Thermal Printer",
+          "Generic / Text Only",
+        ];
+        const printers = await listPrintersRobust(
+          (mainWindow && mainWindow.webContents) || null,
+          null
+        );
+        const s = loadSettings();
+        let targetPrinterName =
+          payload?.deviceName || s.preferredPrinterName || null;
+        if (!targetPrinterName) {
+          const firstMatch = printers.find((p) =>
+            POS58_VARIATIONS.some((v) =>
+              (p.name || "").toLowerCase().includes(v.toLowerCase())
+            )
+          );
+          targetPrinterName = firstMatch?.name || "POS58 Printer";
+        }
+        console.log(
+          "[AUTO-PRINT] Trying RAW Windows spooler:",
+          targetPrinterName
+        );
+        const rawRes = await rawWindowsPrintEscPos(
+          { ...payload, width: 32 },
+          targetPrinterName
+        );
+        if (rawRes?.success) {
+          if (!s.preferredPrinterName && targetPrinterName) {
+            saveSettings({ ...s, preferredPrinterName: targetPrinterName });
+          }
+          return { success: true, device: rawRes.printer, mode: rawRes.mode };
+        }
+      } catch (rawErr) {
+        console.warn(
+          "[AUTO-PRINT] RAW Windows spooler fallback failed:",
+          rawErr?.message
+        );
+      }
+    }
+
+    // Last resort: try HTML silent print to POS58 printer to avoid losing the receipt
+    try {
+      console.warn(
+        "[AUTO-PRINT] All ESC/POS paths failed; attempting HTML silent print..."
+      );
+      const items = Array.isArray(payload?.items) ? payload.items : [];
+      const total = Number(payload?.total) || 0;
+      const orderId = payload?.orderId || "";
+      const dateStr = new Date().toLocaleString("id-ID");
+      const businessName = payload?.businessName || "Florist Kiosk";
+      const address = payload?.address || "";
+      const notes = payload?.notes || "Terima kasih atas kunjungan Anda";
+
+      const receiptHTML = `<!DOCTYPE html><html><head><meta charset="utf-8" />
+        <style>
+          @page { size: 58mm auto; margin: 3mm; }
+          body { font-family: monospace; font-size: 12px; width: 58mm; }
+          .center { text-align: center; }
+          .row { display:flex; justify-content:space-between; }
+          hr { border: none; border-top: 1px dashed #000; margin: 6px 0; }
+          .tot { font-weight: bold; font-size: 13px; }
+        </style>
+      </head><body>
+        <div class="center">
+          <div style="font-weight:bold; font-size:14px;">${businessName}</div>
+          ${address ? `<div>${address}</div>` : ""}
+        </div>
+        <hr />
+        <div>ID: ${String(orderId).padStart(6, "0")}<br/>${dateStr}</div>
+        <hr />
+        ${items
+          .map((it) => {
+            const name = (it.name || "Item").toString();
+            const qty = Number(it.quantity) || 1;
+            const price = Number(it.price) || 0;
+            const sub = price * qty;
+            return `<div>
+              <div>${name}</div>
+              <div class="row"><span>${qty} x ${formatIDR(
+              price
+            )}</span><span>${formatIDR(sub)}</span></div>
+            </div>`;
+          })
+          .join("")}
+        <hr />
+        <div class="row tot"><span>Total</span><span>${formatIDR(
+          total
+        )}</span></div>
+        <hr />
+        <div class="center">${notes}</div>
+      </body></html>`;
+
+      const printWin = new BrowserWindow({
+        width: 300,
+        height: 600,
+        show: false,
+        webPreferences: { offscreen: false, backgroundThrottling: false },
       });
-      sp.on("error", (err) => {
-        try {
-          sp.close(() => {});
-        } catch (_) {}
-        reject(err);
+      await printWin.loadURL(
+        "data:text/html;charset=utf-8," + encodeURIComponent(receiptHTML)
+      );
+
+      const POS58_VARIATIONS = [
+        "POS58 Printer",
+        "POS-58",
+        "POS 58",
+        "EP58M",
+        "EPPOS",
+        "Thermal Dot Line Printing",
+        "USB Thermal Printer",
+        "Generic / Text Only",
+      ];
+      const printers = await listPrintersRobust(
+        (mainWindow && mainWindow.webContents) || null,
+        printWin.webContents
+      );
+      const s2 = loadSettings();
+      let targetPrinterName =
+        payload?.deviceName || s2.preferredPrinterName || null;
+      if (!targetPrinterName) {
+        const firstMatch = printers.find((p) =>
+          POS58_VARIATIONS.some((v) =>
+            (p.name || "").toLowerCase().includes(v.toLowerCase())
+          )
+        );
+        targetPrinterName = firstMatch?.name;
+      }
+
+      const finalDeviceName = targetPrinterName || undefined;
+      console.log(
+        "[AUTO-PRINT][HTML] Printing silently to:",
+        finalDeviceName || "<default>"
+      );
+      const didPrint = await new Promise((resolve) => {
+        printWin.webContents.print(
+          {
+            silent: true,
+            ...(finalDeviceName ? { deviceName: finalDeviceName } : {}),
+            printBackground: false,
+            landscape: false,
+            pageSize: { width: 58000, height: 200000 },
+          },
+          (success) => resolve(success)
+        );
       });
-    });
-    return { success: true };
-  } catch (err) {
-    console.warn("[IPC print-escpos]", err?.message);
-    return { success: false, message: err?.message };
+      setTimeout(() => {
+        if (!printWin.isDestroyed()) printWin.close();
+      }, 150);
+      if (didPrint) {
+        return { success: true, device: finalDeviceName || null, mode: "html" };
+      }
+      console.warn("[AUTO-PRINT][HTML] Silent print reported failure");
+    } catch (htmlErr) {
+      console.warn("[AUTO-PRINT][HTML] Fallback failed:", htmlErr?.message);
+    }
+
+    // If all fallbacks failed, return the original serial error
+    return res;
+  } catch (error) {
+    return { success: false, message: error?.message };
   }
 });
 
@@ -1127,23 +1431,27 @@ ipcMain.handle("print-receipt", async (e, payload) => {
       return { success: true, mode: "escpos", device: preferredPort };
     };
 
-    // Early mode override
+    // Prefer ESC/POS first based on settings or explicit request
     const settings0 = loadSettings();
     const preferEscPos = !!settings0.preferEscPos;
     const preferDirectUsbForPOS58 = !!settings0.preferDirectUsbForPOS58;
-    if (requestedMode === "escpos" || preferEscPos) {
-      console.log(
-        "[PRINT-RECEIPT] Using ESC/POS mode (",
-        requestedMode,
-        preferEscPos ? ", preferEscPos setting enabled)" : ")"
+    if (requestedMode === "escpos" || preferEscPos || preferDirectUsbForPOS58) {
+      console.log("[PRINT-RECEIPT] Preferring ESC/POS first");
+      // attempt ESC/POS with configured port (no auto-detect here; caller can use print-receipt-auto)
+      const escRes = await performEscPosPrint(
+        {
+          ...payload,
+          width: 32,
+          cut: true,
+        },
+        { autoDetectAllowed: false }
       );
-      try {
-        const res = await sendEscPosSerial();
-        return { success: true, device: res.device, mode: res.mode };
-      } catch (err) {
-        console.warn("[PRINT-RECEIPT] ESC/POS mode failed:", err?.message);
-        return { success: false, message: err.message, mode: "escpos" };
-      }
+      if (escRes.success) return escRes;
+      console.warn(
+        "[PRINT-RECEIPT] ESC/POS first attempt failed:",
+        escRes.message
+      );
+      // continue to HTML fallback below
     }
 
     console.log("[PRINT-RECEIPT] Creating hidden print window...");
@@ -1931,19 +2239,23 @@ ipcMain.handle("print-receipt-manual", async (e, payload) => {
 
 // Reusable helper to print via Windows printer name using node-thermal-printer
 async function directUsbPrint(payload, printerName) {
-  let thermalPrinter, PrinterTypes;
+  let ThermalPrinter, PrinterTypes;
   const pName = printerName || payload?.deviceName || "POS58 Printer";
   try {
     const lib = require("node-thermal-printer");
-    thermalPrinter = lib.thermalPrinter;
-    PrinterTypes = lib.PrinterTypes;
+    // Correct API for v4+: { printer: ThermalPrinter, types: PrinterTypes }
+    ThermalPrinter = lib.printer || lib.thermalPrinter; // fallback just in case
+    PrinterTypes = lib.types || lib.PrinterTypes;
+    if (!ThermalPrinter || !PrinterTypes) {
+      throw new Error("node-thermal-printer API tidak sesuai");
+    }
   } catch (err) {
     throw new Error(
-      "Module 'node-thermal-printer' belum terpasang. Jalankan 'npm i node-thermal-printer'"
+      "Module 'node-thermal-printer' belum terpasang atau versi tidak cocok. Jalankan 'npm i node-thermal-printer'"
     );
   }
 
-  const printer = new thermalPrinter({
+  const printer = new ThermalPrinter({
     type: PrinterTypes.EPSON,
     interface: `printer:${pName}`,
     characterSet: "SLOVENIA",
@@ -2017,6 +2329,80 @@ ipcMain.handle("print-receipt-direct-usb", async (e, payload) => {
     return { success: false, message: err?.message };
   }
 });
+
+// Raw Windows spooler print using 'printer' module (if installed)
+async function rawWindowsPrintEscPos(payload, printerName) {
+  let printerMod;
+  try {
+    printerMod = require("printer");
+  } catch (e) {
+    throw new Error(
+      "Module 'printer' tidak terpasang. Jalankan 'npm i printer' lalu 'npx electron-rebuild'"
+    );
+  }
+
+  if (!EscPosEncoder) {
+    throw new Error("Module 'esc-pos-encoder' tidak tersedia");
+  }
+
+  // Build ESC/POS buffer same as performEscPosPrint
+  const width = Number(payload?.width || 32);
+  const items = Array.isArray(payload?.items) ? payload.items : [];
+  const total = Number(payload?.total) || 0;
+  const orderId = payload?.orderId || "";
+  const businessName = payload?.businessName || "Florist Kiosk";
+  const address = payload?.address || "";
+  const notes = payload?.notes || "Terima kasih";
+  const dateStr = new Date().toLocaleString("id-ID");
+
+  const enc = new EscPosEncoder();
+  enc
+    .initialize()
+    .codepage("cp437")
+    .align("center")
+    .bold(true)
+    .line(businessName)
+    .bold(false);
+  if (address) enc.line(address);
+  enc.align("left");
+  enc.newline();
+  if (orderId) enc.line(`ID: ${String(orderId).padStart(6, "0")}`);
+  enc.line(dateStr);
+  enc.newline();
+  for (const it of items) {
+    const name = String(it?.name || "Item");
+    const qty = Number(it?.quantity) || 1;
+    const price = Number(it?.price) || 0;
+    const sub = qty * price;
+    enc.line(name);
+    const left = `${qty} x ${formatIDR(price)}`;
+    const right = `${formatIDR(sub)}`;
+    enc.line(twoCols(left, right, width));
+  }
+  enc.newline();
+  enc
+    .bold(true)
+    .line(twoCols("TOTAL", formatIDR(total), width))
+    .bold(false);
+  enc.newline();
+  if (notes) enc.align("center").line(notes).align("left");
+  enc.newline();
+  enc.cut();
+
+  const data = Buffer.from(enc.encode());
+
+  await new Promise((resolve, reject) => {
+    printerMod.printDirect({
+      data,
+      printer: printerName,
+      type: "RAW",
+      success: (jobID) => resolve(jobID),
+      error: (err) => reject(err),
+    });
+  });
+
+  return { success: true, printer: printerName, mode: "raw-windows" };
+}
 
 function twoCols(left, right, width) {
   const l = String(left);
