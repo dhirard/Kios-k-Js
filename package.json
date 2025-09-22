@@ -26,7 +26,6 @@
   "dependencies": {
     "esc-pos-encoder": "^3.0.0",
     "node-thermal-printer": "^4.5.0",
-    "printer": "^0.4.0",
     "serialport": "^12.0.0",
     "sql.js": "^1.13.0"
   }

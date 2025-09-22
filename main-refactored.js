@@ -42,7 +42,10 @@ class FloristKioskApp {
       // Initialize managers in order
       this.managers.settings = new SettingsManager();
       this.managers.serialPort = new SerialPortManager(this.managers.settings);
-      this.managers.print = new PrintManager(this.managers.settings, this.managers.serialPort);
+      this.managers.print = new PrintManager(
+        this.managers.settings,
+        this.managers.serialPort
+      );
       this.managers.window = new WindowManager();
       this.managers.menu = new MenuManager(this.managers.window);
       this.managers.database = new DatabaseManager();
@@ -69,8 +72,9 @@ class FloristKioskApp {
       this.setupSecurity();
 
       this.isReady = true;
-      console.log("[APP] ✅ Florist Kiosk Application initialized successfully");
-
+      console.log(
+        "[APP] ✅ Florist Kiosk Application initialized successfully"
+      );
     } catch (error) {
       console.error("[APP] ❌ Failed to initialize application:", error);
       throw error;
@@ -160,12 +164,12 @@ app.on("before-quit", () => {
 });
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('[APP] Uncaught Exception:', error);
+process.on("uncaughtException", (error) => {
+  console.error("[APP] Uncaught Exception:", error);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[APP] Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[APP] Unhandled Rejection at:", promise, "reason:", reason);
 });
 
 module.exports = FloristKioskApp;

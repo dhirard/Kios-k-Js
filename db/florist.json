@@ -256,6 +256,76 @@
       "id": 34,
       "order_date": "2025-09-20T09:48:52.339Z",
       "total_amount": 125000
+    },
+    {
+      "id": 35,
+      "order_date": "2025-09-20T10:31:36.472Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 36,
+      "order_date": "2025-09-20T10:38:25.420Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 37,
+      "order_date": "2025-09-20T11:31:54.786Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 38,
+      "order_date": "2025-09-20T11:32:23.153Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 39,
+      "order_date": "2025-09-20T11:32:41.961Z",
+      "total_amount": 200000
+    },
+    {
+      "id": 40,
+      "order_date": "2025-09-20T11:43:55.839Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 41,
+      "order_date": "2025-09-20T11:44:44.450Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 42,
+      "order_date": "2025-09-20T11:44:54.684Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 43,
+      "order_date": "2025-09-20T11:45:38.999Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 44,
+      "order_date": "2025-09-20T11:50:02.662Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 45,
+      "order_date": "2025-09-20T11:50:31.148Z",
+      "total_amount": 130000
+    },
+    {
+      "id": 46,
+      "order_date": "2025-09-20T11:58:56.452Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 47,
+      "order_date": "2025-09-22T04:31:43.467Z",
+      "total_amount": 120000
+    },
+    {
+      "id": 48,
+      "order_date": "2025-09-22T09:14:42.528Z",
+      "total_amount": 125000
     }
   ],
   "admins": [
@@ -482,6 +552,105 @@
       "unit_price": 125000,
       "subtotal": 125000,
       "sale_date": "2025-09-20T09:45:05.026Z"
+    },
+    {
+      "id": 25,
+      "order_id": {},
+      "product_id": 4,
+      "quantity": 1,
+      "unit_price": 200000,
+      "subtotal": 200000,
+      "sale_date": "2025-09-20T10:31:36.474Z"
+    },
+    {
+      "id": 26,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T10:38:25.421Z"
+    },
+    {
+      "id": 27,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T11:31:54.787Z"
+    },
+    {
+      "id": 28,
+      "order_id": {},
+      "product_id": 4,
+      "quantity": 1,
+      "unit_price": 200000,
+      "subtotal": 200000,
+      "sale_date": "2025-09-20T11:32:41.963Z"
+    },
+    {
+      "id": 29,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T11:43:55.840Z"
+    },
+    {
+      "id": 30,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T11:45:39.000Z"
+    },
+    {
+      "id": 31,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T11:50:02.662Z"
+    },
+    {
+      "id": 32,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-20T11:50:31.149Z"
+    },
+    {
+      "id": 33,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-20T11:58:56.454Z"
+    },
+    {
+      "id": 34,
+      "order_id": {},
+      "product_id": 2,
+      "quantity": 1,
+      "unit_price": 120000,
+      "subtotal": 120000,
+      "sale_date": "2025-09-22T04:31:43.468Z"
+    },
+    {
+      "id": 35,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-22T09:14:42.530Z"
     }
   ]
 }

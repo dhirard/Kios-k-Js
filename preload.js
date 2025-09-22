@@ -78,6 +78,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("set-preferred-serial-port", portPath, baudRate),
   getPrintModes: () => ipcRenderer.invoke("get-print-modes"),
   setPrintModes: (modes) => ipcRenderer.invoke("set-print-modes", modes),
+
+  // Enhanced printer diagnostics and testing
+  detectPOS58Printer: () => ipcRenderer.invoke("detect-pos58-printer"),
+  testPrinterDirect: (printerName) =>
+    ipcRenderer.invoke("test-printer-direct", printerName),
+  getInstalledPrinters: () => ipcRenderer.invoke("get-installed-printers"),
+  printerDiagnostic: () => ipcRenderer.invoke("printer-diagnostic"),
   // Categories
   getCategories: () => ipcRenderer.invoke("get-categories"),
   addCategory: (name) => ipcRenderer.invoke("add-category", name),
