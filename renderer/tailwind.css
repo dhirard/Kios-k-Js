@@ -3,17 +3,27 @@
 @tailwind utilities;
 
 @layer components {
+  /* Typography helpers for theme */
+  .font-heading {
+    @apply font-serif;
+    font-family: theme("fontFamily.heading");
+  }
+  .font-body {
+    @apply font-sans;
+    font-family: theme("fontFamily.sans");
+  }
+
   .btn {
-    @apply inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-pink-400/50 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2;
+    @apply inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-pink-400/50 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 hover:scale-105;
   }
   .btn-primary {
-    @apply bg-brand-pink-600 hover:bg-brand-pink-500 text-white shadow-sm active:scale-[.97];
+    @apply text-white shadow active:scale-[.97] bg-gradient-to-r from-brand-pink-400 via-brand-pink-500 to-brand-pink-600 hover:from-brand-pink-500 hover:to-brand-pink-700;
   }
   .btn-secondary {
-    @apply bg-brand-pink-400 hover:bg-brand-pink-300 text-white shadow-sm active:scale-[.97];
+    @apply text-white shadow active:scale-[.97] bg-gradient-to-r from-florist-200 to-florist-300 hover:from-florist-300 hover:to-brand-pink-400;
   }
   .btn-danger {
-    @apply bg-brand-pink-800 hover:bg-brand-pink-700 text-white shadow-sm active:scale-[.97];
+    @apply bg-brand-pink-800 hover:bg-brand-pink-700 text-white shadow active:scale-[.97];
   }
   .btn-large {
     @apply px-6 py-3 text-base w-full;
@@ -28,7 +38,7 @@
     @apply inline-flex items-center justify-center font-bold rounded-xl bg-neutral-800 text-white px-2 h-8 min-w-8;
   }
   .notification {
-    @apply fixed z-[1400] flex items-center gap-3 top-5 right-5 max-w-sm px-5 py-4 rounded-xl shadow-lg translate-x-[420px] transition-transform duration-300 bg-neutral-800 text-white;
+    @apply fixed z-[1400] flex items-center gap-3 top-5 right-5 max-w-sm px-5 py-4 rounded-xl shadow-md translate-x-[420px] transition-transform duration-300 bg-neutral-800 text-white;
   }
   .notification.show {
     @apply translate-x-0;
@@ -49,9 +59,14 @@
     @apply hidden fixed inset-0 z-[1000] flex items-center justify-center bg-black/50;
   }
   .modal-content {
-    @apply bg-white rounded-2xl p-8 w-[90%] max-w-lg shadow-2xl;
+    @apply bg-white rounded-2xl p-8 w-[90%] max-w-lg shadow-md;
   }
   .modal-actions {
     @apply flex gap-4 justify-center mt-6;
+  }
+
+  /* Card component for main surfaces */
+  .card {
+    @apply rounded-2xl shadow-lg border border-brand-pink-100 bg-white/90 backdrop-blur-sm;
   }
 }

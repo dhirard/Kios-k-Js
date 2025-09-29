@@ -44,6 +44,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Trigger page-loaded (allow next frame so initial styles apply)
   requestAnimationFrame(() => document.body.classList.add("page-loaded"));
 
+  // Safety: ensure scroll is enabled on every fresh page
+  try {
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+    if (document.documentElement) {
+      document.documentElement.style.overflow = "";
+    }
+  } catch (_) {}
+
   // Method 1: Direct onclick handlers (most reliable)
   const navLinks = document.querySelectorAll('a[href$=".html"]');
   console.log("📍 Found navigation links:", navLinks.length);

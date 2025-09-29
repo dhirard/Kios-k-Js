@@ -10,7 +10,7 @@ const MenuManager = require("./lib/managers/MenuManager");
 const DatabaseManager = require("./lib/managers/DatabaseManager");
 const IPCHandlers = require("./lib/managers/IPCHandlers");
 
-console.log("[MAIN] Florist kiosk main.js loaded (refactored version)");
+console.log("[MAIN] JS Florist main.js loaded (refactored version)");
 
 // Ensure Chromium does silent printing without showing dialogs
 try {
@@ -37,7 +37,7 @@ class FloristKioskApp {
 
   async initialize() {
     try {
-      console.log("[APP] Initializing Florist Kiosk Application...");
+      console.log("[APP] Initializing JS Florist Application...");
 
       // Initialize managers in order
       this.managers.settings = new SettingsManager();
@@ -72,9 +72,7 @@ class FloristKioskApp {
       this.setupSecurity();
 
       this.isReady = true;
-      console.log(
-        "[APP] ✅ Florist Kiosk Application initialized successfully"
-      );
+      console.log("[APP] ✅ JS Florist Application initialized successfully");
     } catch (error) {
       console.error("[APP] ❌ Failed to initialize application:", error);
       throw error;

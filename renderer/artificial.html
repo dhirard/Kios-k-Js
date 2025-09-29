@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bunga Artificial - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="kiosk-mode min-h-screen">
+    <div class="container shadow-xl/30">
+      <header class="relative floral-header">
+        <button
+          class="btn btn-secondary btn-small"
+          style="
+            position: absolute;
+            left: 0;
+            top: -6px;
+            padding: 0.35rem 0.6rem;
+          "
+          onclick="navigateToPage('welcome.html')"
+          aria-label="Kembali ke Menu Awal"
+        >
+          ← Kembali
+        </button>
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm logo-title"
+          style="display: flex; align-items: center; gap: 0.6rem"
+        >
+          <img
+            src="assets/logo_js.png"
+            alt="Logo JS Florist"
+            class="logo-img"
+            style="
+              width: 40px;
+              height: 40px;
+              object-fit: contain;
+              border-radius: 8px;
+              background: rgba(255, 255, 255, 0.35);
+              padding: 4px;
+              box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.25);
+            "
+            onerror="this.style.display='none'"
+          />
+          Artificial
+        </h1>
+        <nav class="items-center">
+          <a
+            href="index.html"
+            class="nav-link"
+            onclick="navigateToPage('index.html'); return false;"
+            >Katalog</a
+          >
+          <a
+            href="admin-login.html"
+            class="nav-link admin-link"
+            onclick="navigateToPage('admin-login.html'); return false;"
+            >🔐 Admin</a
+          >
+        </nav>
+      </header>
+
+      <main class="animate-fade-in shop-layout">
+        <div class="catalog-column">
+          <section class="hero hero-compact">
+            <div class="hero-banner">
+              <div class="hero-text">
+                <h2 class="store-name">Koleksi Bunga Artificial</h2>
+                <p class="tagline">
+                  Tahan lama, perawatan mudah, tampilan menawan
+                </p>
+                <div
+                  id="active-florist"
+                  style="
+                    color: #6e5a67;
+                    margin: 0.2rem 0 0.6rem;
+                    font-weight: 600;
+                  "
+                ></div>
+                <div class="store-stats">
+                  <div class="stat">
+                    <span id="total-items-stat">0</span><label>Item</label>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-art" aria-hidden="true"></div>
+            </div>
+          </section>
+
+          <!-- Search & price filters (optional) -->
+          <section
+            id="filter-bar"
+            aria-label="Filter tambahan"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.6rem;
+              align-items: center;
+              margin: 0.2rem 0 1rem;
+            "
+          >
+            <div style="flex: 1 1 260px; min-width: 220px">
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Cari produk artificial..."
+                aria-label="Cari produk"
+              />
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center">
+              <input
+                type="number"
+                id="min-price"
+                placeholder="Min harga"
+                min="0"
+                step="1000"
+                style="width: 140px"
+                aria-label="Harga minimum"
+              />
+              <span style="color: #6e5a67">–</span>
+              <input
+                type="number"
+                id="max-price"
+                placeholder="Max harga"
+                min="0"
+                step="1000"
+                style="width: 140px"
+                aria-label="Harga maksimum"
+              />
+            </div>
+            <button
+              id="clear-price"
+              class="btn btn-secondary btn-small"
+              type="button"
+              aria-label="Reset filter"
+            >
+              Reset
+            </button>
+          </section>
+
+          <section class="products" aria-live="polite">
+            <h3 class="section-title">Produk Artificial</h3>
+            <div class="loading" id="loading">
+              <div class="spinner"></div>
+              <p>Memuat produk...</p>
+            </div>
+            <div class="products-grid floral-grid" id="products-grid"></div>
+            <div
+              class="small-note"
+              id="info-note"
+              style="margin-top: 0.5rem; color: #6e5a67"
+            ></div>
+          </section>
+        </div>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 JS Florist. Bunga artificial.</p>
+      </footer>
+    </div>
+
+    <!-- Product Detail Modal (for variant selection) -->
+    <div id="product-modal" class="modal" aria-hidden="true">
+      <div class="modal-content" style="max-width: 720px; position: relative">
+        <button
+          id="product-modal-close"
+          aria-label="Tutup"
+          style="
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #666;
+          "
+        >
+          ×
+        </button>
+        <div
+          id="product-modal-body"
+          style="display: flex; gap: 1rem; align-items: stretch"
+        >
+          <div
+            style="
+              flex: 0 0 280px;
+              max-width: 280px;
+              border-radius: 14px;
+              overflow: hidden;
+              background: #f7f7f7;
+            "
+          >
+            <img
+              id="pm-image"
+              src=""
+              alt=""
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                max-height: 320px;
+              "
+              onerror="this.src='https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image'"
+            />
+          </div>
+          <div style="flex: 1 1 auto; min-width: 0">
+            <h3
+              id="pm-name"
+              style="margin: 0 0 0.4rem; font-size: 1.35rem"
+            ></h3>
+            <div
+              id="pm-meta"
+              style="color: #6e5a67; font-size: 0.9rem; margin-bottom: 0.6rem"
+            ></div>
+            <div
+              id="pm-price"
+              style="font-weight: 700; color: #ff2f92; margin-bottom: 0.6rem"
+            ></div>
+            <p
+              id="pm-desc"
+              style="
+                white-space: pre-wrap;
+                line-height: 1.35;
+                margin-bottom: 1rem;
+                color: #513743;
+              "
+            ></p>
+            <div style="display: flex; gap: 0.5rem; align-items: center">
+              <button id="pm-dec" class="qty-btn mini" aria-label="Kurangi">
+                -
+              </button>
+              <span
+                id="pm-qty"
+                style="min-width: 24px; text-align: center; font-weight: 600"
+                >1</span
+              >
+              <button id="pm-inc" class="qty-btn mini" aria-label="Tambah">
+                +
+              </button>
+              <button
+                id="pm-add"
+                class="btn-primary btn-small"
+                style="margin-left: 0.6rem"
+              >
+                + Tambah ke Keranjang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div
+      id="image-zoom-modal"
+      class="modal"
+      aria-hidden="true"
+      style="background: rgba(0, 0, 0, 0.75)"
+    >
+      <div
+        class="modal-content"
+        style="
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+          max-width: none;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <img
+          id="zoomed-img"
+          alt="Gambar diperbesar"
+          style="
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            cursor: zoom-out;
+          "
+        />
+      </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <button
+      id="floating-cart"
+      class="floating-cart"
+      style="display: none"
+      aria-label="Buka keranjang"
+    >
+      <span aria-hidden="true">🛒</span>
+      <span id="floating-cart-text">Keranjang</span>
+      <span class="fab-badge" id="fab-count">0</span>
+    </button>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+      <span id="notification-text"></span>
+      <button id="notification-close">&times;</button>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="navigation.js"></script>
+    <script>
+      // Show active florist
+      (function () {
+        const el = document.getElementById("active-florist");
+        const n = localStorage.getItem("activeFlorist");
+        if (el) el.textContent = n ? `Dilayani oleh: Florist ${n}` : "";
+      })();
+
+      // State
+      let artificialList = [];
+      let filtered = [];
+      let modalQty = 1;
+      let selectedVariantId = null;
+      let selectedProduct = null;
+      let searchQuery = "";
+      let minPriceFilter = null;
+      let maxPriceFilter = null;
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadArtificial();
+        await refreshCart();
+
+        // Floating cart click
+        const fab = document.getElementById("floating-cart");
+        if (fab)
+          fab.addEventListener("click", () =>
+            window.electronAPI.navigateTo("cart.html")
+          );
+
+        // Filters
+        const searchEl = document.getElementById("search-input");
+        const minEl = document.getElementById("min-price");
+        const maxEl = document.getElementById("max-price");
+        const clearBtn = document.getElementById("clear-price");
+        const doFilter = () => filterAndRender();
+        const debouncedFilter =
+          typeof debounce === "function" ? debounce(doFilter, 250) : doFilter;
+        if (searchEl)
+          searchEl.addEventListener("input", () => {
+            searchQuery = (searchEl.value || "").toLowerCase().trim();
+            debouncedFilter();
+          });
+        function parseNum(v) {
+          const n = Number(v);
+          return Number.isFinite(n) && n >= 0 ? n : null;
+        }
+        function updatePrice() {
+          minPriceFilter = parseNum(minEl && minEl.value);
+          maxPriceFilter = parseNum(maxEl && maxEl.value);
+          doFilter();
+        }
+        if (minEl) minEl.addEventListener("input", updatePrice);
+        if (maxEl) maxEl.addEventListener("input", updatePrice);
+        if (clearBtn)
+          clearBtn.addEventListener("click", () => {
+            if (searchEl) searchEl.value = "";
+            if (minEl) minEl.value = "";
+            if (maxEl) maxEl.value = "";
+            searchQuery = "";
+            minPriceFilter = null;
+            maxPriceFilter = null;
+            doFilter();
+          });
+
+        // Image zoom close
+        const zi = document.getElementById("zoomed-img");
+        if (zi) zi.addEventListener("click", closeImageZoom);
+        document.addEventListener("click", (e) => {
+          const imageZoomModal = document.getElementById("image-zoom-modal");
+          if (e.target === imageZoomModal) closeImageZoom();
+        });
+      });
+
+      async function loadArtificial() {
+        const loading = document.getElementById("loading");
+        const grid = document.getElementById("products-grid");
+        const info = document.getElementById("info-note");
+        try {
+          loading.style.display = "flex";
+          artificialList = await window.electronAPI.getArtificialItems();
+          filtered = Array.isArray(artificialList)
+            ? artificialList.slice()
+            : [];
+          document.getElementById("total-items-stat").textContent =
+            filtered.length;
+          if (filtered.length === 0) {
+            grid.innerHTML =
+              '<div class="no-products">Belum ada produk Artificial. Tambahkan melalui Admin > Artificial.</div>';
+            if (info)
+              info.textContent =
+                "Tip: buka Admin > Artificial untuk menambah item (nama dan harga saja).";
+            return;
+          }
+          filterAndRender();
+          if (info) info.textContent = "Menampilkan daftar artificial.";
+        } catch (err) {
+          console.error("Error loadProducts", err);
+          grid.innerHTML = '<div class="error">Gagal memuat produk</div>';
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      function textAndPriceFilter(p) {
+        const name = (p.name || "").toLowerCase();
+        const desc = (p.description || "").toLowerCase();
+        const matchesText =
+          !searchQuery ||
+          name.includes(searchQuery) ||
+          desc.includes(searchQuery);
+        const price = Number(p.price) || 0;
+        let min = minPriceFilter,
+          max = maxPriceFilter;
+        if (min != null && max != null && min > max) {
+          const t = min;
+          min = max;
+          max = t;
+        }
+        const geMin = min == null || price >= min;
+        const leMax = max == null || price <= max;
+        return matchesText && geMin && leMax;
+      }
+
+      function filterAndRender() {
+        const grid = document.getElementById("products-grid");
+        const list = filtered.filter(textAndPriceFilter);
+        if (!list.length) {
+          grid.innerHTML =
+            '<div class="no-products">Tidak ada produk sesuai filter</div>';
+          return;
+        }
+        grid.innerHTML = list.map(renderProductCard).join("");
+      }
+
+      function renderProductCard(product) {
+        const safeName = escapeHtml(product.name || "Artificial");
+        const price = window.electronAPI.formatCurrency(product.price || 0);
+        const img = product.image || "assets/no-image.png";
+        return `<div class="floral-card" data-id="${product.id}" tabindex="0">
+          <div class="floral-thumb"><img src="${img}" alt="${safeName}" onerror="this.src='assets/no-image.png'" /></div>
+          <div class="floral-info">
+            <h3 class="floral-name">${safeName}</h3>
+            <p class="floral-desc line-clamp">&nbsp;</p>
+            <div class="floral-meta">
+              <span class="price">${price}</span>
+              <button class="add-circle" data-add="${product.id}" aria-label="Tambah ${safeName}">+</button>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      // Delegated events
+      document.addEventListener("click", (e) => {
+        const addBtn = e.target.closest(".add-circle");
+        const card = e.target.closest(".floral-card");
+        const thumbImg = e.target.closest(".floral-thumb img");
+        if (addBtn) {
+          e.stopPropagation();
+          const id = parseInt(addBtn.dataset.add, 10);
+          const product = filtered.find((p) => p.id === id);
+          if (product) addToCart(product);
+          return;
+        }
+        // For artificial, clicking card does not open modal
+        if (thumbImg) {
+          openImageZoom(thumbImg.src);
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target.classList.contains("floral-card")
+        ) {
+          e.preventDefault();
+          openProductDetail(e.target.dataset.id);
+        }
+      });
+
+      async function addToCart(product, quantity = 1) {
+        try {
+          const qty = Math.max(1, parseInt(quantity || 1, 10));
+          const res = await window.electronAPI.addArtificialToCart(
+            product.id,
+            qty
+          );
+          if (res) {
+            showNotification(`${product.name} ditambahkan`, "success");
+            await refreshCart();
+          } else {
+            showNotification("Gagal menambahkan produk", "error");
+          }
+        } catch (err) {
+          console.error("addToCart error", err);
+          showNotification("Terjadi kesalahan", "error");
+        }
+      }
+
+      async function refreshCart() {
+        try {
+          const items = await window.electronAPI.getCartItems();
+          const count = items.reduce((s, i) => s + (i.quantity || 0), 0);
+          const total = items.reduce(
+            (s, i) => s + (i.subtotal || (i.price || 0) * (i.quantity || 0)),
+            0
+          );
+          updateFloatingCart(count, total);
+        } catch (err) {
+          console.error("refreshCart error", err);
+        }
+      }
+
+      function updateFloatingCart(count, total) {
+        const fab = document.getElementById("floating-cart");
+        const fabCount = document.getElementById("fab-count");
+        const fabText = document.getElementById("floating-cart-text");
+        if (!fab || !fabCount || !fabText) return;
+        if (count > 0) {
+          fab.style.display = "flex";
+          fabCount.textContent = String(count);
+          try {
+            fabText.textContent =
+              count +
+              " item • " +
+              window.electronAPI.formatCurrency(total || 0);
+          } catch (_) {
+            fabText.textContent = count + " item";
+          }
+          fab.animate(
+            [
+              { transform: "translateY(0) scale(1)" },
+              { transform: "translateY(-3px) scale(1.05)" },
+              { transform: "translateY(0) scale(1)" },
+            ],
+            { duration: 320, easing: "ease-out" }
+          );
+        } else {
+          fab.style.display = "none";
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(
+          /[&"'<>]/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c])
+        );
+      }
+
+      // For artificial simple list, we don't use modal; quantity is fixed to 1 per click
+
+      function openImageZoom(src) {
+        const zm = document.getElementById("image-zoom-modal");
+        const zi = document.getElementById("zoomed-img");
+        if (!zm || !zi) return;
+        zi.src = src;
+        zm.style.display = "flex";
+        zm.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+      }
+      function closeImageZoom() {
+        const zm = document.getElementById("image-zoom-modal");
+        if (!zm) return;
+        zm.style.display = "none";
+        zm.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+      }
+
+      window.openProductDetail = function (id) {
+        const p = filtered.find((pp) => String(pp.id) === String(id));
+        if (p) {
+          selectedProduct = p;
+          showProductModal(p);
+        }
+      };
+    </script>
+  </body>
+</html>

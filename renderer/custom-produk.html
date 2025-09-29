@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Produk - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+        align-items: start;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 120px 90px;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+      }
+    </style>
+  </head>
+  <body class="kiosk-mode min-h-screen">
+    <div class="container">
+      <header class="relative floral-header">
+        <button
+          class="btn btn-secondary btn-small"
+          style="position: absolute; left: 0; top: -6px"
+          onclick="window.electronAPI.navigateTo('custom.html')"
+        >
+          ← Kembali
+        </button>
+        <h1 class="text-3xl font-bold">Custom Produk</h1>
+        <nav class="items-center">
+          <a href="index.html" class="nav-link">Katalog</a>
+          <a href="cart.html" class="nav-link">Keranjang</a>
+        </nav>
+      </header>
+
+      <main class="animate-fade-in grid-2">
+        <section>
+          <div class="panel">
+            <h3 class="section-title">Detail</h3>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 1fr 130px;
+                gap: 0.6rem;
+                align-items: center;
+              "
+            >
+              <div>
+                <label>Nama Custom</label>
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="cth: Bucket Snack / Hampers"
+                />
+              </div>
+              <div>
+                <label>Qty</label>
+                <input id="qty" type="number" min="1" value="1" />
+              </div>
+            </div>
+            <div style="margin-top: 0.6rem">
+              <label>Catatan</label>
+              <textarea
+                id="notes"
+                rows="2"
+                placeholder="Tambahkan preferensi"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 class="section-title">Item Produk dalam Bucket</h3>
+            <div id="items"></div>
+            <button
+              id="add-item"
+              class="btn btn-secondary btn-small"
+              style="margin-top: 6px"
+            >
+              + Tambah Item
+            </button>
+          </div>
+
+          <div class="panel">
+            <h3 class="section-title">Tambahan Bunga (opsional)</h3>
+            <div id="flowers"></div>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <h3 class="section-title">Ringkasan</h3>
+          <div class="summary-grid">
+            <div>Material (hanya bunga)</div>
+            <div id="sum-materials">Rp 0</div>
+            <div>Jasa (auto)</div>
+            <div id="sum-service">Rp 0</div>
+            <div class="total-row">Total / pcs</div>
+            <div class="total-row" id="sum-unit">Rp 0</div>
+            <div>Total x Qty</div>
+            <div id="sum-grand">Rp 0</div>
+          </div>
+          <button
+            id="add-to-cart"
+            class="btn btn-primary"
+            style="margin-top: 10px"
+          >
+            + Tambah ke Keranjang
+          </button>
+        </aside>
+      </main>
+
+      <footer><p>&copy; 2025 JS Florist</p></footer>
+    </div>
+
+    <div id="notification" class="notification">
+      <span id="notification-text"></span
+      ><button id="notification-close">&times;</button>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script>
+      const state = {
+        comps: [],
+        flowers: [],
+        items: [],
+        pickedF: [],
+        feeRules: [],
+      };
+      function idr(n) {
+        try {
+          return window.electronAPI.formatCurrency(n || 0);
+        } catch {
+          return "Rp " + (n || 0);
+        }
+      }
+      document.addEventListener("DOMContentLoaded", init);
+      async function init() {
+        await Promise.all([loadComponents(), loadFeeRules()]);
+        renderItems();
+        renderFlowers();
+        wire();
+        recalc();
+      }
+      async function loadComponents() {
+        const all = await window.electronAPI.getComponents();
+        state.comps = (all || []).filter((c) => c.type !== "service");
+        state.flowers = state.comps.filter((c) =>
+          /mawar|rose|tulip|lili|sunflower|bunga/i.test(c.name || "")
+        );
+      }
+      async function loadFeeRules() {
+        const rules = await window.electronAPI.getServiceFeeRules();
+        state.feeRules = (rules || []).filter(
+          (r) => r.mode === "custom-bucket-produk"
+        );
+      }
+      function wire() {
+        document.getElementById("qty").addEventListener("input", recalc);
+        document.getElementById("add-item").addEventListener("click", addItem);
+        document.getElementById("add-to-cart").addEventListener("click", onAdd);
+      }
+      function addItem() {
+        state.items.push({ name: "", quantity: 1 });
+        renderItems();
+      }
+      function renderItems() {
+        const c = document.getElementById("items");
+        if (!c) return;
+        if (!state.items.length) {
+          c.innerHTML =
+            '<div class="muted">Belum ada item. Tambahkan item bebas (snack/produk lain).</div>';
+          return;
+        }
+        c.innerHTML = state.items
+          .map(
+            (it, i) =>
+              `<div class='row' data-i='${i}'><input type='text' class='iname' value='${escapeHtml(
+                it.name
+              )}' placeholder='Nama item'/><input type='number' class='iqty' min='1' value='${
+                it.quantity
+              }'/><button class='btn btn-danger btn-small remove'>Hapus</button></div>`
+          )
+          .join("");
+        c.querySelectorAll(".row").forEach((row) => {
+          const i = parseInt(row.dataset.i, 10);
+          row.querySelector(".iname").addEventListener("input", (e) => {
+            state.items[i].name = e.target.value;
+          });
+          row.querySelector(".iqty").addEventListener("input", (e) => {
+            state.items[i].quantity = Math.max(
+              1,
+              parseInt(e.target.value || "1", 10)
+            );
+            recalc();
+          });
+          row.querySelector(".remove").addEventListener("click", () => {
+            state.items.splice(i, 1);
+            renderItems();
+            recalc();
+          });
+        });
+      }
+      function renderFlowers() {
+        const c = document.getElementById("flowers");
+        c.innerHTML = state.flowers
+          .map(
+            (f) =>
+              `<div class='row' data-id='${f.id}'><div>🌸 ${escapeHtml(
+                f.name
+              )} <span class='tag'>(${idr(
+                f.price
+              )})</span></div><input type='number' class='qty' min='0' placeholder='Qty'/><button class='btn btn-secondary btn-small pick'>Tambah</button></div>`
+          )
+          .join("");
+        c.addEventListener("click", (e) => {
+          const b = e.target.closest(".pick");
+          if (!b) return;
+          const row = b.closest(".row");
+          const id = parseInt(row.dataset.id, 10);
+          const qty = Number(row.querySelector(".qty").value) || 1;
+          upsert(state.pickedF, id, qty);
+          toast("Bunga ditambahkan");
+          recalc();
+        });
+      }
+      function upsert(arr, id, qty) {
+        const i = arr.findIndex((x) => x.component_id === id);
+        if (i >= 0) {
+          arr[i].quantity = qty;
+        } else {
+          arr.push({ component_id: id, quantity: qty });
+        }
+      }
+      function sumFlowerCost() {
+        return state.pickedF.reduce((s, m) => {
+          const c = state.comps.find((x) => x.id === m.component_id);
+          if (!c) return s;
+          return s + (Number(c.price) || 0) * (Number(m.quantity) || 0);
+        }, 0);
+      }
+      function computeAutoFee() {
+        const count =
+          state.items.reduce((s, it) => s + (Number(it.quantity) || 0), 0) +
+          state.pickedF.reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+        if (!state.feeRules.length) return 0;
+        const candidates = state.feeRules.filter(
+          (r) => count >= (r.min || 0) && (r.max == null || count <= r.max)
+        );
+        if (!candidates.length) return 0;
+        candidates.sort((a, b) => (b.min || 0) - (a.min || 0));
+        return Math.max(0, Number(candidates[0].fee) || 0);
+      }
+      function recalc() {
+        const materials = sumFlowerCost();
+        const svc = computeAutoFee();
+        const unit = Math.max(0, Math.round(materials + svc));
+        const qty = Math.max(
+          1,
+          Number(document.getElementById("qty").value) || 1
+        );
+        document.getElementById("sum-materials").textContent = idr(materials);
+        document.getElementById("sum-service").textContent = idr(svc);
+        document.getElementById("sum-unit").textContent = idr(unit);
+        document.getElementById("sum-grand").textContent = idr(unit * qty);
+      }
+      async function onAdd() {
+        const name = (document.getElementById("name").value || "").trim();
+        if (!name) return toast("Nama wajib diisi", "error");
+        const qty = Math.max(
+          1,
+          Number(document.getElementById("qty").value) || 1
+        );
+        const notes = String(document.getElementById("notes").value || "");
+        const payload = {
+          mode: "custom-bucket-produk",
+          name,
+          quantity: qty,
+          materials: [],
+          flowers: state.pickedF,
+          service_pricing: null,
+          items: state.items.filter(
+            (it) => (it.name || "").trim() && (Number(it.quantity) || 0) > 0
+          ),
+          notes,
+        };
+        const res = await window.electronAPI.addCustomToCart(payload);
+        if (res && res.success !== false) {
+          toast("Ditambahkan", "success");
+          window.electronAPI.navigateTo("cart.html");
+        } else {
+          toast(res?.message || "Gagal menambahkan", "error");
+        }
+      }
+      function toast(msg, type = "info") {
+        const n = document.getElementById("notification");
+        const t = document.getElementById("notification-text");
+        t.textContent = msg;
+        n.className = `notification show ${type}`;
+        setTimeout(() => n.classList.remove("show"), 2000);
+      }
+      function escapeHtml(s) {
+        return String(s || "").replace(
+          /[&"'<>]/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c])
+        );
+      }
+    </script>
+  </body>
+</html>

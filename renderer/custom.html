@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Buket - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="kiosk-mode min-h-screen">
+    <div class="container">
+      <header class="relative floral-header">
+        <h1 class="text-3xl font-bold">Custom Buket</h1>
+        <nav class="items-center">
+          <a href="welcome.html" class="nav-link">Home</a>
+          <a href="index.html" class="nav-link">Katalog</a>
+        </nav>
+      </header>
+      <main class="animate-fade-in">
+        <section class="hero hero-compact" style="margin-bottom: 1rem">
+          <div class="hero-banner">
+            <div class="hero-text">
+              <h2 class="store-name">Rancang Buket Anda</h2>
+              <p class="tagline">Rancang buket sesuai keinginan Anda ✨</p>
+            </div>
+            <div class="hero-art" aria-hidden="true"></div>
+          </div>
+        </section>
+        <section class="products">
+          <div class="panel" style="text-align: center">
+            <p>Pilih tipe custom yang Anda inginkan:</p>
+            <div
+              style="
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 0.5rem;
+              "
+            >
+              <a class="btn btn-primary" href="custom-bunga.html"
+                >Custom Bunga</a
+              >
+              <a class="btn btn-secondary" href="custom-produk.html"
+                >Custom Produk</a
+              >
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <p>&copy; 2025 JS Florist</p>
+      </footer>
+    </div>
+    <script src="navigation.js"></script>
+  </body>
+</html>

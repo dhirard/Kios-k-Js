@@ -1,4 +1,4 @@
-# Florist Kiosk - Aplikasi Desktop Toko Bunga
+# JS Florist - Aplikasi Desktop Toko Bunga
 
 Aplikasi desktop offline untuk toko bunga yang dibangun dengan Electron.js dan SQLite.
 

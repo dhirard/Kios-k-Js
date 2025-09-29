@@ -5,6 +5,13 @@ let editingProductId = null;
 let categories = [];
 let occasions = [];
 let selectedImageFile = null; // added for file upload
+let components = []; // master components for BOM
+let currentBom = []; // working BOM in modal [{component_id, name, price, quantity}]
+let currentVariants = []; // working variants [{name, price|null, image|null}]
+let selectedVariantImageFile = null; // temporary for adding a variant image via file
+let serviceFeeRules = []; // [{mode, min, max|null, fee}]
+let artificialItems = [];
+let artSelectedImageFile = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   checkAdminAuth();
@@ -365,6 +372,72 @@ function setupEventListeners() {
   if (refreshPortsBtn)
     refreshPortsBtn.addEventListener("click", initEscPosSettings);
   if (testEscPosBtn) testEscPosBtn.addEventListener("click", testEscPosPrint);
+
+  // Components tab actions
+  const addComponentBtn = document.getElementById("add-component-btn");
+  if (addComponentBtn)
+    addComponentBtn.addEventListener("click", onAddComponent);
+
+  // Artificial tab actions
+  const artAddBtn = document.getElementById("art-add-btn");
+  if (artAddBtn) artAddBtn.addEventListener("click", onAddArtificial);
+  const artImgFile = document.getElementById("art-image-file");
+  if (artImgFile)
+    artImgFile.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) {
+        artSelectedImageFile = null;
+        hideArtPreview();
+        return;
+      }
+      if (!/^image\//i.test(f.type)) {
+        showNotification("File harus berupa gambar", "error");
+        e.target.value = "";
+        artSelectedImageFile = null;
+        hideArtPreview();
+        return;
+      }
+      artSelectedImageFile = f;
+      showArtPreview(f);
+    });
+
+  // Fees tab actions
+  const addFeeRowBtn = document.getElementById("add-fee-row");
+  if (addFeeRowBtn) addFeeRowBtn.addEventListener("click", addFeeRow);
+  const saveFeesBtn = document.getElementById("save-fees");
+  if (saveFeesBtn) saveFeesBtn.addEventListener("click", saveServiceFees);
+  const reloadFeesBtn = document.getElementById("reload-fees");
+  if (reloadFeesBtn) reloadFeesBtn.addEventListener("click", loadServiceFees);
+
+  // Variant editor actions
+  const variantAddBtn = document.getElementById("variant-add");
+  if (variantAddBtn)
+    variantAddBtn.addEventListener("click", addVariantFromInputs);
+  const varImgFile = document.getElementById("variant-image-file");
+  if (varImgFile)
+    varImgFile.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) {
+        selectedVariantImageFile = null;
+        return;
+      }
+      if (!/^image\//i.test(f.type)) {
+        showNotification("File varian harus berupa gambar", "error");
+        e.target.value = "";
+        selectedVariantImageFile = null;
+        return;
+      }
+      selectedVariantImageFile = f;
+    });
+
+  // Component modal events
+  const compType = document.getElementById("component-type");
+  if (compType)
+    compType.addEventListener("change", applyComponentTypeVisibility);
+  const cancelComp = document.getElementById("cancel-component");
+  if (cancelComp) cancelComp.addEventListener("click", closeComponentModal);
+  const compForm = document.getElementById("component-form");
+  if (compForm) compForm.addEventListener("submit", saveComponentFromModal);
 }
 
 function switchTab(tabName) {
@@ -399,6 +472,15 @@ function switchTab(tabName) {
     case "occasions":
       loadOccasions();
       break;
+    case "components":
+      loadComponents();
+      break;
+    case "fees":
+      loadServiceFees();
+      break;
+    case "artificial":
+      loadArtificialItems();
+      break;
   }
 }
 
@@ -422,6 +504,125 @@ async function loadDashboardData() {
   } catch (error) {
     console.error("Error loading dashboard data:", error);
     showNotification("Gagal memuat data dashboard", "error");
+  }
+}
+
+/* =============================
+   SERVICE FEE RULES MANAGEMENT
+   ============================= */
+async function loadServiceFees() {
+  try {
+    const rules = await window.electronAPI.getServiceFeeRules();
+    serviceFeeRules = Array.isArray(rules)
+      ? rules.map((r) => ({
+          mode: r.mode,
+          min: r.min || 0,
+          max: r.max ?? null,
+          fee: r.fee || 0,
+        }))
+      : [];
+    renderServiceFees();
+  } catch (e) {
+    console.error("loadServiceFees error", e);
+    serviceFeeRules = [];
+    renderServiceFees();
+  }
+}
+
+function renderServiceFees() {
+  const body = document.getElementById("fees-body");
+  if (!body) return;
+  if (!serviceFeeRules.length) {
+    body.innerHTML =
+      '<tr><td colspan="5" class="no-data">Belum ada aturan</td></tr>';
+    return;
+  }
+  body.innerHTML = serviceFeeRules
+    .map(
+      (r, idx) => `
+      <tr data-fee-idx="${idx}">
+        <td>
+          <select class="inline-edit fee-mode">
+            <option value="custom-komponen" ${
+              r.mode === "custom-komponen" ? "selected" : ""
+            }>Custom Bunga</option>
+            <option value="custom-bucket-produk" ${
+              r.mode === "custom-bucket-produk" ? "selected" : ""
+            }>Custom Produk</option>
+          </select>
+        </td>
+        <td><input type="number" min="0" value="${
+          r.min
+        }" class="inline-edit fee-min" style="width:100px" /></td>
+        <td><input type="number" min="0" value="${
+          r.max == null ? "" : r.max
+        }" placeholder="Tanpa batas" class="inline-edit fee-max" style="width:120px" /></td>
+        <td><input type="number" min="0" step="500" value="${
+          r.fee
+        }" class="inline-edit fee-fee" style="width:140px" /></td>
+        <td><button class="btn btn-danger btn-small" onclick="removeFeeRow(${idx})">Hapus</button></td>
+      </tr>
+    `
+    )
+    .join("");
+  // Wire edits
+  body.querySelectorAll("tr").forEach((tr) => {
+    const idx = parseInt(tr.getAttribute("data-fee-idx"), 10);
+    tr.querySelector(".fee-mode").addEventListener("change", (e) => {
+      serviceFeeRules[idx].mode = e.target.value;
+    });
+    tr.querySelector(".fee-min").addEventListener("input", (e) => {
+      serviceFeeRules[idx].min = Math.max(
+        0,
+        parseInt(e.target.value || "0", 10)
+      );
+    });
+    tr.querySelector(".fee-max").addEventListener("input", (e) => {
+      const v = e.target.value;
+      serviceFeeRules[idx].max =
+        v === "" ? null : Math.max(0, parseInt(v || "0", 10));
+    });
+    tr.querySelector(".fee-fee").addEventListener("input", (e) => {
+      serviceFeeRules[idx].fee = Math.max(0, Number(e.target.value || 0) || 0);
+    });
+  });
+}
+
+function addFeeRow() {
+  serviceFeeRules.push({ mode: "custom-komponen", min: 0, max: null, fee: 0 });
+  renderServiceFees();
+}
+
+function removeFeeRow(idx) {
+  serviceFeeRules.splice(idx, 1);
+  renderServiceFees();
+}
+
+async function saveServiceFees() {
+  // basic normalization: ensure numbers
+  const normalized = serviceFeeRules.map((r) => ({
+    mode:
+      r.mode === "custom-bucket-produk"
+        ? "custom-bucket-produk"
+        : "custom-komponen",
+    min: Math.max(0, parseInt(r.min || 0, 10)),
+    max:
+      r.max == null || r.max === ""
+        ? null
+        : Math.max(0, parseInt(r.max || 0, 10)),
+    fee: Math.max(0, Number(r.fee) || 0),
+  }));
+  try {
+    const res = await window.electronAPI.setServiceFeeRules(normalized);
+    if (res && res.success) {
+      showNotification("Aturan jasa tersimpan", "success");
+      loadServiceFees();
+    } else {
+      showNotification(res?.message || "Gagal menyimpan aturan", "error");
+    }
+  } catch (e) {
+    console.error("saveServiceFees error", e);
+    showNotification("Terjadi kesalahan saat menyimpan", "error");
   }
 }
 
@@ -534,27 +735,28 @@ async function loadSalesReport(startDate = null, endDate = null) {
 
     if (sales.length === 0) {
       tbody.innerHTML =
-        '<tr><td colspan="6" class="no-data">Tidak ada data penjualan</td></tr>';
+        '<tr><td colspan="7" class="no-data">Tidak ada data penjualan</td></tr>';
     } else {
       tbody.innerHTML = sales
-        .map(
-          (sale) => `
-                <tr>
-                    <td>${new Date(sale.sale_date).toLocaleDateString(
-                      "id-ID"
-                    )}</td>
-                    <td>${sale.product_name}</td>
-                    <td>${sale.quantity}</td>
-                    <td>${window.electronAPI.formatCurrency(
-                      sale.unit_price
-                    )}</td>
-                    <td>${window.electronAPI.formatCurrency(sale.subtotal)}</td>
-                    <td>${window.electronAPI.formatCurrency(
-                      sale.order_total
-                    )}</td>
-                </tr>
-            `
-        )
+        .map((sale) => {
+          const name = sale.product_name || "-";
+          const detailsArr = Array.isArray(sale.details) ? sale.details : [];
+          const detailsHtml = detailsArr.length
+            ? `<div class="small-note" style="white-space: pre-wrap;">${detailsArr
+                .map((d) => escapeHtml(String(d)))
+                .join("\n")}</div>`
+            : "-";
+          return `
+            <tr>
+              <td>${new Date(sale.sale_date).toLocaleDateString("id-ID")}</td>
+              <td>${escapeHtml(name)}</td>
+              <td>${detailsHtml}</td>
+              <td>${sale.quantity}</td>
+              <td>${window.electronAPI.formatCurrency(sale.unit_price)}</td>
+              <td>${window.electronAPI.formatCurrency(sale.subtotal)}</td>
+              <td>${window.electronAPI.formatCurrency(sale.order_total)}</td>
+            </tr>`;
+        })
         .join("");
     }
 
@@ -588,6 +790,17 @@ function showProductModal(productId = null) {
   const descField = document.getElementById("product-description");
   const catSelect = document.getElementById("product-category");
   const occSelect = document.getElementById("product-occasion");
+  // Prepare BOM UI
+  currentBom = [];
+  currentVariants = [];
+  ensureComponentsLoaded();
+  populateBomSelect();
+  renderBomTable();
+  renderVariantTable();
+  const bomAdd = document.getElementById("bom-add");
+  if (bomAdd) bomAdd.onclick = addBomRowFromSelect;
+  const variantAddBtn2 = document.getElementById("variant-add");
+  if (variantAddBtn2) variantAddBtn2.onclick = addVariantFromInputs;
 
   if (productId) {
     const product = products.find((p) => p.id === productId);
@@ -602,6 +815,10 @@ function showProductModal(productId = null) {
       else catSelect.value = "";
       if (product.occasion_id) occSelect.value = product.occasion_id;
       else occSelect.value = "";
+      // Load BOM for product
+      loadProductBom(product.id);
+      // Load variants
+      loadProductVariants(product.id);
     }
   } else {
     title.textContent = "Tambah Produk";
@@ -612,6 +829,10 @@ function showProductModal(productId = null) {
     descField.value = "";
     catSelect.value = "";
     occSelect.value = "";
+    currentBom = [];
+    renderBomTable();
+    currentVariants = [];
+    renderVariantTable();
   }
 
   modal.style.display = "flex";
@@ -678,6 +899,29 @@ async function saveProduct(e) {
         categoryId ? parseInt(categoryId, 10) : null,
         occasionId ? parseInt(occasionId, 10) : null
       );
+      // Save BOM mapping after product update
+      if (success && currentBom.length) {
+        await window.electronAPI.setProductComponents(
+          editingProductId,
+          currentBom.map((it) => ({
+            component_id: it.component_id,
+            quantity: it.quantity,
+          }))
+        );
+      } else if (success && currentBom.length === 0) {
+        await window.electronAPI.setProductComponents(editingProductId, []);
+      }
+      // Save variants after product update
+      if (success) {
+        await window.electronAPI.setProductVariants(
+          editingProductId,
+          currentVariants.map((v) => ({
+            name: v.name,
+            price: v.price,
+            image: v.image || null,
+          }))
+        );
+      }
     } else {
       success = await window.electronAPI.adminAddProduct(
         name,
@@ -687,6 +931,24 @@ async function saveProduct(e) {
         categoryId ? parseInt(categoryId, 10) : null,
         occasionId ? parseInt(occasionId, 10) : null
       );
+      // When adding: success returns {id}
+      if (success && success.id) {
+        await window.electronAPI.setProductComponents(
+          success.id,
+          currentBom.map((it) => ({
+            component_id: it.component_id,
+            quantity: it.quantity,
+          }))
+        );
+        await window.electronAPI.setProductVariants(
+          success.id,
+          currentVariants.map((v) => ({
+            name: v.name,
+            price: v.price,
+            image: v.image || null,
+          }))
+        );
+      }
     }
     console.log("[DBG saveProduct] result", success);
     if (success) {
@@ -884,6 +1146,589 @@ function populateOccasionSelect() {
   if (current) sel.value = current;
 }
 
+/* =============================
+   COMPONENTS (MASTER) MANAGEMENT
+   ============================= */
+async function ensureComponentsLoaded() {
+  if (!components.length) {
+    try {
+      components = await window.electronAPI.getComponents();
+    } catch (e) {
+      console.error("getComponents error", e);
+      components = [];
+    }
+  }
+}
+
+async function loadComponents() {
+  try {
+    components = await window.electronAPI.getComponents();
+    renderComponentsTable();
+  } catch (e) {
+    console.error("loadComponents error", e);
+  }
+}
+
+function renderComponentsTable() {
+  const body = document.getElementById("components-body");
+  if (!body) return;
+  if (!components.length) {
+    body.innerHTML =
+      '<tr><td colspan="7" class="no-data">Belum ada komponen</td></tr>';
+    return;
+  }
+  body.innerHTML = components
+    .map(
+      (c) => `<tr>
+        <td>${c.id}</td>
+        <td><input data-comp-id="${c.id}" data-k="name" value="${escapeHtml(
+        c.name
+      )}" class="inline-edit" /></td>
+        <td>
+          <select data-comp-id="${c.id}" data-k="type" class="inline-edit">
+            <option value="material" ${
+              c.type !== "service" ? "selected" : ""
+            }>Material</option>
+            <option value="service" ${
+              c.type === "service" ? "selected" : ""
+            }>Jasa</option>
+          </select>
+        </td>
+        <td><input data-comp-id="${c.id}" data-k="unit" value="${escapeHtml(
+        c.unit || ""
+      )}" class="inline-edit" style="width:90px" /></td>
+        <td><input data-comp-id="${
+          c.id
+        }" data-k="price" type="number" step="100" value="${
+        Number(c.price) || 0
+      }" class="inline-edit" style="width:120px" /></td>
+        <td>${
+          c.type === "service"
+            ? "-"
+            : `<input data-comp-id="${
+                c.id
+              }" data-k="stock" type="number" step="1" value="${
+                Number(c.stock) || 0
+              }" class="inline-edit" style="width:100px" />`
+        }</td>
+        <td>
+          <button class="btn-secondary btn-small" onclick="updateComponent(${
+            c.id
+          })">Simpan</button>
+          <button class="btn-danger btn-small" onclick="deleteComponent(${
+            c.id
+          })">Hapus</button>
+        </td>
+      </tr>`
+    )
+    .join("");
+}
+
+/* =============================
+   ARTIFICIAL ITEMS MANAGEMENT
+   ============================= */
+async function loadArtificialItems() {
+  try {
+    const body = document.getElementById("art-body");
+    if (body) body.innerHTML = '<tr><td colspan="5">Memuat...</td></tr>';
+    artificialItems = await window.electronAPI.getArtificialItems();
+    renderArtificialTable();
+  } catch (e) {
+    console.error("loadArtificialItems", e);
+    renderArtificialTable();
+  }
+}
+
+function renderArtificialTable() {
+  const body = document.getElementById("art-body");
+  if (!body) return;
+  if (!artificialItems || artificialItems.length === 0) {
+    body.innerHTML =
+      '<tr><td colspan="5" class="no-data">Belum ada data</td></tr>';
+    return;
+  }
+  body.innerHTML = artificialItems
+    .map(
+      (it) => `<tr data-art-id="${it.id}">
+        <td>${it.id}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <img src="${
+              it.image || "assets/no-image.png"
+            }" alt="thumb" style="width:42px;height:42px;object-fit:cover;border:1px solid #ddd;border-radius:6px" onerror="this.src='assets/no-image.png'" />
+            <input class="inline-edit" data-k="image" value="${escapeHtml(
+              it.image || ""
+            )}" placeholder="URL gambar" />
+          </div>
+        </td>
+        <td><input class="inline-edit" data-k="name" value="${escapeHtml(
+          it.name
+        )}" /></td>
+        <td><input class="inline-edit" data-k="price" type="number" min="0" step="1000" value="${
+          Number(it.price) || 0
+        }" style="width:140px" /></td>
+        <td>${new Date(it.created_at || Date.now()).toLocaleString(
+          "id-ID"
+        )}</td>
+        <td>
+          <button class="btn btn-secondary btn-small" data-art-act="save">Simpan</button>
+          <button class="btn btn-danger btn-small" data-art-act="del">Hapus</button>
+        </td>
+      </tr>`
+    )
+    .join("");
+  // Wire actions
+  body.querySelectorAll("[data-art-act='save']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const tr = btn.closest("tr");
+      const id = parseInt(tr.getAttribute("data-art-id"), 10);
+      const name = tr.querySelector('[data-k="name"]').value.trim();
+      const price =
+        Number(tr.querySelector('[data-k="price"]').value || 0) || 0;
+      const image =
+        (tr.querySelector('[data-k="image"]').value || "").trim() || null;
+      const res = await window.electronAPI.adminUpdateArtificial(id, {
+        name,
+        price,
+        image,
+      });
+      if (res && res.changes) showNotification("Tersimpan", "success");
+    });
+  });
+  body.querySelectorAll("[data-art-act='del']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Hapus item artificial ini?")) return;
+      const tr = btn.closest("tr");
+      const id = parseInt(tr.getAttribute("data-art-id"), 10);
+      const res = await window.electronAPI.adminDeleteArtificial(id);
+      if (res && res.changes) {
+        showNotification("Dihapus", "success");
+        artificialItems = artificialItems.filter((x) => x.id !== id);
+        renderArtificialTable();
+      }
+    });
+  });
+}
+
+async function onAddArtificial() {
+  const nameEl = document.getElementById("art-name");
+  const priceEl = document.getElementById("art-price");
+  const urlEl = document.getElementById("art-image");
+  const name = (nameEl?.value || "").trim();
+  const price = Number(priceEl?.value || 0) || 0;
+  if (!name || price <= 0) {
+    showNotification("Isi nama dan harga yang benar", "error");
+    return;
+  }
+  try {
+    let finalImage = (urlEl?.value || "").trim() || null;
+    if (artSelectedImageFile) {
+      const dataUrl = await fileToDataUrl(artSelectedImageFile);
+      const up = await window.electronAPI.saveImage(
+        artSelectedImageFile.name,
+        dataUrl
+      );
+      if (up && up.success) finalImage = up.relativePath;
+    }
+    const res = await window.electronAPI.adminAddArtificial(
+      name,
+      price,
+      finalImage
+    );
+    if (res && res.id) {
+      showNotification("Artificial ditambahkan", "success");
+      if (nameEl) nameEl.value = "";
+      if (priceEl) priceEl.value = "";
+      if (urlEl) urlEl.value = "";
+      const fileEl = document.getElementById("art-image-file");
+      if (fileEl) fileEl.value = "";
+      artSelectedImageFile = null;
+      hideArtPreview();
+      await loadArtificialItems();
+    } else {
+      showNotification("Gagal menambah", "error");
+    }
+  } catch (e) {
+    console.error("adminAddArtificial", e);
+    showNotification("Terjadi kesalahan", "error");
+  }
+}
+
+function showArtPreview(file) {
+  const box = document.getElementById("art-img-preview");
+  const img = document.getElementById("art-img-preview-img");
+  if (!box || !img) return;
+  const url = URL.createObjectURL(file);
+  img.src = url;
+  box.style.display = "block";
+}
+function hideArtPreview() {
+  const box = document.getElementById("art-img-preview");
+  const img = document.getElementById("art-img-preview-img");
+  if (img) img.src = "";
+  if (box) box.style.display = "none";
+}
+
+// Open the Add Component modal
+function onAddComponent() {
+  openComponentModal();
+}
+
+function openComponentModal() {
+  const modal = document.getElementById("component-modal");
+  if (!modal) return;
+  // reset form fields
+  const nameEl = document.getElementById("component-name");
+  const typeEl = document.getElementById("component-type");
+  const unitEl = document.getElementById("component-unit");
+  const priceEl = document.getElementById("component-price");
+  const stockEl = document.getElementById("component-stock");
+  if (nameEl) nameEl.value = "";
+  if (typeEl) typeEl.value = "material";
+  if (unitEl) unitEl.value = "";
+  if (priceEl) priceEl.value = "";
+  if (stockEl) stockEl.value = "0";
+  applyComponentTypeVisibility();
+  modal.style.display = "flex";
+}
+
+function closeComponentModal() {
+  const modal = document.getElementById("component-modal");
+  if (modal) modal.style.display = "none";
+}
+
+function applyComponentTypeVisibility() {
+  const typeEl = document.getElementById("component-type");
+  const unitGroup = document.getElementById("unit-group");
+  const stockGroup = document.getElementById("stock-group");
+  const isService = typeEl && typeEl.value === "service";
+  if (unitGroup) unitGroup.style.display = isService ? "none" : "block";
+  if (stockGroup) stockGroup.style.display = isService ? "none" : "block";
+}
+
+async function saveComponentFromModal(e) {
+  e.preventDefault();
+  const name = (document.getElementById("component-name")?.value || "").trim();
+  const type = document.getElementById("component-type")?.value || "material";
+  const unit =
+    type === "service"
+      ? ""
+      : (document.getElementById("component-unit")?.value || "").trim();
+  const price =
+    Number(document.getElementById("component-price")?.value || 0) || 0;
+  const stock =
+    type === "service"
+      ? 0
+      : Number(document.getElementById("component-stock")?.value || 0) || 0;
+
+  if (!name) {
+    showNotification("Nama komponen/jasa wajib diisi", "error");
+    return;
+  }
+  if (price < 0) {
+    showNotification("Harga tidak boleh negatif", "error");
+    return;
+  }
+
+  try {
+    const res = await window.electronAPI.addComponent(
+      name,
+      unit,
+      price,
+      stock,
+      type
+    );
+    if (res && res.id) {
+      showNotification("Komponen ditambahkan", "success");
+      closeComponentModal();
+      // refresh components list and BOM selector if present
+      components = await window.electronAPI.getComponents();
+      renderComponentsTable();
+      populateBomSelect();
+    } else {
+      showNotification("Gagal menambah komponen", "error");
+    }
+  } catch (err) {
+    console.error("addComponent error", err);
+    showNotification("Terjadi kesalahan menambah komponen", "error");
+  }
+}
+
+async function updateComponent(id) {
+  const fields = {};
+  document.querySelectorAll(`[data-comp-id='${id}']`).forEach((el) => {
+    const k = el.getAttribute("data-k");
+    let v = el.value;
+    if (k === "price" || k === "stock") v = Number(v) || 0;
+    fields[k] = v;
+  });
+  const res = await window.electronAPI.updateComponent(id, fields);
+  if (res && res.changes) {
+    showNotification("Komponen diperbarui", "success");
+    loadComponents();
+  } else {
+    showNotification("Gagal memperbarui", "error");
+  }
+}
+
+async function deleteComponent(id) {
+  if (!confirm("Hapus komponen ini? Akan dihapus dari semua produk.")) return;
+  const res = await window.electronAPI.deleteComponent(id);
+  if (res && res.changes) {
+    showNotification("Komponen dihapus", "success");
+    loadComponents();
+  } else {
+    showNotification("Gagal menghapus komponen", "error");
+  }
+}
+
+/* =============================
+   BOM EDITOR (inside product modal)
+   ============================= */
+function populateBomSelect() {
+  const sel = document.getElementById("bom-component-select");
+  if (!sel) return;
+  sel.innerHTML = components
+    .map(
+      (c) =>
+        `<option value="${c.id}">${escapeHtml(c.name)} (${
+          c.type === "service" ? "jasa" : c.unit || "-"
+        })</option>`
+    )
+    .join("");
+}
+
+async function loadProductBom(productId) {
+  try {
+    const bomItems = await window.electronAPI.getProductComponents(productId);
+    currentBom = bomItems.map((it) => ({
+      component_id: it.component_id,
+      name: it.name,
+      price: Number(it.price) || 0,
+      quantity: Number(it.quantity) || 1,
+    }));
+    renderBomTable();
+  } catch (e) {
+    console.error("loadProductBom error", e);
+  }
+}
+
+function addBomRowFromSelect() {
+  const sel = document.getElementById("bom-component-select");
+  const qtyEl = document.getElementById("bom-qty");
+  if (!sel || !qtyEl || !sel.value) return;
+  const compId = parseInt(sel.value, 10);
+  const comp = components.find((c) => c.id === compId);
+  if (!comp) return;
+  const qty = Math.max(1, parseInt(qtyEl.value || "1", 10));
+  const existing = currentBom.find((b) => b.component_id === compId);
+  if (existing) existing.quantity += qty;
+  else
+    currentBom.push({
+      component_id: comp.id,
+      name: comp.name,
+      price: Number(comp.price) || 0,
+      quantity: qty,
+    });
+  renderBomTable();
+}
+
+function renderBomTable() {
+  const body = document.getElementById("bom-body");
+  const totalEl = document.getElementById("bom-total");
+  if (!body || !totalEl) return;
+  if (!currentBom.length) {
+    body.innerHTML =
+      '<tr><td colspan="5" class="no-data">Belum ada komponen</td></tr>';
+    totalEl.textContent = formatCurrencyIDR(0);
+    return;
+  }
+  let total = 0;
+  body.innerHTML = currentBom
+    .map((it) => {
+      const sub = (Number(it.price) || 0) * (Number(it.quantity) || 0);
+      total += sub;
+      return `<tr>
+        <td>${escapeHtml(it.name)}</td>
+        <td><input type="number" min="1" step="1" value="${
+          it.quantity
+        }" style="width:80px" data-bom-id="${
+        it.component_id
+      }" class="bom-qty" /></td>
+        <td>${formatCurrencyIDR(it.price)}</td>
+        <td>${formatCurrencyIDR(sub)}</td>
+        <td><button type="button" class="btn btn-danger btn-small" data-bom-remove="${
+          it.component_id
+        }">Hapus</button></td>
+      </tr>`;
+    })
+    .join("");
+  totalEl.textContent = formatCurrencyIDR(total);
+  // Wire qty changes and remove
+  body.querySelectorAll(".bom-qty").forEach((el) => {
+    el.addEventListener("input", () => {
+      const id = parseInt(el.getAttribute("data-bom-id"), 10);
+      const row = currentBom.find((b) => b.component_id === id);
+      if (row) {
+        row.quantity = Math.max(1, parseInt(el.value || "1", 10));
+        renderBomTable();
+      }
+    });
+  });
+  body.querySelectorAll("[data-bom-remove]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = parseInt(btn.getAttribute("data-bom-remove"), 10);
+      currentBom = currentBom.filter((b) => b.component_id !== id);
+      renderBomTable();
+    });
+  });
+}
+
+/* =============================
+   VARIANT EDITOR (inside product modal)
+   ============================= */
+async function loadProductVariants(productId) {
+  try {
+    const items = await window.electronAPI.getProductVariants(productId);
+    currentVariants = (items || []).map((v) => ({
+      name: v.name,
+      price: typeof v.price === "number" ? v.price : null,
+      image: v.image || null,
+    }));
+    renderVariantTable();
+  } catch (e) {
+    console.error("loadProductVariants error", e);
+  }
+}
+
+function addVariantFromInputs() {
+  const nameEl = document.getElementById("variant-name");
+  const priceEl = document.getElementById("variant-price");
+  const urlEl = document.getElementById("variant-image");
+  if (!nameEl) return;
+  const name = (nameEl.value || "").trim();
+  let priceRaw = priceEl ? priceEl.value : "";
+  if (!name) {
+    showNotification("Nama varian wajib diisi", "error");
+    return;
+  }
+  const price = priceRaw === "" ? null : Number(priceRaw) || 0;
+  // handle image: prefer uploaded file -> save -> use returned path; else use URL input if provided
+  const finishPush = (imagePath) => {
+    currentVariants.push({
+      name,
+      price,
+      image: imagePath || urlEl?.value?.trim() || null,
+    });
+    nameEl.value = "";
+    if (priceEl) priceEl.value = "";
+    if (urlEl) urlEl.value = "";
+    const f = document.getElementById("variant-image-file");
+    if (f) f.value = "";
+    selectedVariantImageFile = null;
+    renderVariantTable();
+  };
+
+  if (selectedVariantImageFile) {
+    fileToDataUrl(selectedVariantImageFile)
+      .then((dataUrl) =>
+        window.electronAPI.saveImage(selectedVariantImageFile.name, dataUrl)
+      )
+      .then((res) => {
+        if (res && res.success) finishPush(res.relativePath);
+        else {
+          showNotification("Gagal menyimpan gambar varian", "error");
+          finishPush(null);
+        }
+      })
+      .catch((err) => {
+        console.error("save variant image error", err);
+        finishPush(null);
+      });
+  } else {
+    finishPush(null);
+  }
+}
+
+function renderVariantTable() {
+  const body = document.getElementById("variant-body");
+  if (!body) return;
+  if (!currentVariants.length) {
+    body.innerHTML =
+      '<tr><td colspan="4" class="no-data">Belum ada varian</td></tr>';
+    return;
+  }
+  body.innerHTML = currentVariants
+    .map((v, idx) => {
+      const priceStr =
+        v.price == null ? "Ikuti harga utama" : formatCurrencyIDR(v.price);
+      return `<tr>
+        <td><input type="text" value="${escapeHtml(
+          v.name
+        )}" data-var-k="name" data-var-i="${idx}" class="inline-edit" /></td>
+        <td><input type="number" min="0" step="1000" value="${
+          v.price == null ? "" : v.price
+        }" placeholder="Kosong=ikut harga utama" data-var-k="price" data-var-i="${idx}" class="inline-edit" style="width:160px" /></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:6px">
+            <img src="${
+              v.image || "assets/no-image.png"
+            }" alt="varian" style="width:42px;height:42px;object-fit:cover;border-radius:6px;border:1px solid #ddd" onerror="this.src='assets/no-image.png'"/>
+            <input type="text" value="${escapeHtml(
+              v.image || ""
+            )}" placeholder="URL/Path gambar" data-var-k="image" data-var-i="${idx}" class="inline-edit" />
+          </div>
+        </td>
+        <td><button type="button" class="btn btn-danger btn-small" data-var-remove="${idx}">Hapus</button></td>
+      </tr>`;
+    })
+    .join("");
+  // Wire edits
+  body.querySelectorAll("[data-var-k]").forEach((el) => {
+    el.addEventListener("input", () => {
+      const i = parseInt(el.getAttribute("data-var-i"), 10);
+      const k = el.getAttribute("data-var-k");
+      if (!currentVariants[i]) return;
+      if (k === "name") currentVariants[i].name = el.value;
+      if (k === "price")
+        currentVariants[i].price =
+          el.value === "" ? null : Number(el.value) || 0;
+      if (k === "image")
+        currentVariants[i].image = (el.value || "").trim() || null;
+    });
+  });
+  body.querySelectorAll("[data-var-remove]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const i = parseInt(btn.getAttribute("data-var-remove"), 10);
+      currentVariants.splice(i, 1);
+      renderVariantTable();
+    });
+  });
+}
+
+function formatCurrencyIDR(n) {
+  try {
+    return window.electronAPI.formatCurrency(Number(n) || 0);
+  } catch {
+    return `Rp ${Number(n) || 0}`;
+  }
+}
+
+// Safe HTML escaping for inline editing outputs
+function escapeHtml(str) {
+  return String(str).replace(
+    /[&"'<>]/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      }[c])
+  );
+}
+
 function editProduct(productId) {
   showProductModal(productId);
 }
@@ -1077,7 +1922,10 @@ async function testEscPosPrint() {
         { name: "Tes A", quantity: 1, price: 2345 },
         { name: "Tes B", quantity: 2, price: 5000 },
       ],
-      businessName: "Florist Kiosk",
+      businessName: "JS Florist",
+      website: "",
+      whatsapp: "",
+      instagram: "",
       notes: "Tes ESC/POS",
       cut: true,
       drawer: false,
@@ -1134,8 +1982,11 @@ async function testPrintReceipt() {
         { name: "Buket Mawar Merah", quantity: 1, price: 35000 },
         { name: "Lili Putih", quantity: 1, price: 15000 },
       ],
-      businessName: "Florist Kiosk",
+      businessName: "JS Florist",
       address: "Test Print - " + new Date().toLocaleString("id-ID"),
+      website: "",
+      whatsapp: "",
+      instagram: "",
       notes: "Tes cetak struk thermal",
       deviceName: selectedPrinter,
       allowDialogOnFail: true,

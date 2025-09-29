@@ -3,7 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detail Produk - Florist Kiosk</title>
+    <title>Detail Produk - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="dist/tailwind.generated.css" />
     <link rel="stylesheet" href="style.css" />
     <style>
@@ -44,9 +50,7 @@
         white-space: pre-wrap;
       }
       .skeleton {
-        background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
-        background-size: 200% 100%;
-        animation: shimmer 1.2s infinite;
+        background: #f0f0f0;
         border-radius: 6px;
       }
       @keyframes shimmer {
@@ -67,19 +71,16 @@
       }
     </style>
   </head>
-  <body
-    class="kiosk-mode bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
-  >
+  <body class="kiosk-mode min-h-screen">
     <div class="container">
       <header class="relative">
         <h1
           class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
         >
-          🌸 Florist Kiosk
+          🌸 JS Florist
         </h1>
         <nav class="items-center">
           <a href="index.html" class="nav-link">Katalog</a>
-          <a href="cart.html" class="nav-link">Keranjang</a>
           <a href="admin-login.html" class="nav-link admin-link">🔐 Admin</a>
         </nav>
       </header>
@@ -106,13 +107,46 @@
       </main>
 
       <footer>
-        <p>&copy; 2025 Florist Kiosk. Detail Produk.</p>
+        <p>&copy; 2025 JS Florist. Detail Produk.</p>
       </footer>
     </div>
 
     <div id="notification" class="notification">
       <span id="notification-text"></span>
       <button id="notification-close">&times;</button>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div
+      id="image-zoom-modal"
+      class="modal"
+      aria-hidden="true"
+      style="background: rgba(0, 0, 0, 0.75)"
+    >
+      <div
+        class="modal-content"
+        style="
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+          max-width: none;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <img
+          id="zoomed-img"
+          alt="Gambar diperbesar"
+          style="
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            cursor: zoom-out;
+          "
+        />
+      </div>
     </div>
 
     <script src="renderer.js"></script>
@@ -172,6 +206,11 @@
             <button class="btn btn-secondary" id="back-btn">Kembali</button>
           </div>
         </div>`;
+        const bigImg = container.querySelector(".detail-image img");
+        if (bigImg) {
+          bigImg.style.cursor = "zoom-in";
+          bigImg.addEventListener("click", () => openImageZoom(bigImg.src));
+        }
         document
           .getElementById("add-cart-btn")
           .addEventListener("click", () => addToCart(product));
@@ -181,6 +220,34 @@
             window.electronAPI.navigateTo("index.html")
           );
       }
+
+      function openImageZoom(src) {
+        const zm = document.getElementById("image-zoom-modal");
+        const zi = document.getElementById("zoomed-img");
+        if (!zm || !zi) return;
+        zi.src = src;
+        zm.style.display = "flex";
+        zm.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+      }
+
+      function closeImageZoom() {
+        const zm = document.getElementById("image-zoom-modal");
+        if (!zm) return;
+        zm.style.display = "none";
+        zm.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+      }
+
+      const zoomImgEl = document.getElementById("zoomed-img");
+      if (zoomImgEl) {
+        zoomImgEl.addEventListener("click", closeImageZoom);
+      }
+
+      document.addEventListener("click", (e) => {
+        const imageZoomModal = document.getElementById("image-zoom-modal");
+        if (e.target === imageZoomModal) closeImageZoom();
+      });
 
       async function addToCart(product) {
         try {

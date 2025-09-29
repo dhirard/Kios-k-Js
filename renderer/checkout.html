@@ -3,16 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout - Florist Kiosk</title>
+    <title>Checkout - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>🌸 Florist Kiosk</h1>
+        <h1>🌸 JS Florist</h1>
         <nav>
           <a href="index.html" class="nav-link">Katalog</a>
-          <a href="cart.html" class="nav-link">Keranjang</a>
           <span class="nav-link active">Checkout</span>
           <a href="admin-login.html" class="nav-link admin-link"> 🔐 Admin </a>
         </nav>
@@ -48,19 +54,87 @@
               </div>
 
               <div class="payment-section">
+                <h3>Detail Pengantaran</h3>
+                <div class="order-form">
+                  <div class="form-group">
+                    <label for="buyer-name">Nama Pembeli</label>
+                    <input
+                      type="text"
+                      id="buyer-name"
+                      placeholder="Nama pembeli"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="recipient-name">Nama Penerima</label>
+                    <input
+                      type="text"
+                      id="recipient-name"
+                      placeholder="Nama penerima (opsional)"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Nomor Telepon</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      placeholder="08xxxxxxxxxx"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Tipe Pengantaran</label>
+                    <label class="payment-option" style="border-color: #e0e0e0">
+                      <input
+                        type="radio"
+                        name="delivery-type"
+                        value="delivery"
+                        checked
+                      />
+                      <span class="payment-label">🚚 Antar ke alamat</span>
+                    </label>
+                    <label class="payment-option" style="border-color: #e0e0e0">
+                      <input type="radio" name="delivery-type" value="pickup" />
+                      <span class="payment-label">🏬 Ambil di tempat</span>
+                    </label>
+                  </div>
+                  <div class="form-group" id="address-group">
+                    <label for="delivery-address">Alamat Lengkap</label>
+                    <textarea
+                      id="delivery-address"
+                      placeholder="Alamat lengkap untuk pengantaran"
+                      style="min-height: 70px"
+                    ></textarea>
+                  </div>
+                  <div class="form-group" id="datetime-group">
+                    <label for="delivery-datetime"
+                      >Tanggal & Jam Pengantaran</label
+                    >
+                    <input type="datetime-local" id="delivery-datetime" />
+                  </div>
+                  <div class="form-group">
+                    <label for="order-notes">Catatan</label>
+                    <textarea
+                      id="order-notes"
+                      placeholder="Catatan untuk pesanan (opsional)"
+                      style="min-height: 70px"
+                    ></textarea>
+                  </div>
+                </div>
+
                 <h3>Metode Pembayaran</h3>
                 <div class="payment-methods">
                   <label class="payment-option">
-                    <input type="radio" name="payment" value="cash" checked />
-                    <span class="payment-label">💵 Tunai</span>
-                  </label>
-                  <label class="payment-option">
-                    <input type="radio" name="payment" value="card" />
-                    <span class="payment-label">💳 Kartu Debit/Kredit</span>
-                  </label>
-                  <label class="payment-option">
                     <input type="radio" name="payment" value="qris" />
                     <span class="payment-label">📱 QRIS</span>
+                  </label>
+                  <label class="payment-option">
+                    <input type="radio" name="payment" value="transfer" />
+                    <span class="payment-label">🏦 Transfer</span>
+                  </label>
+                  <label class="payment-option">
+                    <input type="radio" name="payment" value="cash" checked />
+                    <span class="payment-label">💵 Tunai (Cash)</span>
                   </label>
                 </div>
 
@@ -89,8 +163,15 @@
       </main>
 
       <footer>
-        <p>&copy; 2025 Florist Kiosk. Bunga segar setiap hari.</p>
+        <p>&copy; 2025 JS Florist. Bunga segar setiap hari.</p>
       </footer>
+    </div>
+
+    <!-- Example trigger for silent receipt printing -->
+    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 1000">
+      <button id="btnPrintReceipt" class="btn-secondary">
+        Cetak Struk Penjualan
+      </button>
     </div>
 
     <!-- Success modal -->
@@ -105,13 +186,22 @@
             <strong>Total Pembayaran:</strong> <span id="final-amount"></span>
           </p>
           <p><strong>Waktu:</strong> <span id="order-time"></span></p>
+          <p><strong>Pembeli:</strong> <span id="info-buyer"></span></p>
+          <p><strong>Penerima:</strong> <span id="info-recipient"></span></p>
+          <p><strong>Telepon:</strong> <span id="info-phone"></span></p>
+          <p><strong>Tipe:</strong> <span id="info-delivery-type"></span></p>
+          <p>
+            <strong>Waktu Antar:</strong> <span id="info-delivery-dt"></span>
+          </p>
+          <p><strong>Alamat:</strong> <span id="info-address"></span></p>
+          <p>
+            <strong>Metode Pembayaran:</strong> <span id="info-payment"></span>
+          </p>
+          <p><strong>Catatan:</strong> <span id="info-notes"></span></p>
         </div>
         <div class="modal-actions">
           <button id="manual-print-btn" class="btn btn-secondary">
             🖨️ Print Manual
-          </button>
-          <button id="hybrid-print-btn" class="btn btn-secondary">
-            🔄 Print Hybrid
           </button>
           <button id="new-order-btn" class="btn-primary">Pesanan Baru</button>
         </div>
@@ -137,10 +227,17 @@
     <script src="navigation.js"></script>
     <script>
       let cartItems = [];
+      let componentsMap = new Map();
       let totalAmount = 0;
 
       // Initialize the checkout page
       document.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const comps = await window.electronAPI.getComponents();
+          if (Array.isArray(comps)) {
+            componentsMap = new Map(comps.map((c) => [Number(c.id), c]));
+          }
+        } catch (_) {}
         await loadCheckoutData();
         setupEventListeners();
       });
@@ -187,6 +284,12 @@
                     </div>
                     <div class="item-details">
                         <h4>${item.name}</h4>
+                        ${
+                          item.variant_name
+                            ? `<div class="small-note">Varian: ${item.variant_name}</div>`
+                            : ""
+                        }
+                        ${renderCustomDetails(item)}
                         <p>${window.electronAPI.formatCurrency(item.price)} × ${
               item.quantity
             }</p>
@@ -209,6 +312,92 @@
         document.getElementById("total-items").textContent = totalItems;
         document.getElementById("total-amount").textContent =
           window.electronAPI.formatCurrency(totalAmount);
+      }
+
+      function renderCustomDetails(item) {
+        if (!item.custom) return "";
+        const {
+          mode,
+          materials = [],
+          flowers = [],
+          items = [],
+        } = item.custom || {};
+        const parts = [];
+        if (mode)
+          parts.push(
+            `<div class=\"small-note\">Custom: ${escapeHtml(mode)}</div>`
+          );
+        if (Array.isArray(items) && items.length) {
+          const list = items
+            .map((it) => `${escapeHtml(it.name)} x${Number(it.quantity) || 1}`)
+            .join(", ");
+          parts.push(`<div class=\"small-note\">• Item: ${list}</div>`);
+        }
+        const mapName = (cid) =>
+          escapeHtml(componentsMap.get(Number(cid))?.name || `#${cid}`);
+        if (Array.isArray(materials) && materials.length) {
+          const list = materials
+            .map(
+              (m) => `${mapName(m.component_id)} x${Number(m.quantity) || 1}`
+            )
+            .join(", ");
+          parts.push(`<div class=\"small-note\">• Material: ${list}</div>`);
+        }
+        if (Array.isArray(flowers) && flowers.length) {
+          const list = flowers
+            .map(
+              (f) => `${mapName(f.component_id)} x${Number(f.quantity) || 1}`
+            )
+            .join(", ");
+          parts.push(`<div class=\"small-note\">• Bunga: ${list}</div>`);
+        }
+        return parts.join("");
+      }
+
+      // Build plain details array for printing
+      function buildDetailsForPrint(item) {
+        if (!item.custom) return [];
+        const { materials = [], flowers = [], items = [] } = item.custom || {};
+        const details = [];
+        const mapName = (cid) =>
+          componentsMap.get(Number(cid))?.name || `#${cid}`;
+        if (Array.isArray(items) && items.length) {
+          const list = items
+            .map((it) => `${it.name} x${Number(it.quantity) || 1}`)
+            .join(", ");
+          details.push(`Item: ${list}`);
+        }
+        if (Array.isArray(materials) && materials.length) {
+          const list = materials
+            .map(
+              (m) => `${mapName(m.component_id)} x${Number(m.quantity) || 1}`
+            )
+            .join(", ");
+          details.push(`Material: ${list}`);
+        }
+        if (Array.isArray(flowers) && flowers.length) {
+          const list = flowers
+            .map(
+              (f) => `${mapName(f.component_id)} x${Number(f.quantity) || 1}`
+            )
+            .join(", ");
+          details.push(`Bunga: ${list}`);
+        }
+        return details;
+      }
+
+      function escapeHtml(str) {
+        return String(str || "").replace(
+          /[&"'<>]/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c])
+        );
       }
 
       function setupEventListeners() {
@@ -243,9 +432,40 @@
           processingModal.style.display = "flex";
 
           // Get selected payment method
-          const selectedPayment = document.querySelector(
-            'input[name="payment"]:checked'
-          ).value;
+          const selectedPayment =
+            (document.querySelector('input[name="payment"]:checked') || {})
+              .value || "cash";
+          const buyerName = (
+            document.getElementById("buyer-name")?.value || ""
+          ).trim();
+          const recipientName = (
+            document.getElementById("recipient-name")?.value || ""
+          ).trim();
+          const phone = (document.getElementById("phone")?.value || "").trim();
+          const deliveryType =
+            (
+              document.querySelector('input[name="delivery-type"]:checked') ||
+              {}
+            ).value || "delivery";
+          const address = (
+            document.getElementById("delivery-address")?.value || ""
+          ).trim();
+          const deliveryDt = (
+            document.getElementById("delivery-datetime")?.value || ""
+          ).trim();
+          const notes = (
+            document.getElementById("order-notes")?.value || ""
+          ).trim();
+
+          // Simple validation
+          if (!buyerName) throw new Error("Nama pembeli wajib diisi");
+          if (!phone) throw new Error("Nomor telepon wajib diisi");
+          if (deliveryType === "delivery") {
+            if (!address)
+              throw new Error("Alamat wajib diisi untuk pengantaran");
+            if (!deliveryDt)
+              throw new Error("Tanggal & jam pengantaran wajib diisi");
+          }
 
           // Simulate payment processing delay
           await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -263,8 +483,24 @@
               .padStart(6, "0")}`;
             document.getElementById("final-amount").textContent =
               window.electronAPI.formatCurrency(totalAmount);
-            document.getElementById("order-time").textContent =
-              new Date().toLocaleString("id-ID");
+            const nowStr = new Date().toLocaleString("id-ID");
+            document.getElementById("order-time").textContent = nowStr;
+            document.getElementById("info-buyer").textContent = buyerName;
+            document.getElementById("info-recipient").textContent =
+              recipientName || "-";
+            document.getElementById("info-phone").textContent = phone;
+            document.getElementById("info-delivery-type").textContent =
+              deliveryType === "delivery"
+                ? "Antar ke alamat"
+                : "Ambil di tempat";
+            document.getElementById("info-delivery-dt").textContent = deliveryDt
+              ? new Date(deliveryDt).toLocaleString("id-ID")
+              : "-";
+            document.getElementById("info-address").textContent =
+              address || "-";
+            document.getElementById("info-payment").textContent =
+              selectedPayment.toUpperCase();
+            document.getElementById("info-notes").textContent = notes || "-";
 
             successModal.style.display = "flex";
 
@@ -275,14 +511,47 @@
                 orderId,
                 total: totalAmount,
                 items: cartItems.map((it) => ({
-                  name: it.name,
+                  name: it.variant_name
+                    ? `${it.name} (${it.variant_name})`
+                    : it.name,
                   quantity: it.quantity,
                   price: it.price,
+                  // include details for custom items on receipt
+                  details:
+                    Array.isArray(it.custom) || it.custom
+                      ? buildDetailsForPrint(it)
+                      : [],
                 })),
-                businessName: "Florist Kiosk",
-                address: "Toko Bunga Segar",
-                notes: "Terima kasih atas kunjungan Anda",
+                buyer: {
+                  name: buyerName,
+                  phone,
+                },
+                recipient: {
+                  name: recipientName,
+                },
+                delivery: {
+                  type: deliveryType, // delivery | pickup
+                  address,
+                  datetime: deliveryDt,
+                },
+                customerNotes: notes,
+                businessName: "JS Florist",
+                address:
+                  "Jl. Dahlia No.23, Komet, Kec. Banjarbaru Selatan, Kota Banjar Baru",
+                website: "www.jsflorist.com",
+                whatsapp: "+62 823-5741-8002",
+                instagram: "jsflorist.banjarbaru",
+                servedByFlorist: (function () {
+                  try {
+                    return (
+                      Number(localStorage.getItem("activeFlorist")) || null
+                    );
+                  } catch (_) {
+                    return null;
+                  }
+                })(),
                 printMode: "escpos",
+                paymentMethod: selectedPayment,
               };
 
               const printRes = await window.electronAPI.printReceiptAuto(
@@ -396,12 +665,29 @@
             orderId: orderId,
             total: totalAmount,
             items: cartItems.map((item) => ({
-              name: item.name,
+              name: item.variant_name
+                ? `${item.name} (${item.variant_name})`
+                : item.name,
               quantity: item.quantity,
               price: item.price,
+              details:
+                Array.isArray(item.custom) || item.custom
+                  ? buildDetailsForPrint(item)
+                  : [],
             })),
-            businessName: "Florist Kiosk",
-            address: "Toko Bunga Segar",
+            businessName: "JS Florist",
+            address:
+              "Jl. Dahlia No.23, Komet, Kec. Banjarbaru Selatan, Kota Banjar Baru",
+            website: "www.jsflorist.com",
+            whatsapp: "+62 823-5741-8002",
+            instagram: "jsflorist.banjarbaru",
+            servedByFlorist: (function () {
+              try {
+                return Number(localStorage.getItem("activeFlorist")) || null;
+              } catch (_) {
+                return null;
+              }
+            })(),
             notes: "Terima kasih atas kunjungan Anda",
             printMode: "dialog", // Force dialog mode
           };
@@ -426,56 +712,6 @@
         }
       }
 
-      // Hybrid print function - EP58M fix
-      async function hybridPrintReceipt() {
-        try {
-          console.log("🔄 Hybrid print untuk EP58M...");
-
-          // Get the last successful order data
-          const orderId = document.getElementById("order-id").textContent;
-          const finalAmount =
-            document.getElementById("final-amount").textContent;
-
-          if (!orderId || !cartItems || cartItems.length === 0) {
-            showNotification("Data pesanan tidak ditemukan", "error");
-            return;
-          }
-
-          const payload = {
-            orderId: orderId,
-            total: totalAmount,
-            items: cartItems.map((item) => ({
-              name: item.name,
-              quantity: item.quantity,
-              price: item.price,
-            })),
-            businessName: "Florist Kiosk",
-            address: "Toko Bunga Segar",
-            notes: "Terima kasih atas kunjungan Anda",
-            hybridMode: true, // Enable hybrid mode
-          };
-
-          console.log("🔄 Hybrid print payload:", payload);
-
-          // Call hybrid print (try silent first, fallback to dialog)
-          const printRes = await window.electronAPI.printReceipt(payload);
-          console.log("🔄 Hybrid print result:", printRes);
-
-          if (printRes && printRes.success) {
-            showNotification("✅ Struk berhasil dicetak (Hybrid)", "success");
-          } else {
-            showNotification(
-              "⚠️ Hybrid print gagal: " +
-                (printRes?.message || "Unknown error"),
-              "error"
-            );
-          }
-        } catch (error) {
-          console.error("Hybrid print error:", error);
-          showNotification("❌ Error saat hybrid print", "error");
-        }
-      }
-
       // Event listeners
       document.addEventListener("DOMContentLoaded", () => {
         // Existing listeners
@@ -492,11 +728,59 @@
           manualPrintBtn.addEventListener("click", manualPrintReceipt);
         }
 
-        // Hybrid print button
-        const hybridPrintBtn = document.getElementById("hybrid-print-btn");
-        if (hybridPrintBtn) {
-          hybridPrintBtn.addEventListener("click", hybridPrintReceipt);
+        // Example silent print trigger
+        const btnPrintReceipt = document.getElementById("btnPrintReceipt");
+        if (btnPrintReceipt && window.printerAPI) {
+          btnPrintReceipt.addEventListener("click", async () => {
+            const transactionData = {
+              title: "TOKO MAJU JAYA",
+              items: [
+                { name: "Susu Kotak", qty: 2, price: 5000 },
+                { name: "Roti Tawar", qty: 1, price: 7500 },
+                { name: "Permen", qty: 5, price: 1000 },
+              ],
+              total: 22500,
+            };
+            const selectedPrinter = "POS58 Printer"; // Ubah sesuai nama printer Anda
+            try {
+              const res = await window.printerAPI.printReceipt(
+                transactionData,
+                selectedPrinter
+              );
+              alert(`Struk terkirim ke printer ${selectedPrinter}`);
+              console.log("Silent print result:", res);
+            } catch (e) {
+              alert(`Gagal mencetak struk: ${e.message}`);
+              console.error(e);
+            }
+          });
         }
+
+        // Toggle delivery inputs by type
+        const addressGroup = document.getElementById("address-group");
+        const datetimeGroup = document.getElementById("datetime-group");
+        const deliveryRadios = document.querySelectorAll(
+          'input[name="delivery-type"]'
+        );
+        const applyDeliveryType = () => {
+          const type =
+            (
+              document.querySelector('input[name="delivery-type"]:checked') ||
+              {}
+            ).value || "delivery";
+          const addressEl = document.getElementById("delivery-address");
+          const dtEl = document.getElementById("delivery-datetime");
+          const isPickup = type === "pickup";
+          if (addressGroup) addressGroup.style.display = isPickup ? "none" : "";
+          if (datetimeGroup)
+            datetimeGroup.style.display = isPickup ? "none" : "";
+          if (addressEl) addressEl.disabled = isPickup;
+          if (dtEl) dtEl.disabled = isPickup;
+        };
+        deliveryRadios.forEach((r) =>
+          r.addEventListener("change", applyDeliveryType)
+        );
+        applyDeliveryType();
       });
     </script>
   </body>

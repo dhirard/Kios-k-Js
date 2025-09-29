@@ -1,4 +1,4 @@
-# 🔧 Solusi Masalah Printer POS58 - Florist Kiosk
+# 🔧 Solusi Masalah Printer POS58 - JS Florist
 
 ## 📋 **Ringkasan Masalah yang Ditemukan**
 

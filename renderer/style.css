@@ -16,9 +16,9 @@
   --pink-700: #e01376;
   --pink-800: #b00b5c;
   --pink-900: #76023c;
-  --color-bg: linear-gradient(135deg, var(--pink-50) 0%, var(--pink-200) 100%);
+  --color-bg: #ffc0cb;
   --color-surface: #fff;
-  --color-primary: var(--pink-600);
+  --color-primary: #d63384;
   --color-primary-soft: var(--pink-400);
   --color-accent: var(--pink-500);
   --color-accent-alt: var(--pink-400);
@@ -32,6 +32,7 @@
   --trans-fast: 0.18s cubic-bezier(0.4, 0.2, 0.2, 1);
   --trans: 0.32s cubic-bezier(0.4, 0.2, 0.2, 1);
 }
+/* rose gold accent defined in Tailwind; keep CSS lean here */
 
 /* Reset */
 * {
@@ -44,18 +45,18 @@ body {
   height: 100%;
 }
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.55;
   color: var(--color-text);
-  background: var(--color-bg);
+  /* Soft pink gradient background */
+  background: linear-gradient(135deg, #ffeef2 0%, #ffd6e2 40%, #ffbfd2 100%);
   min-height: 100vh;
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  /* Avoid transform here to keep position:fixed elements viewport-relative */
+  transition: opacity 0.5s ease;
 }
 body.page-loaded {
   opacity: 1;
-  transform: translateY(0);
 }
 /* When a modal is open, disable transform on body so position:fixed overlays are viewport-relative */
 body.modal-open {
@@ -63,26 +64,20 @@ body.modal-open {
   transform: none !important;
 }
 body.page-exiting {
-  opacity: 0 !important;
+  background: linear-gradient(90deg, #ffb6c1 0%, #ffc0cb 60%, #f3a6b5 100%);
   transform: scale(0.985) translateY(10px) !important;
 }
 body.kiosk-mode {
   user-select: none;
+  /* Soft pink gradient background */
+  background: linear-gradient(135deg, #ffeef2 0%, #ffd6e2 40%, #ffbfd2 100%);
   -webkit-user-select: none;
   touch-action: manipulation;
-  background: radial-gradient(
-    circle at 30% 20%,
-    #fff 0%,
-    var(--pink-100) 55%,
-    var(--pink-200) 100%
-  );
 }
-
-/* Layout */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.92);
   min-height: 100vh;
   box-shadow: 0 0 24px -4px rgba(255, 47, 146, 0.25);
   border-radius: var(--radius-l);
@@ -90,16 +85,18 @@ body.kiosk-mode {
   flex-direction: column;
 }
 main {
+  font-family: "Playfair Display", Georgia, Cambria, "Times New Roman", Times,
+    serif;
   flex: 1;
   padding: 2rem 2.2rem 3rem;
 }
 
 /* Header + Nav */
 header {
-  background: linear-gradient(135deg, var(--pink-400) 0%, var(--pink-600) 100%);
+  background: linear-gradient(90deg, #ffb6c1 0%, #ffc0cb 60%, #f3a6b5 100%);
   color: #fff;
   padding: 1rem 2rem 1.3rem;
-  box-shadow: 0 8px 24px -6px rgba(255, 47, 146, 0.4);
+  box-shadow: 0 4px 12px -6px rgba(214, 51, 132, 0.35);
   position: relative;
   overflow: hidden;
   border-top-left-radius: var(--radius-l);
@@ -107,20 +104,19 @@ header {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  border-bottom: 2px solid rgba(183, 110, 121, 0.35); /* rose gold accent */
 }
 header:before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at 85% 15%,
-    rgba(255, 255, 255, 0.45),
-    transparent 60%
-  );
+  background: none; /* remove gradient overlay */
 }
 header h1 {
   font-size: 2rem;
   letter-spacing: 0.5px;
+  font-family: "Playfair Display", Georgia, Cambria, "Times New Roman", Times,
+    serif;
   z-index: 1;
 }
 nav {
@@ -178,35 +174,8 @@ nav {
   border-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
-
-/* Hero */
-.hero {
-  text-align: center;
-  margin: 2.2rem 0 2.2rem;
-}
-.hero h2 {
-  font-size: 2.6rem;
-  background: linear-gradient(
-    90deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 75%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  margin-bottom: 1rem;
-}
-.hero p {
-  font-size: 1.1rem;
-  color: var(--color-text-muted);
-  max-width: 640px;
-  margin: 0 auto;
-}
-
+/* Clean stray broken rules above; keeping products section below */
 /* Products */
-.products {
-  margin-top: 0.5rem;
-}
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -224,6 +193,7 @@ nav {
   font-weight: 600;
   margin-bottom: 0.35rem;
   color: var(--color-text);
+  font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .product-price {
   font-size: 1.15rem;
@@ -250,12 +220,12 @@ nav {
   position: fixed;
   bottom: 25px;
   right: 25px;
-  background: linear-gradient(135deg, #ff9f9f, #ff2f92);
+  background: var(--color-primary);
   color: #fff;
   padding: 1rem 1.25rem 1rem 1rem;
   border-radius: 18px;
-  box-shadow: 0 12px 28px rgba(255, 47, 146, 0.35),
-    0 4px 10px rgba(255, 47, 146, 0.25);
+  box-shadow: 0 12px 28px rgba(214, 51, 132, 0.35),
+    0 4px 10px rgba(214, 51, 132, 0.25);
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -264,11 +234,16 @@ nav {
   font-size: 1rem;
   z-index: 1200;
   backdrop-filter: blur(4px);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
 }
 .floating-cart:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 32px rgba(255, 47, 146, 0.45);
+}
+.floating-cart.fab-hidden {
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
 }
 .fab-badge {
   min-width: 32px;
@@ -415,9 +390,9 @@ footer {
   color: var(--color-text-muted);
 }
 .tab-btn.active {
-  background: linear-gradient(135deg, var(--pink-400), var(--pink-600));
+  background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(255, 47, 146, 0.35);
+  box-shadow: 0 2px 10px rgba(214, 51, 132, 0.35);
 }
 .tab-btn:hover:not(.active) {
   background: var(--pink-100);
@@ -551,44 +526,44 @@ label {
 .btn-danger {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-image: linear-gradient(90deg, #f07fb2, #e2559a, #d63384);
+  color: #fff;
 }
-
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 12px 26px -8px rgba(214, 51, 132, 0.45);
 }
 
 .btn-secondary {
-  background: #6c757d;
-  color: white;
+  background-image: linear-gradient(90deg, #ffb6c1, #ffc0cb);
+  color: #8a1d55;
 }
-
 .btn-secondary:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
+  filter: brightness(0.98);
+  transform: scale(1.05);
 }
 
 .btn-danger {
   background: #dc3545;
-  color: white;
+  color: #fff;
 }
-
 .btn-danger:hover {
   background: #c82333;
-  transform: translateY(-2px);
+  transform: scale(1.05);
 }
 
 .btn-large {
@@ -808,6 +783,22 @@ label {
   gap: 1rem;
 }
 
+/* Themed notes textarea */
+#order-notes {
+  border-radius: 14px;
+  border: 2px solid #f2d1e3;
+  background: #fff5fa;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 2px 6px rgba(255, 47, 146, 0.08) inset;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+#order-notes:focus {
+  outline: none;
+  border-color: #d63384;
+  background: #ffe9f3;
+  box-shadow: 0 0 0 3px rgba(214, 51, 132, 0.15);
+}
+
 /* Modal Styles */
 .modal {
   display: none;
@@ -827,11 +818,12 @@ label {
 .modal-content {
   background: white;
   padding: 2rem;
-  border-radius: 15px;
+  border-radius: 12px;
   max-width: 500px;
   width: 90%;
   text-align: left; /* left align form fields for clarity */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
   max-height: 90vh; /* constrain height */
   overflow-y: auto; /* internal scroll if very tall */
 }
@@ -894,7 +886,7 @@ label {
 }
 
 .notification.success {
-  background: #28a745;
+  background: var(--color-primary);
 }
 
 .notification.error {
@@ -902,7 +894,7 @@ label {
 }
 
 .notification.info {
-  background: #17a2b8;
+  background: #f07fb2;
 }
 
 #notification-close {
@@ -1126,9 +1118,9 @@ footer {
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(214, 51, 132, 0.3);
 }
 
 .tab-btn:hover:not(.active) {
@@ -1627,7 +1619,7 @@ footer {
 }
 .pay-btn {
   margin-top: 0.5rem;
-  background: linear-gradient(135deg, var(--pink-500), var(--pink-700));
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 16px;
@@ -1664,7 +1656,7 @@ footer {
 }
 .hero-banner {
   position: relative;
-  background: linear-gradient(110deg, var(--pink-400), var(--pink-600));
+  background: var(--color-primary);
   border-radius: 28px;
   padding: 1.7rem 1.9rem 1.6rem;
   overflow: hidden;
@@ -1678,11 +1670,7 @@ footer {
   position: absolute;
   width: 340px;
   height: 340px;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 255, 255, 0.55),
-    transparent 70%
-  );
+  background: none; /* remove gradient overlays */
   border-radius: 50%;
   mix-blend-mode: overlay;
   opacity: 0.45;
@@ -1780,7 +1768,7 @@ footer {
 }
 .cat-chip.active,
 .cat-chip:hover {
-  background: linear-gradient(135deg, #fff, var(--pink-100));
+  background: var(--pink-100);
   transform: translateY(-3px);
   box-shadow: 0 10px 22px -6px rgba(255, 47, 146, 0.35);
 }
@@ -1862,7 +1850,7 @@ footer {
   height: 46px;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--pink-500), var(--pink-600));
+  background: var(--color-primary);
   color: #fff;
   font-size: 1.4rem;
   font-weight: 600;

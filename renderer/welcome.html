@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Selamat Datang - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* Extra welcome-only micro-animations (kept minimal) */
+      .welcome-hero {
+        min-height: 88vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .bokeh {
+        position: absolute;
+        inset: -10% -10%;
+        pointer-events: none;
+        background: radial-gradient(
+            180px 120px at 15% 25%,
+            rgba(255, 255, 255, 0.6),
+            rgba(255, 255, 255, 0)
+          ),
+          radial-gradient(
+            220px 160px at 85% 35%,
+            rgba(255, 255, 255, 0.45),
+            rgba(255, 255, 255, 0)
+          ),
+          radial-gradient(
+            180px 160px at 40% 80%,
+            rgba(255, 255, 255, 0.35),
+            rgba(255, 255, 255, 0)
+          );
+        filter: blur(6px);
+        opacity: 0.7;
+        transform: translateY(8px) scale(1.02);
+        animation: bokehFloat 8s ease-in-out infinite alternate;
+      }
+      @keyframes bokehFloat {
+        from {
+          transform: translateY(8px) scale(1.02);
+        }
+        to {
+          transform: translateY(-6px) scale(1.03);
+        }
+      }
+      .brand-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        box-shadow: 0 12px 30px rgba(214, 51, 132, 0.25);
+        max-width: 920px;
+        width: min(92vw, 920px);
+        padding: 2.2rem 2rem 2.4rem;
+        position: relative;
+        overflow: hidden;
+        transform: translateY(10px);
+        opacity: 0;
+        animation: fadeRise 0.7s ease 0.05s forwards;
+      }
+      @keyframes fadeRise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .brand-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.4rem;
+      }
+      .brand-header img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 6px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+      }
+      .brand-title {
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+        letter-spacing: 0.3px;
+        color: #000;
+      }
+      .brand-sub {
+        color: #6e5a67;
+        margin-bottom: 1.1rem;
+      }
+
+      .choice-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+      .choice {
+        background: linear-gradient(180deg, #fff, #fff5fa);
+        border: 1px solid rgba(214, 51, 132, 0.15);
+        border-radius: 16px;
+        padding: 1.1rem;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 8px 18px rgba(214, 51, 132, 0.15);
+        transition: transform var(--trans), box-shadow var(--trans),
+          border-color var(--trans);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.55rem;
+      }
+      .choice:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 26px rgba(214, 51, 132, 0.26);
+        border-color: rgba(214, 51, 132, 0.28);
+      }
+      .choice:active {
+        transform: translateY(-1px) scale(0.997);
+      }
+      .choice .emoji {
+        font-size: 1.9rem;
+      }
+      .choice .title {
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+      .choice .desc {
+        color: #6e5a67;
+        font-size: 0.95rem;
+      }
+
+      .footer-note {
+        text-align: center;
+        color: #6e5a67;
+        margin-top: 1.2rem;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 720px) {
+        .choice-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="kiosk-mode min-h-screen">
+    <script>
+      // Enforce florist selection before showing welcome
+      (function () {
+        try {
+          const chosen = localStorage.getItem("activeFlorist");
+          if (!chosen) {
+            // Use navigation helper if available
+            if (window.navigateToPage) {
+              window.navigateToPage("florist-select.html");
+            } else {
+              window.location.replace("florist-select.html");
+            }
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <div class="welcome-hero">
+      <div class="bokeh" aria-hidden="true"></div>
+      <div class="brand-card animate-fade-in">
+        <div class="brand-header">
+          <img
+            src="assets/logo_js.png"
+            alt="Logo JS Florist"
+            onerror="this.style.display='none'"
+          />
+          <h1 class="brand-title">Selamat Datang di JS Florist</h1>
+        </div>
+        <p class="brand-sub">Pilih pengalaman belanja Anda</p>
+
+        <div style="margin: 0.6rem 0 1.2rem">
+          <div style="font-weight: 600; margin-bottom: 0.4rem">
+            Pilih Florist yang Melayani
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+            <button
+              class="choice"
+              style="padding: 0.6rem 1rem; min-width: 110px"
+              data-florist="1"
+            >
+              <div class="emoji">👩‍🌾</div>
+              <div class="title">Florist 1</div>
+            </button>
+            <button
+              class="choice"
+              style="padding: 0.6rem 1rem; min-width: 110px"
+              data-florist="2"
+            >
+              <div class="emoji">👨‍🌾</div>
+              <div class="title">Florist 2</div>
+            </button>
+            <button
+              class="choice"
+              style="padding: 0.6rem 1rem; min-width: 110px"
+              data-florist="3"
+            >
+              <div class="emoji">👩‍🌾</div>
+              <div class="title">Florist 3</div>
+            </button>
+            <button
+              class="choice"
+              style="padding: 0.6rem 1rem; min-width: 110px"
+              data-florist="4"
+            >
+              <div class="emoji">👨‍🌾</div>
+              <div class="title">Florist 4</div>
+            </button>
+          </div>
+          <div
+            id="active-florist-label"
+            class="footer-note"
+            style="margin-top: 0.6rem"
+          ></div>
+        </div>
+
+        <div class="choice-grid">
+          <a class="choice" href="custom.html">
+            <div class="emoji">✨</div>
+            <div class="title">Custom</div>
+            <div class="desc">Rancang buket sesuai selera</div>
+          </a>
+          <a class="choice" href="index.html">
+            <div class="emoji">🛍️</div>
+            <div class="title">Katalog</div>
+            <div class="desc">Lihat koleksi siap beli</div>
+          </a>
+          <a class="choice" href="artificial.html">
+            <div class="emoji">🌸</div>
+            <div class="title">Artificial</div>
+            <div class="desc">Bunga artificial yang tahan lama</div>
+          </a>
+        </div>
+
+        <p class="footer-note">
+          Atau tekan Admin (Fitur di Menu) untuk pengelolaan produk
+        </p>
+      </div>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script>
+      // Persist and show active florist selection
+      (function () {
+        const label = document.getElementById("active-florist-label");
+        const updateLabel = () => {
+          const n = localStorage.getItem("activeFlorist");
+          label.textContent = n
+            ? `Sedang melayani: Florist ${n}`
+            : "Belum memilih florist";
+        };
+        updateLabel();
+
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-florist]");
+          if (!btn) return;
+          const n = btn.getAttribute("data-florist");
+          localStorage.setItem("activeFlorist", n);
+          updateLabel();
+        });
+      })();
+    </script>
+  </body>
+</html>

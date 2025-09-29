@@ -3,19 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Florist Kiosk - Katalog Produk</title>
+    <title>JS Florist - Katalog Produk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="dist/tailwind.generated.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body
-    class="kiosk-mode bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
-  >
+  <body class="kiosk-mode min-h-screen">
     <div class="container shadow-xl/30">
       <header class="relative floral-header">
+        <button
+          class="btn btn-secondary btn-small"
+          style="
+            position: absolute;
+            left: 0;
+            top: -6px;
+            padding: 0.35rem 0.6rem;
+          "
+          onclick="navigateToPage('welcome.html')"
+          aria-label="Kembali ke Menu Awal"
+        >
+          ← Kembali
+        </button>
         <h1
           class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm logo-title"
+          style="display: flex; align-items: center; gap: 0.6rem"
         >
-          🌷 Florist Kiosk
+          <img
+            src="assets/logo_js.png"
+            alt="Logo JS Florist"
+            class="logo-img"
+            style="
+              width: 40px;
+              height: 40px;
+              object-fit: contain;
+              border-radius: 8px;
+              background: rgba(255, 255, 255, 0.35);
+              padding: 4px;
+              box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.25);
+            "
+            onerror="this.style.display='none'"
+          />
+          JS Florist
         </h1>
         <nav class="items-center">
           <a
@@ -23,12 +56,6 @@
             class="nav-link active"
             onclick="navigateToPage('index.html'); return false;"
             >Katalog</a
-          >
-          <a
-            href="cart.html"
-            class="nav-link"
-            onclick="navigateToPage('cart.html'); return false;"
-            >Keranjang <span id="cart-count" class="cart-badge">0</span></a
           >
           <a
             href="admin-login.html"
@@ -49,6 +76,14 @@
                 <p class="tagline">
                   Buket & rangkaian indah untuk setiap momen
                 </p>
+                <div
+                  id="active-florist"
+                  style="
+                    color: #6e5a67;
+                    margin: 0.2rem 0 0.6rem;
+                    font-weight: 600;
+                  "
+                ></div>
                 <div class="store-stats">
                   <div class="stat">
                     <span id="total-items-stat">0</span><label>Item</label>
@@ -141,40 +176,10 @@
             <div class="products-grid floral-grid" id="products-grid"></div>
           </section>
         </div>
-
-        <!-- Right: Cart sidebar -->
-        <aside
-          class="cart-panel"
-          id="cart-panel"
-          aria-label="Keranjang belanja"
-        >
-          <div class="cart-panel-header">
-            <div class="panel-title">Keranjang Anda</div>
-            <button
-              class="cart-edit-btn"
-              id="refresh-cart"
-              title="Segarkan keranjang"
-            >
-              ⟳
-            </button>
-          </div>
-          <div class="cart-items-panel" id="cart-items-panel">
-            <div class="cart-empty">Keranjang kosong</div>
-          </div>
-          <div class="cart-summary-panel" id="cart-summary-panel">
-            <div class="summary-row total">
-              <span>Total</span><span id="cart-total">Rp 0</span>
-            </div>
-            <button class="pay-btn" id="pay-btn" disabled>Bayar</button>
-            <button class="view-cart-link" id="full-cart-link">
-              Lihat Halaman Keranjang →
-            </button>
-          </div>
-        </aside>
       </main>
 
       <footer>
-        <p>&copy; 2025 Florist Kiosk. Bunga segar setiap hari.</p>
+        <p>&copy; 2025 JS Florist. Bunga segar setiap hari.</p>
       </footer>
     </div>
 
@@ -275,9 +280,61 @@
       <button id="notification-close">&times;</button>
     </div>
 
+    <!-- Image Zoom Modal -->
+    <div
+      id="image-zoom-modal"
+      class="modal"
+      aria-hidden="true"
+      style="background: rgba(0, 0, 0, 0.75)"
+    >
+      <div
+        class="modal-content"
+        style="
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+          max-width: none;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <img
+          id="zoomed-img"
+          alt="Gambar diperbesar"
+          style="
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            cursor: zoom-out;
+          "
+        />
+      </div>
+    </div>
+
+    <!-- Floating Cart Button (appears when cart has items) -->
+    <button
+      id="floating-cart"
+      class="floating-cart"
+      style="display: none"
+      aria-label="Buka keranjang"
+    >
+      <span aria-hidden="true">🛒</span>
+      <span id="floating-cart-text">Keranjang</span>
+      <span class="fab-badge" id="fab-count">0</span>
+    </button>
+
     <script src="renderer.js"></script>
     <script src="navigation.js"></script>
     <script>
+      // Show active florist selection and keep in memory for payload use
+      (function () {
+        const el = document.getElementById("active-florist");
+        const n = localStorage.getItem("activeFlorist");
+        if (el) el.textContent = n ? `Dilayani oleh: Florist ${n}` : "";
+        window.__activeFlorist = n ? Number(n) : null;
+      })();
       /* ==============================
          PRODUK & UI FLORAL POS LAYOUT
          ============================== */
@@ -300,17 +357,29 @@
         await loadFilters();
         await loadProducts();
         await refreshCart();
-        document
-          .getElementById("refresh-cart")
-          .addEventListener("click", refreshCart);
-        document.getElementById("pay-btn").addEventListener("click", () => {
-          window.electronAPI.navigateTo("checkout.html");
-        });
-        document
-          .getElementById("full-cart-link")
-          .addEventListener("click", () =>
+        // Floating cart click -> go to cart page
+        const fab = document.getElementById("floating-cart");
+        if (fab) {
+          fab.addEventListener("click", () =>
             window.electronAPI.navigateTo("cart.html")
           );
+        }
+
+        // Hide/show FAB on scroll (hide when scrolling down)
+        let lastY = window.scrollY;
+        let scrollTimer = null;
+        const onScroll = () => {
+          const nowY = window.scrollY;
+          const goingDown = nowY > lastY + 4;
+          lastY = nowY;
+          if (fab) fab.classList.toggle("fab-hidden", goingDown);
+          if (scrollTimer) clearTimeout(scrollTimer);
+          // Show again shortly after scrolling stops
+          scrollTimer = setTimeout(() => {
+            if (fab) fab.classList.remove("fab-hidden");
+          }, 220);
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
 
         // Wire filter inputs
         const searchEl = document.getElementById("search-input");
@@ -537,7 +606,25 @@
 
       function renderProductCard(product) {
         const safeName = escapeHtml(product.name || "Produk");
-        const price = window.electronAPI.formatCurrency(product.price || 0);
+        // Determine display price: if variants exist, show min-max across variant prices
+        let price;
+        if (Array.isArray(product.variants) && product.variants.length > 0) {
+          const prices = product.variants.map((v) =>
+            typeof v.price === "number"
+              ? Number(v.price) || 0
+              : Number(product.price) || 0
+          );
+          const min = Math.min(...prices);
+          const max = Math.max(...prices);
+          price =
+            min === max
+              ? window.electronAPI.formatCurrency(min)
+              : `${window.electronAPI.formatCurrency(
+                  min
+                )} - ${window.electronAPI.formatCurrency(max)}`;
+        } else {
+          price = window.electronAPI.formatCurrency(product.price || 0);
+        }
         const img =
           product.image ||
           "https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image";
@@ -562,15 +649,30 @@
       document.addEventListener("click", (e) => {
         const addBtn = e.target.closest(".add-circle");
         const card = e.target.closest(".floral-card");
+        const thumbImg = e.target.closest(".floral-thumb img");
         if (addBtn) {
           e.stopPropagation();
           const id = parseInt(addBtn.dataset.add, 10);
           const product = allProducts.find((p) => p.id === id);
-          if (product) addToCart(product);
+          if (product) {
+            // If product has variants, open modal to force selection
+            if (
+              Array.isArray(product.variants) &&
+              product.variants.length > 0
+            ) {
+              openProductDetail(product.id);
+            } else {
+              addToCart(product);
+            }
+          }
           return;
         }
         if (card) {
           openProductDetail(card.dataset.id);
+          return;
+        }
+        if (thumbImg) {
+          openImageZoom(thumbImg.src);
         }
       });
 
@@ -584,10 +686,14 @@
         }
       });
 
-      async function addToCart(product, quantity = 1) {
+      async function addToCart(product, quantity = 1, variantId = null) {
         try {
           const qty = Math.max(1, parseInt(quantity || 1, 10));
-          const res = await window.electronAPI.addToCart(product.id, qty);
+          const res = await window.electronAPI.addToCart(
+            product.id,
+            qty,
+            variantId
+          );
           if (res) {
             showNotification(`${product.name} ditambahkan`, "success");
             await refreshCart();
@@ -603,21 +709,62 @@
       async function refreshCart() {
         try {
           const items = await window.electronAPI.getCartItems();
-          const badge = document.getElementById("cart-count");
           const count = items.reduce((s, i) => s + i.quantity, 0);
-          if (badge) badge.textContent = count;
+          const total = items.reduce(
+            (s, i) => s + (i.subtotal || (i.price || 0) * (i.quantity || 0)),
+            0
+          );
+          updateFloatingCart(count, total);
+          // If a cart panel exists (other pages/layouts), keep it updated too
           renderCartPanel(items);
+          // Ensure FAB not obstructing after update
+          const nowY = window.scrollY;
+          if (fab && nowY > 0) fab.classList.add("fab-hidden");
+          setTimeout(() => fab && fab.classList.remove("fab-hidden"), 200);
         } catch (err) {
           console.error("refreshCart error", err);
         }
       }
 
+      function updateFloatingCart(count, total) {
+        const fab = document.getElementById("floating-cart");
+        const fabCount = document.getElementById("fab-count");
+        const fabText = document.getElementById("floating-cart-text");
+        if (!fab || !fabCount || !fabText) return;
+        if (count > 0) {
+          fab.style.display = "flex";
+          fabCount.textContent = String(count);
+          try {
+            fabText.textContent =
+              count +
+              " item • " +
+              window.electronAPI.formatCurrency(total || 0);
+          } catch (_) {
+            fabText.textContent = count + " item";
+          }
+          // subtle pulse
+          fab.animate(
+            [
+              { transform: "translateY(0) scale(1)" },
+              { transform: "translateY(-3px) scale(1.05)" },
+              { transform: "translateY(0) scale(1)" },
+            ],
+            { duration: 320, easing: "ease-out" }
+          );
+        } else {
+          fab.style.display = "none";
+        }
+      }
+
       function renderCartPanel(items) {
         const list = document.getElementById("cart-items-panel");
+        if (!list) return; // No inline sidebar on catalog page
         if (!items.length) {
           list.innerHTML = '<div class="cart-empty">Keranjang kosong</div>';
-          document.getElementById("pay-btn").disabled = true;
-          document.getElementById("cart-total").textContent = "Rp 0";
+          const payBtn = document.getElementById("pay-btn");
+          const totalEl = document.getElementById("cart-total");
+          if (payBtn) payBtn.disabled = true;
+          if (totalEl) totalEl.textContent = "Rp 0";
           return;
         }
         list.innerHTML = items
@@ -630,6 +777,13 @@
             }" alt="${escapeHtml(item.name)}" /></div>
             <div class="info">
               <h4>${escapeHtml(item.name)}</h4>
+              ${
+                item.variant_name
+                  ? `<div class="small-note">Varian: ${escapeHtml(
+                      item.variant_name
+                    )}</div>`
+                  : ""
+              }
               <div class="price-line">${window.electronAPI.formatCurrency(
                 item.price
               )}</div>
@@ -653,9 +807,11 @@
           )
           .join("");
         const subtotal = items.reduce((s, i) => s + (i.subtotal || 0), 0);
-        document.getElementById("cart-total").textContent =
-          window.electronAPI.formatCurrency(subtotal);
-        document.getElementById("pay-btn").disabled = false;
+        const totalEl = document.getElementById("cart-total");
+        const payBtn = document.getElementById("pay-btn");
+        if (totalEl)
+          totalEl.textContent = window.electronAPI.formatCurrency(subtotal);
+        if (payBtn) payBtn.disabled = false;
       }
 
       // Cart quantity & remove handlers
@@ -726,14 +882,94 @@
         if (!modal || !nameEl || !priceEl || !descEl || !imgEl || !metaEl)
           return;
         nameEl.textContent = product.name || "Produk";
-        priceEl.textContent = window.electronAPI.formatCurrency(
-          product.price || 0
-        );
+        // Variant select UI
+        let selectedVariantId = null;
+        const hasVariants =
+          Array.isArray(product.variants) && product.variants.length > 0;
+        // Create a simple variant selector below meta when variants exist
+        if (hasVariants) {
+          const selId = "pm-variant-select";
+          let sel = document.getElementById(selId);
+          if (!sel) {
+            sel = document.createElement("select");
+            sel.id = selId;
+            sel.setAttribute("aria-label", "Pilih varian");
+            sel.style.margin = "0 0 8px";
+            sel.style.padding = ".4rem .6rem";
+            sel.style.border = "1px solid #ddd";
+            sel.style.borderRadius = "8px";
+            metaEl.insertAdjacentElement("afterend", sel);
+          }
+          const opts = product.variants
+            .map(
+              (v) =>
+                `<option value="${v.id}">${escapeHtml(v.name)}${
+                  typeof v.price === "number"
+                    ? " - " + window.electronAPI.formatCurrency(v.price)
+                    : ""
+                }</option>`
+            )
+            .join("");
+          sel.innerHTML = `<option value="" disabled selected>Pilih varian</option>${opts}`;
+          sel.addEventListener("change", () => {
+            selectedVariantId = parseInt(sel.value, 10) || null;
+            // Update price preview if variant has its own price
+            const v = product.variants.find(
+              (x) => String(x.id) === String(selectedVariantId)
+            );
+            const p =
+              v && typeof v.price === "number" ? v.price : product.price;
+            priceEl.textContent = window.electronAPI.formatCurrency(p || 0);
+            // If variant has image, update preview image
+            try {
+              if (v && v.image) {
+                imgEl.src = v.image;
+              } else {
+                imgEl.src =
+                  product.image ||
+                  "https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image";
+              }
+            } catch (_) {}
+          });
+          // Default show price range across variants until a variant is selected
+          try {
+            const prices = product.variants.map((v) =>
+              typeof v.price === "number"
+                ? Number(v.price) || 0
+                : Number(product.price) || 0
+            );
+            const min = Math.min(...prices);
+            const max = Math.max(...prices);
+            priceEl.textContent =
+              min === max
+                ? window.electronAPI.formatCurrency(min)
+                : `${window.electronAPI.formatCurrency(
+                    min
+                  )} - ${window.electronAPI.formatCurrency(max)}`;
+          } catch (_) {
+            priceEl.textContent = window.electronAPI.formatCurrency(
+              product.price || 0
+            );
+          }
+        } else {
+          // Remove selector if exists from previous product
+          const oldSel = document.getElementById("pm-variant-select");
+          if (oldSel && oldSel.parentElement)
+            oldSel.parentElement.removeChild(oldSel);
+          priceEl.textContent = window.electronAPI.formatCurrency(
+            product.price || 0
+          );
+        }
         descEl.textContent = product.description || "";
         imgEl.src =
           product.image ||
           "https://via.placeholder.com/400x280/e0e0e0/666?text=No+Image";
         imgEl.alt = product.name || "Produk";
+        // enable click-to-zoom
+        try {
+          imgEl.style.cursor = "zoom-in";
+          imgEl.onclick = () => openImageZoom(imgEl.src);
+        } catch (_) {}
         const tags = [];
         if (product.category_name)
           tags.push(`Kategori: ${escapeHtml(product.category_name)}`);
@@ -756,7 +992,11 @@
         }
         if (addBtn) {
           addBtn.onclick = async () => {
-            await addToCart(product, modalQty);
+            if (hasVariants && !selectedVariantId) {
+              showNotification("Silakan pilih varian terlebih dahulu", "error");
+              return;
+            }
+            await addToCart(product, modalQty, selectedVariantId);
             hideProductModal();
           };
         }
@@ -776,11 +1016,37 @@
         document.body.classList.remove("modal-open");
       }
 
-      // Close modal if click outside
+      function openImageZoom(src) {
+        const zm = document.getElementById("image-zoom-modal");
+        const zi = document.getElementById("zoomed-img");
+        if (!zm || !zi) return;
+        zi.src = src;
+        zm.style.display = "flex";
+        zm.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+      }
+
+      function closeImageZoom() {
+        const zm = document.getElementById("image-zoom-modal");
+        if (!zm) return;
+        zm.style.display = "none";
+        zm.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+      }
+
+      const zoomImgEl = document.getElementById("zoomed-img");
+      if (zoomImgEl) {
+        zoomImgEl.addEventListener("click", closeImageZoom);
+      }
+
+      // Close modal(s) if click outside
       document.addEventListener("click", (e) => {
         const modal = document.getElementById("product-modal");
         if (!modal) return;
         if (e.target === modal) hideProductModal();
+
+        const imageZoomModal = document.getElementById("image-zoom-modal");
+        if (e.target === imageZoomModal) closeImageZoom();
       });
 
       window.openProductDetail = function (id) {

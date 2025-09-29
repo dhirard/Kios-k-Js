@@ -64,11 +64,31 @@
       "id": 7,
       "name": "Bucket Roses 1",
       "price": 125000,
-      "image": "uploads/1758269681167-ss_jsflorist.png",
+      "image": "uploads/1758801782625-bukti_.jpg",
       "description": "Yaaaaaa",
       "category_id": 1,
       "occasion_id": 1,
       "created_at": "2025-09-19T08:14:41.177Z"
+    },
+    {
+      "id": 8,
+      "name": "Bucket Roses 5",
+      "price": 175000,
+      "image": "uploads/1758801807617-Gemini_Generated_Image_a0i41fa0i41fa0i4.png",
+      "description": "baru gaesss",
+      "category_id": 1,
+      "occasion_id": 1,
+      "created_at": "2025-09-24T09:39:01.928Z"
+    },
+    {
+      "id": 9,
+      "name": "Bunga papan 1.5 x 2",
+      "price": 500000,
+      "image": "uploads/1758965126949-js1_1_.png",
+      "description": "bunga papan jir",
+      "category_id": 1,
+      "occasion_id": 1,
+      "created_at": "2025-09-27T09:25:26.982Z"
     }
   ],
   "categories": [
@@ -326,6 +346,126 @@
       "id": 48,
       "order_date": "2025-09-22T09:14:42.528Z",
       "total_amount": 125000
+    },
+    {
+      "id": 49,
+      "order_date": "2025-09-22T09:58:24.575Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 50,
+      "order_date": "2025-09-22T10:32:47.064Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 51,
+      "order_date": "2025-09-22T10:36:20.408Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 52,
+      "order_date": "2025-09-22T10:41:54.222Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 53,
+      "order_date": "2025-09-22T10:48:03.509Z",
+      "total_amount": 255000
+    },
+    {
+      "id": 54,
+      "order_date": "2025-09-24T09:35:07.811Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 55,
+      "order_date": "2025-09-24T09:36:28.101Z",
+      "total_amount": 125000
+    },
+    {
+      "id": 56,
+      "order_date": "2025-09-24T09:37:04.007Z",
+      "total_amount": 560000
+    },
+    {
+      "id": 57,
+      "order_date": "2025-09-24T10:22:13.531Z",
+      "total_amount": 175000
+    },
+    {
+      "id": 58,
+      "order_date": "2025-09-25T04:05:14.192Z",
+      "total_amount": 175000
+    },
+    {
+      "id": 59,
+      "order_date": "2025-09-25T04:08:33.904Z",
+      "total_amount": 175000
+    },
+    {
+      "id": 60,
+      "order_date": "2025-09-25T04:11:02.845Z",
+      "total_amount": 305000
+    },
+    {
+      "id": 61,
+      "order_date": "2025-09-25T04:12:51.735Z",
+      "total_amount": 300000
+    },
+    {
+      "id": 62,
+      "order_date": "2025-09-25T08:49:54.501Z",
+      "total_amount": 300000
+    },
+    {
+      "id": 63,
+      "order_date": "2025-09-25T10:46:37.792Z",
+      "total_amount": 175000
+    },
+    {
+      "id": 64,
+      "order_date": "2025-09-25T12:04:31.184Z",
+      "total_amount": 300000
+    },
+    {
+      "id": 65,
+      "order_date": "2025-09-27T09:36:01.594Z",
+      "total_amount": 1075000
+    },
+    {
+      "id": 66,
+      "order_date": "2025-09-27T10:40:38.716Z",
+      "total_amount": 425000
+    },
+    {
+      "id": 67,
+      "order_date": "2025-09-27T11:06:49.128Z",
+      "total_amount": 900000
+    },
+    {
+      "id": 68,
+      "order_date": "2025-09-27T11:08:50.748Z",
+      "total_amount": 150000
+    },
+    {
+      "id": 69,
+      "order_date": "2025-09-27T11:14:21.538Z",
+      "total_amount": 900000
+    },
+    {
+      "id": 70,
+      "order_date": "2025-09-27T11:15:16.950Z",
+      "total_amount": 150000
+    },
+    {
+      "id": 71,
+      "order_date": "2025-09-27T11:23:38.235Z",
+      "total_amount": 75000
+    },
+    {
+      "id": 72,
+      "order_date": "2025-09-27T11:24:17.366Z",
+      "total_amount": 900000
     }
   ],
   "admins": [
@@ -651,6 +791,389 @@
       "unit_price": 125000,
       "subtotal": 125000,
       "sale_date": "2025-09-22T09:14:42.530Z"
+    },
+    {
+      "id": 36,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-22T09:58:24.576Z"
+    },
+    {
+      "id": 37,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-22T10:32:47.065Z"
+    },
+    {
+      "id": 38,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-22T10:36:20.409Z"
+    },
+    {
+      "id": 39,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-22T10:41:54.224Z"
+    },
+    {
+      "id": 40,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-22T10:48:03.511Z"
+    },
+    {
+      "id": 41,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-22T10:48:03.513Z"
+    },
+    {
+      "id": 42,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-24T09:35:07.813Z"
+    },
+    {
+      "id": 43,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-24T09:36:28.102Z"
+    },
+    {
+      "id": 44,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 2,
+      "unit_price": 125000,
+      "subtotal": 250000,
+      "sale_date": "2025-09-24T09:37:04.009Z"
+    },
+    {
+      "id": 45,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-24T09:37:04.009Z"
+    },
+    {
+      "id": 46,
+      "order_id": {},
+      "product_id": 5,
+      "quantity": 1,
+      "unit_price": 180000,
+      "subtotal": 180000,
+      "sale_date": "2025-09-24T09:37:04.010Z"
+    },
+    {
+      "id": 47,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-24T10:22:13.534Z"
+    },
+    {
+      "id": 48,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T04:05:14.193Z"
+    },
+    {
+      "id": 49,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T04:08:33.905Z"
+    },
+    {
+      "id": 50,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T04:11:02.845Z"
+    },
+    {
+      "id": 51,
+      "order_id": {},
+      "product_id": 6,
+      "quantity": 1,
+      "unit_price": 130000,
+      "subtotal": 130000,
+      "sale_date": "2025-09-25T04:11:02.846Z"
+    },
+    {
+      "id": 52,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T04:12:51.736Z"
+    },
+    {
+      "id": 53,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-25T04:12:51.736Z"
+    },
+    {
+      "id": 54,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T08:49:54.502Z"
+    },
+    {
+      "id": 55,
+      "order_id": {},
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-25T08:49:54.503Z"
+    },
+    {
+      "id": 56,
+      "order_id": {},
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T10:46:37.793Z"
+    },
+    {
+      "id": 57,
+      "order_id": 64,
+      "product_id": 7,
+      "quantity": 1,
+      "unit_price": 125000,
+      "subtotal": 125000,
+      "sale_date": "2025-09-25T12:04:31.186Z"
+    },
+    {
+      "id": 58,
+      "order_id": 64,
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-25T12:04:31.187Z"
+    },
+    {
+      "id": 59,
+      "order_id": 65,
+      "product_id": 8,
+      "quantity": 1,
+      "unit_price": 175000,
+      "subtotal": 175000,
+      "sale_date": "2025-09-27T09:36:01.595Z"
+    },
+    {
+      "id": 60,
+      "order_id": 65,
+      "product_id": 9,
+      "quantity": 1,
+      "unit_price": 900000,
+      "subtotal": 900000,
+      "sale_date": "2025-09-27T09:36:01.596Z"
+    },
+    {
+      "id": 61,
+      "order_id": 66,
+      "product_id": null,
+      "quantity": 1,
+      "unit_price": 425000,
+      "subtotal": 425000,
+      "sale_date": "2025-09-27T10:40:38.717Z"
+    },
+    {
+      "id": 62,
+      "order_id": 67,
+      "product_id": 9,
+      "quantity": 1,
+      "unit_price": 900000,
+      "subtotal": 900000,
+      "sale_date": "2025-09-27T11:06:49.130Z"
+    },
+    {
+      "id": 63,
+      "order_id": 68,
+      "product_id": null,
+      "quantity": 1,
+      "unit_price": 150000,
+      "subtotal": 150000,
+      "sale_date": "2025-09-27T11:08:50.752Z"
+    },
+    {
+      "id": 64,
+      "order_id": 69,
+      "product_id": 9,
+      "quantity": 1,
+      "unit_price": 900000,
+      "subtotal": 900000,
+      "sale_date": "2025-09-27T11:14:21.540Z"
+    },
+    {
+      "id": 65,
+      "order_id": 70,
+      "product_id": null,
+      "quantity": 1,
+      "unit_price": 150000,
+      "subtotal": 150000,
+      "sale_date": "2025-09-27T11:15:16.951Z"
+    },
+    {
+      "id": 66,
+      "order_id": 71,
+      "product_id": null,
+      "quantity": 1,
+      "unit_price": 75000,
+      "subtotal": 75000,
+      "sale_date": "2025-09-27T11:23:38.238Z",
+      "name": "aaa",
+      "details": [
+        "Material: Mawar x2"
+      ]
+    },
+    {
+      "id": 67,
+      "order_id": 72,
+      "product_id": 9,
+      "quantity": 1,
+      "unit_price": 900000,
+      "subtotal": 900000,
+      "sale_date": "2025-09-27T11:24:17.368Z",
+      "variant_id": 2,
+      "variant_name": "4 titik"
+    }
+  ],
+  "artificial_items": [
+    {
+      "id": 1,
+      "name": "artificial 1",
+      "price": 150000,
+      "image": "uploads/1758974336810-Gemini_Generated_Image_p2qtb6p2qtb6p2qt.png",
+      "created_at": "2025-09-27T11:58:56.826Z"
+    }
+  ],
+  "components": [
+    {
+      "id": 2,
+      "name": "Jasa Medium",
+      "unit": "",
+      "price": 10000,
+      "stock": null,
+      "type": "service",
+      "created_at": "2025-09-25T12:01:20.053Z"
+    },
+    {
+      "id": 1,
+      "name": "Mawar",
+      "unit": "tangkai",
+      "price": 25000,
+      "stock": -11,
+      "type": "material",
+      "created_at": "2025-09-25T12:00:54.786Z"
+    }
+  ],
+  "product_components": [
+    {
+      "id": 1,
+      "product_id": 7,
+      "component_id": 1,
+      "quantity": 2
+    },
+    {
+      "id": 2,
+      "product_id": 7,
+      "component_id": 2,
+      "quantity": 1
+    },
+    {
+      "id": 3,
+      "product_id": 8,
+      "component_id": 1,
+      "quantity": 1
+    },
+    {
+      "id": 4,
+      "product_id": 8,
+      "component_id": 2,
+      "quantity": 1
+    }
+  ],
+  "product_variants": [
+    {
+      "id": 1,
+      "product_id": 9,
+      "name": "2 titik",
+      "price": 500000,
+      "image": "uploads/1758965088647-Gemini_Generated_Image_rw7ukbrw7ukbrw7u.png",
+      "created_at": "2025-09-27T09:25:27.011Z"
+    },
+    {
+      "id": 2,
+      "product_id": 9,
+      "name": "4 titik",
+      "price": 900000,
+      "image": "uploads/1758965124383-Gemini_Generated_Image_p2qtb6p2qtb6p2qt.png",
+      "created_at": "2025-09-27T09:25:27.011Z"
+    }
+  ],
+  "service_fee_rules": [
+    {
+      "id": 1,
+      "mode": "custom-komponen",
+      "min": 1,
+      "max": 10,
+      "fee": 25000
+    },
+    {
+      "id": 1,
+      "mode": "custom-komponen",
+      "min": 11,
+      "max": 20,
+      "fee": 50000
     }
   ]
 }

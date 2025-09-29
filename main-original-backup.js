@@ -34,7 +34,7 @@ try {
   printer = null;
 }
 
-console.log("[MAIN] Florist kiosk main.js loaded (debug stamp v-cat-1)");
+console.log("[MAIN] JS Florist main.js loaded (debug stamp v-cat-1)");
 
 // Currency formatter used across printing flows
 function formatIDR(n) {
@@ -381,7 +381,7 @@ async function performEscPosPrint(payload, { autoDetectAllowed = false } = {}) {
     const items = Array.isArray(payload?.items) ? payload.items : [];
     const total = Number(payload?.total) || 0;
     const orderId = payload?.orderId || "";
-    const businessName = payload?.businessName || "Florist Kiosk";
+    const businessName = payload?.businessName || "JS Florist";
     const address = payload?.address || "";
     const notes = payload?.notes || "Terima kasih";
     const dateStr = new Date().toLocaleString("id-ID");
@@ -1262,7 +1262,7 @@ async function printRawText(payload, printerName) {
     const items = Array.isArray(payload?.items) ? payload.items : [];
     const total = Number(payload?.total) || 0;
     const orderId = payload?.orderId || "";
-    const businessName = payload?.businessName || "Florist Kiosk";
+    const businessName = payload?.businessName || "JS Florist";
     const address = payload?.address || "";
     const notes = payload?.notes || "Terima kasih";
     const dateStr = new Date().toLocaleString("id-ID");
@@ -1434,7 +1434,7 @@ ipcMain.handle("print-receipt-auto", async (e, payload) => {
     const total = Number(payload?.total) || 0;
     const orderId = payload?.orderId || "";
     const dateStr = new Date().toLocaleString("id-ID");
-    const businessName = payload?.businessName || "Florist Kiosk";
+    const businessName = payload?.businessName || "JS Florist";
     const address = payload?.address || "";
     const notes = payload?.notes || "Terima kasih atas kunjungan Anda";
 
@@ -1522,7 +1522,7 @@ ipcMain.handle("print-receipt", async (e, payload) => {
     const total = Number(payload?.total) || 0;
     const orderId = payload?.orderId || "";
     const dateStr = new Date().toLocaleString("id-ID");
-    const businessName = payload?.businessName || "Florist Kiosk";
+    const businessName = payload?.businessName || "JS Florist";
     const address = payload?.address || "";
     const notes = payload?.notes || "Terima kasih atas kunjungan Anda";
     const explicitDevice = payload?.deviceName || null;
@@ -2317,7 +2317,7 @@ ipcMain.handle("print-receipt-manual", async (e, payload) => {
     const total = Number(payload?.total) || 0;
     const orderId = payload?.orderId || "";
     const dateStr = new Date().toLocaleString("id-ID");
-    const businessName = payload?.businessName || "Florist Kiosk";
+    const businessName = payload?.businessName || "JS Florist";
     const address = payload?.address || "";
     const notes = payload?.notes || "Terima kasih atas kunjungan Anda";
 
@@ -2535,7 +2535,7 @@ async function directUsbPrint(payload, printerName) {
     items = [],
     total = 0,
     orderId = "",
-    businessName = "Florist Kiosk",
+    businessName = "JS Florist",
     address = "",
     notes = "Terima kasih!",
   } = payload || {};
@@ -2687,7 +2687,7 @@ async function rawWindowsPrintEscPos(payload, printerName) {
   const items = Array.isArray(payload?.items) ? payload.items : [];
   const total = Number(payload?.total) || 0;
   const orderId = payload?.orderId || "";
-  const businessName = payload?.businessName || "Florist Kiosk";
+  const businessName = payload?.businessName || "JS Florist";
   const address = payload?.address || "";
   const notes = payload?.notes || "Terima kasih";
   const dateStr = new Date().toLocaleString("id-ID");

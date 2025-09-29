@@ -10,16 +10,13 @@ const MenuManager = require("./lib/managers/MenuManager");
 const DatabaseManager = require("./lib/managers/DatabaseManager");
 const IPCHandlers = require("./lib/managers/IPCHandlers");
 
-console.log("[MAIN] Florist kiosk main.js loaded (refactored version)");
+console.log("[MAIN] JS Florist main.js loaded (refactored version)");
 
-// Ensure Chromium does silent printing without showing dialogs
+// Basic Chromium setup for printing (hardware acceleration disabled for better thermal printer compatibility)
 try {
-  // Some devices/driver combos behave better without GPU acceleration
   app.disableHardwareAcceleration();
-  app.commandLine.appendSwitch("kiosk-printing");
-  app.commandLine.appendSwitch("disable-print-preview");
   console.log(
-    "[PRINT] Chromium switches enabled: kiosk-printing, disable-print-preview"
+    "[PRINT] Hardware acceleration disabled for thermal printer compatibility"
   );
 } catch (e) {
   console.warn("[PRINT] Failed to set Chromium switches:", e?.message);
@@ -37,12 +34,15 @@ class FloristKioskApp {
 
   async initialize() {
     try {
-      console.log("[APP] Initializing Florist Kiosk Application...");
+      console.log("[APP] Initializing JS Florist Application...");
 
       // Initialize managers in order
       this.managers.settings = new SettingsManager();
       this.managers.serialPort = new SerialPortManager(this.managers.settings);
-      this.managers.print = new PrintManager(this.managers.settings, this.managers.serialPort);
+      this.managers.print = new PrintManager(
+        this.managers.settings,
+        this.managers.serialPort
+      );
       this.managers.window = new WindowManager();
       this.managers.menu = new MenuManager(this.managers.window);
       this.managers.database = new DatabaseManager();
@@ -50,13 +50,8 @@ class FloristKioskApp {
       // Initialize database
       await this.managers.database.initialize();
 
-      // Create main window
-      this.managers.window.createMainWindow();
-
-      // Create application menu
-      this.managers.menu.createApplicationMenu();
-
-      // Setup IPC handlers
+      // Setup IPC handlers BEFORE loading any renderer to avoid race where
+      // renderer invokes a channel that hasn't been registered yet.
       this.managers.ipc = new IPCHandlers(
         this.managers.database,
         this.managers.print,
@@ -65,12 +60,17 @@ class FloristKioskApp {
         this.managers.window
       );
 
+      // Create main window (after IPC is ready)
+      this.managers.window.createMainWindow();
+
+      // Create application menu
+      this.managers.menu.createApplicationMenu();
+
       // Setup security
       this.setupSecurity();
 
       this.isReady = true;
-      console.log("[APP] ✅ Florist Kiosk Application initialized successfully");
-
+      console.log("[APP] ✅ JS Florist Application initialized successfully");
     } catch (error) {
       console.error("[APP] ❌ Failed to initialize application:", error);
       throw error;
@@ -160,12 +160,12 @@ app.on("before-quit", () => {
 });
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('[APP] Uncaught Exception:', error);
+process.on("uncaughtException", (error) => {
+  console.error("[APP] Uncaught Exception:", error);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[APP] Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[APP] Unhandled Rejection at:", promise, "reason:", reason);
 });
 
 module.exports = FloristKioskApp;

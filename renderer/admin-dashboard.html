@@ -3,23 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - Florist Kiosk</title>
+    <title>Admin Dashboard - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="dist/tailwind.generated.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body
-    class="bg-gradient-to-br from-brand-pink-50 to-brand-pink-200 min-h-screen"
-  >
+  <body class="min-h-screen">
     <div class="container">
       <header class="relative">
         <h1
           class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
         >
-          🌸 Florist Kiosk - Admin Dashboard
+          🌸 JS Florist - Admin Dashboard
         </h1>
         <nav class="items-center">
           <a href="index.html" class="nav-link">Katalog</a>
-          <a href="cart.html" class="nav-link">Keranjang</a>
           <span class="nav-link active">Admin Panel</span>
           <button id="logout-btn" class="btn btn-secondary btn-small">
             Logout
@@ -43,6 +46,11 @@
             <button class="tab-btn" data-tab="sales">Laporan Penjualan</button>
             <button class="tab-btn" data-tab="categories">Kategori</button>
             <button class="tab-btn" data-tab="occasions">Occasion</button>
+            <button class="tab-btn" data-tab="components">
+              Komponen & Stok
+            </button>
+            <button class="tab-btn" data-tab="fees">Tarif Jasa</button>
+            <button class="tab-btn" data-tab="artificial">Artificial</button>
           </div>
 
           <!-- Dashboard Tab -->
@@ -178,6 +186,144 @@
             </div>
           </div>
 
+          <!-- Components (BOM) Management Tab -->
+          <div id="components-tab" class="tab-content">
+            <div class="products-header">
+              <h3>🧩 Komponen & Jasa</h3>
+              <button class="btn btn-primary" id="add-component-btn">
+                + Tambah Komponen/Jasa
+              </button>
+            </div>
+            <div class="products-table-container">
+              <table class="admin-table" id="components-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nama</th>
+                    <th>Jenis</th>
+                    <th>Satuan</th>
+                    <th>Harga</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="components-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Artificial Items Tab -->
+          <div id="artificial-tab" class="tab-content">
+            <div class="products-header">
+              <h3>🌼 Bunga Artificial</h3>
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                "
+              >
+                <input
+                  type="text"
+                  id="art-name"
+                  placeholder="Nama artificial"
+                  style="min-width: 220px"
+                />
+                <input
+                  type="number"
+                  id="art-price"
+                  placeholder="Harga"
+                  min="0"
+                  step="1000"
+                  style="width: 180px"
+                />
+                <input
+                  type="url"
+                  id="art-image"
+                  placeholder="URL Gambar (opsional)"
+                  style="min-width: 240px"
+                />
+                <input type="file" id="art-image-file" accept="image/*" />
+                <button class="btn btn-primary btn-small" id="art-add-btn">
+                  + Tambah
+                </button>
+              </div>
+              <div id="art-img-preview" style="margin-top: 6px; display: none">
+                <img
+                  id="art-img-preview-img"
+                  alt="Preview"
+                  style="
+                    width: 72px;
+                    height: 72px;
+                    object-fit: cover;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                  "
+                />
+              </div>
+            </div>
+            <div class="products-table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Gambar</th>
+                    <th>Nama</th>
+                    <th>Harga</th>
+                    <th>Dibuat</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="art-body">
+                  <tr>
+                    <td colspan="5" class="no-data">Memuat...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Service Fee Rules Tab -->
+          <div id="fees-tab" class="tab-content">
+            <div class="products-header">
+              <h3>💼 Tarif Jasa Otomatis</h3>
+              <button class="btn btn-primary" id="add-fee-row">
+                + Tambah Aturan
+              </button>
+            </div>
+            <p class="small-note" style="margin: 6px 0 10px; color: #555">
+              Aturan berdasarkan jumlah item dalam bucket (bunga/produk). Sistem
+              akan memilih aturan dengan rentang yang cocok. Kosongkan Max untuk
+              tanpa batas.
+            </p>
+            <div class="products-table-container">
+              <table class="admin-table" id="fees-table">
+                <thead>
+                  <tr>
+                    <th>Mode</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Biaya (Rp)</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="fees-body"></tbody>
+              </table>
+            </div>
+            <div
+              class="modal-actions"
+              style="justify-content: flex-end; margin-top: 10px"
+            >
+              <button class="btn btn-secondary btn-small" id="reload-fees">
+                Muat Ulang
+              </button>
+              <button class="btn btn-primary btn-small" id="save-fees">
+                Simpan Aturan
+              </button>
+            </div>
+          </div>
+
           <!-- Categories Management Tab -->
           <div id="categories-tab" class="tab-content">
             <div class="products-header">
@@ -271,6 +417,7 @@
                   <tr>
                     <th>Tanggal</th>
                     <th>Produk</th>
+                    <th>Rincian</th>
                     <th>Jumlah</th>
                     <th>Harga Satuan</th>
                     <th>Subtotal</th>
@@ -287,7 +434,7 @@
       </main>
 
       <footer>
-        <p>&copy; 2025 Florist Kiosk. Admin Panel.</p>
+        <p>&copy; 2025 JS Florist. Admin Panel.</p>
       </footer>
     </div>
 
@@ -391,6 +538,123 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label>Komponen Produk (BOM):</label>
+            <div
+              id="bom-editor"
+              style="border: 1px dashed #ddd; padding: 10px; border-radius: 8px"
+            >
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  margin-bottom: 8px;
+                "
+              >
+                <select
+                  id="bom-component-select"
+                  style="min-width: 220px"
+                ></select>
+                <input
+                  type="number"
+                  id="bom-qty"
+                  value="1"
+                  min="1"
+                  step="1"
+                  style="width: 100px"
+                />
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  id="bom-add"
+                >
+                  Tambah
+                </button>
+              </div>
+              <table class="admin-table" style="margin-top: 6px">
+                <thead>
+                  <tr>
+                    <th>Komponen</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="bom-body">
+                  <!-- rows -->
+                </tbody>
+              </table>
+              <div style="text-align: right; margin-top: 6px; color: #555">
+                Total biaya komponen: <b id="bom-total">Rp 0</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Varian Produk (opsional):</label>
+            <div
+              id="variant-editor"
+              style="border: 1px dashed #ddd; padding: 10px; border-radius: 8px"
+            >
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  margin-bottom: 8px;
+                  flex-wrap: wrap;
+                "
+              >
+                <input
+                  type="text"
+                  id="variant-name"
+                  placeholder="Nama varian (contoh: 4 Titik)"
+                  style="min-width: 220px"
+                />
+                <input
+                  type="number"
+                  id="variant-price"
+                  placeholder="Harga varian (kosong=ikut harga utama)"
+                  min="0"
+                  step="1000"
+                  style="width: 220px"
+                />
+                <input
+                  type="url"
+                  id="variant-image"
+                  placeholder="URL Gambar Varian (opsional)"
+                  style="min-width: 260px"
+                />
+                <input type="file" id="variant-image-file" accept="image/*" />
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  id="variant-add"
+                >
+                  Tambah Varian
+                </button>
+                <small style="color: #666"
+                  >Contoh: 4 Titik, 2 Titik, Full 2 sisi, Sekeliling</small
+                >
+              </div>
+              <table class="admin-table" style="margin-top: 6px">
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Harga</th>
+                    <th>Gambar</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="variant-body">
+                  <!-- rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div class="modal-actions">
             <button
               type="button"
@@ -431,6 +695,75 @@
     <div id="notification" class="notification">
       <span id="notification-text"></span>
       <button id="notification-close">&times;</button>
+    </div>
+
+    <!-- Add Component Modal -->
+    <div id="component-modal" class="modal">
+      <div class="modal-content">
+        <h3>Tambah Komponen / Jasa</h3>
+        <form id="component-form" class="product-form">
+          <div class="form-group">
+            <label for="component-name">Nama:</label>
+            <input
+              type="text"
+              id="component-name"
+              required
+              placeholder="Contoh: Mawar / Jasa Medium"
+            />
+          </div>
+          <div class="form-group">
+            <label for="component-type">Jenis:</label>
+            <select id="component-type">
+              <option value="material" selected>Material</option>
+              <option value="service">Jasa</option>
+            </select>
+          </div>
+          <div class="form-group" id="unit-group">
+            <label for="component-unit">Satuan:</label>
+            <input
+              type="text"
+              id="component-unit"
+              placeholder="Contoh: tangkai, batang, pcs"
+            />
+          </div>
+          <div class="form-group">
+            <label for="component-price">Harga (per unit / jasa):</label>
+            <input
+              type="number"
+              id="component-price"
+              min="0"
+              step="100"
+              required
+            />
+          </div>
+          <div class="form-group" id="stock-group">
+            <label for="component-stock">Stok Awal (material):</label>
+            <input
+              type="number"
+              id="component-stock"
+              min="0"
+              step="1"
+              value="0"
+            />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancel-component"
+              class="btn btn-secondary btn-small"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              id="save-component"
+              class="btn btn-primary btn-small"
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script src="renderer.js"></script>

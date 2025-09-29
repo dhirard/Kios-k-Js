@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pilih Florist - JS Florist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/tailwind.generated.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+      }
+      .card {
+        width: min(92vw, 760px);
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 18px;
+        box-shadow: 0 16px 40px rgba(214, 51, 132, 0.25);
+        padding: 1.6rem 1.4rem 1.4rem;
+      }
+      .title {
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+      }
+      .subtitle {
+        color: #6e5a67;
+        margin: 0.35rem 0 1rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.8rem;
+      }
+      .btn {
+        border: 1px solid rgba(214, 51, 132, 0.18);
+        background: linear-gradient(180deg, #fff, #fff6fa);
+        border-radius: 14px;
+        padding: 0.9rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 8px 20px rgba(214, 51, 132, 0.18);
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgba(214, 51, 132, 0.26);
+      }
+      .footer {
+        margin-top: 1rem;
+        color: #6e5a67;
+      }
+      @media (max-width: 720px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body class="kiosk-mode">
+    <div class="card">
+      <div style="display: flex; align-items: center; gap: 0.6rem">
+        <img
+          src="assets/logo_js.png"
+          alt="Logo JS Florist"
+          width="44"
+          height="44"
+          onerror="this.style.display='none'"
+        />
+        <h1 class="title">Pilih Florist yang Melayani</h1>
+      </div>
+      <p class="subtitle">Silakan pilih Florist 1-4 sebelum masuk ke menu.</p>
+
+      <div class="grid">
+        <button class="btn" data-florist="1">Florist 1</button>
+        <button class="btn" data-florist="2">Florist 2</button>
+        <button class="btn" data-florist="3">Florist 3</button>
+        <button class="btn" data-florist="4">Florist 4</button>
+      </div>
+
+      <div class="footer" id="hint"></div>
+
+      <div
+        style="display: flex; gap: 0.6rem; margin-top: 0.9rem; flex-wrap: wrap"
+      >
+        <button
+          id="btn-continue"
+          class="btn"
+          style="
+            padding: 0.7rem 1rem;
+            background: #d63384;
+            color: white;
+            border-color: #d63384;
+            opacity: 0.6;
+            pointer-events: none;
+          "
+        >
+          Lanjut ke Welcome
+        </button>
+      </div>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script>
+      (function () {
+        const hint = document.getElementById("hint");
+        const btnContinue = document.getElementById("btn-continue");
+
+        // Pre-fill if already chosen previously
+        const existing = localStorage.getItem("activeFlorist");
+        if (existing) {
+          hint.textContent = `Saat ini: Florist ${existing}. Anda bisa mengganti pilihan.`;
+          enableContinue();
+        } else {
+          hint.textContent = "Belum memilih florist.";
+        }
+
+        document.addEventListener("click", (e) => {
+          const el = e.target.closest("[data-florist]");
+          if (!el) return;
+          const n = el.getAttribute("data-florist");
+          localStorage.setItem("activeFlorist", n);
+          hint.textContent = `Dipilih: Florist ${n}`;
+          enableContinue();
+        });
+
+        function enableContinue() {
+          btnContinue.style.opacity = "1";
+          btnContinue.style.pointerEvents = "auto";
+        }
+
+        btnContinue.addEventListener("click", () =>
+          navigateToPage("welcome.html")
+        );
+      })();
+    </script>
+  </body>
+</html>
