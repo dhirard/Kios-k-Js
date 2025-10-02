@@ -1,0 +1,13 @@
+[
+  { "name": "JS Florist Banjarbaru", "lat": -3.440493, "lon": 114.844574 },
+  { "name": "Lapangan Murjani", "lat": -3.442388, "lon": 114.846077 },
+  { "name": "Bundaran Simpang Empat", "lat": -3.450466, "lon": 114.844002 },
+  { "name": "Kantor Pos Banjarbaru", "lat": -3.447518, "lon": 114.844856 },
+  { "name": "RS Idaman", "lat": -3.451548, "lon": 114.831879 },
+  { "name": "Bandara Syamsudin Noor", "lat": -3.442778, "lon": 114.763333 },
+  {
+    "name": "Universitas Lambung Mangkurat",
+    "lat": -3.450639,
+    "lon": 114.832986
+  }
+]

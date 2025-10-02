@@ -1,189 +1,474 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout - JS Florist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- Keep existing styles in case other pages depend on them -->
     <link rel="stylesheet" href="dist/tailwind.generated.css" />
     <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+      }
+      h1,
+      h2,
+      h3,
+      .font-display {
+        font-family: "Playfair Display", serif;
+      }
+      .floral-header {
+        font-family: "Playfair Display", serif;
+        color: #333;
+      }
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #4a5568;
+        animation: spin 1s ease infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000; /* align with global modal layering */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background-color: #fff;
+        margin: auto;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        width: 90%;
+        max-width: 540px;
+        text-align: center;
+        animation: fadeIn 0.2s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .success-icon {
+        font-size: 2.5rem;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+      }
+      .notification {
+        position: fixed;
+        /* reset conflicting positions from global style.css */
+        top: auto !important;
+        right: auto !important;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        color: white;
+        font-size: 0.875rem;
+        z-index: 100;
+        transition: bottom 0.5s ease-in-out;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 90vw;
+      }
+      .notification.show {
+        bottom: 20px;
+        transform: translateX(
+          -50%
+        ) !important; /* keep centered, override global */
+      }
+      .notification.info {
+        background-color: #3b82f6;
+      }
+      .notification.success {
+        background-color: #22c55e;
+      }
+      .notification.warning {
+        background-color: #f97316;
+      }
+      .notification.error {
+        background-color: #ef4444;
+      }
+      .notification button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        margin-left: 0.75rem;
+        cursor: pointer;
+      }
+    </style>
   </head>
-  <body>
-    <div class="container">
-      <header>
-        <h1>🌸 JS Florist</h1>
-        <nav>
-          <a href="index.html" class="nav-link">Katalog</a>
-          <span class="nav-link active">Checkout</span>
-          <a href="admin-login.html" class="nav-link admin-link"> 🔐 Admin </a>
-        </nav>
-      </header>
-
-      <main>
-        <section class="checkout-section">
-          <h2>Konfirmasi Pesanan</h2>
-
-          <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Memuat pesanan...</p>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="mx-auto px-4 py-8 max-w-7xl">
+      <div class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-bold floral-header">
+          🌸 JS Florist
+        </h1>
+        <p class="text-gray-500 mt-2">
+          Selesaikan pesanan Anda dengan mudah dan aman.
+        </p>
+      </div>
+      <main style="padding: 0">
+        <section class="checkout-section" style="max-width: none; margin: 0">
+          <div
+            class="flex flex-col items-center justify-center text-center py-16 min-h-[120px]"
+            id="loading"
+            style="display: none"
+          >
+            <div class="spinner mx-auto"></div>
+            <p class="mt-4 text-gray-600">Memuat pesanan Anda...</p>
           </div>
 
           <div id="checkout-content" style="display: none">
-            <div class="checkout-container">
-              <div class="order-summary">
-                <h3>Ringkasan Pesanan</h3>
-                <div class="order-items" id="order-items">
-                  <!-- Order items will be loaded here -->
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+              <!-- Left: Delivery & Payment Details -->
+              <div class="lg:col-span-7 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-md">
+                  <h3
+                    class="text-2xl font-semibold font-display border-b pb-4 mb-4"
+                  >
+                    Detail Pengantaran & Pembayaran
+                  </h3>
+                  <div class="order-form space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div class="form-group">
+                        <label
+                          for="buyer-name"
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          >Nama Pembeli</label
+                        >
+                        <input
+                          type="text"
+                          id="buyer-name"
+                          placeholder="Masukkan nama Anda"
+                          required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label
+                          for="recipient-name"
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          >Nama Penerima (Opsional)</label
+                        >
+                        <input
+                          type="text"
+                          id="recipient-name"
+                          placeholder="Nama penerima jika berbeda"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition"
+                        />
+                      </div>
+                    </div>
 
-                <div class="order-total">
-                  <div class="total-row">
-                    <span>Total Item:</span>
-                    <span id="total-items">0</span>
-                  </div>
-                  <div class="total-row grand-total">
-                    <span>Total Pembayaran:</span>
-                    <span id="total-amount">Rp 0</span>
+                    <div class="form-group">
+                      <label
+                        for="phone"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Nomor Telepon</label
+                      >
+                      <input
+                        type="tel"
+                        id="phone"
+                        placeholder="08xxxxxxxxxx"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                        >Tipe Pengantaran</label
+                      >
+                      <div class="flex gap-4">
+                        <label
+                          class="flex-1 p-3 border border-gray-300 rounded-md cursor-pointer has-[:checked]:bg-pink-50 has-[:checked]:border-pink-400 transition"
+                        >
+                          <input
+                            type="radio"
+                            name="delivery-type"
+                            value="delivery"
+                            class="sr-only"
+                            checked
+                          />
+                          <span class="text-sm">🚚 Antar ke alamat</span>
+                        </label>
+                        <label
+                          class="flex-1 p-3 border border-gray-300 rounded-md cursor-pointer has-[:checked]:bg-pink-50 has-[:checked]:border-pink-400 transition"
+                        >
+                          <input
+                            type="radio"
+                            name="delivery-type"
+                            value="pickup"
+                            class="sr-only"
+                          />
+                          <span class="text-sm">🏬 Ambil di tempat</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div id="address-group" class="form-group space-y-4">
+                      <div>
+                        <label
+                          for="delivery-address"
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          >Alamat Lengkap</label
+                        >
+                        <textarea
+                          id="delivery-address"
+                          placeholder="Contoh: Jl. Mawar No. 5, RT 01/RW 02, Kelurahan..."
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition min-h-[80px]"
+                        ></textarea>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            for="shipping-fee"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Ongkos Kirim (Rp)</label
+                          >
+                          <input
+                            type="text"
+                            id="shipping-fee"
+                            placeholder="0"
+                            inputmode="numeric"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition"
+                          />
+                        </div>
+                        <div id="datetime-group">
+                          <label
+                            for="delivery-datetime"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Tanggal & Jam Pengantaran</label
+                          >
+                          <input
+                            type="datetime-local"
+                            id="delivery-datetime"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label
+                        for="order-notes"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Catatan Pesanan (Opsional)</label
+                      >
+                      <textarea
+                        id="order-notes"
+                        placeholder="Pesan khusus untuk penjual..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 transition min-h-[80px]"
+                      ></textarea>
+                    </div>
+
+                    <div class="pt-4 border-t">
+                      <h3 class="text-lg font-semibold font-display mb-3">
+                        Metode Pembayaran
+                      </h3>
+                      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <label
+                          class="p-3 border border-gray-300 rounded-md cursor-pointer has-[:checked]:bg-pink-50 has-[:checked]:border-pink-400 transition text-center"
+                        >
+                          <input
+                            type="radio"
+                            name="payment"
+                            value="qris"
+                            class="sr-only"
+                          />
+                          <span class="text-sm">📱 QRIS</span>
+                        </label>
+                        <label
+                          class="p-3 border border-gray-300 rounded-md cursor-pointer has-[:checked]:bg-pink-50 has-[:checked]:border-pink-400 transition text-center"
+                        >
+                          <input
+                            type="radio"
+                            name="payment"
+                            value="transfer"
+                            class="sr-only"
+                          />
+                          <span class="text-sm">🏦 Transfer</span>
+                        </label>
+                        <label
+                          class="p-3 border border-gray-300 rounded-md cursor-pointer has-[:checked]:bg-pink-50 has-[:checked]:border-pink-400 transition text-center"
+                        >
+                          <input
+                            type="radio"
+                            name="payment"
+                            value="cash"
+                            class="sr-only"
+                            checked
+                          />
+                          <span class="text-sm">💵 Tunai</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="payment-section">
-                <h3>Detail Pengantaran</h3>
-                <div class="order-form">
-                  <div class="form-group">
-                    <label for="buyer-name">Nama Pembeli</label>
-                    <input
-                      type="text"
-                      id="buyer-name"
-                      placeholder="Nama pembeli"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="recipient-name">Nama Penerima</label>
-                    <input
-                      type="text"
-                      id="recipient-name"
-                      placeholder="Nama penerima (opsional)"
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="phone">Nomor Telepon</label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      placeholder="08xxxxxxxxxx"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label>Tipe Pengantaran</label>
-                    <label class="payment-option" style="border-color: #e0e0e0">
-                      <input
-                        type="radio"
-                        name="delivery-type"
-                        value="delivery"
-                        checked
-                      />
-                      <span class="payment-label">🚚 Antar ke alamat</span>
-                    </label>
-                    <label class="payment-option" style="border-color: #e0e0e0">
-                      <input type="radio" name="delivery-type" value="pickup" />
-                      <span class="payment-label">🏬 Ambil di tempat</span>
-                    </label>
-                  </div>
-                  <div class="form-group" id="address-group">
-                    <label for="delivery-address">Alamat Lengkap</label>
-                    <textarea
-                      id="delivery-address"
-                      placeholder="Alamat lengkap untuk pengantaran"
-                      style="min-height: 70px"
-                    ></textarea>
-                  </div>
-                  <div class="form-group" id="datetime-group">
-                    <label for="delivery-datetime"
-                      >Tanggal & Jam Pengantaran</label
-                    >
-                    <input type="datetime-local" id="delivery-datetime" />
-                  </div>
-                  <div class="form-group">
-                    <label for="order-notes">Catatan</label>
-                    <textarea
-                      id="order-notes"
-                      placeholder="Catatan untuk pesanan (opsional)"
-                      style="min-height: 70px"
-                    ></textarea>
-                  </div>
-                </div>
-
-                <h3>Metode Pembayaran</h3>
-                <div class="payment-methods">
-                  <label class="payment-option">
-                    <input type="radio" name="payment" value="qris" />
-                    <span class="payment-label">📱 QRIS</span>
-                  </label>
-                  <label class="payment-option">
-                    <input type="radio" name="payment" value="transfer" />
-                    <span class="payment-label">🏦 Transfer</span>
-                  </label>
-                  <label class="payment-option">
-                    <input type="radio" name="payment" value="cash" checked />
-                    <span class="payment-label">💵 Tunai (Cash)</span>
-                  </label>
-                </div>
-
-                <div class="checkout-actions">
-                  <button class="btn-secondary btn-large" onclick="goBack()">
-                    ← Kembali ke Keranjang
-                  </button>
-                  <button
-                    class="btn-primary btn-large"
-                    id="confirm-payment-btn"
+              <!-- Right: Order Summary -->
+              <div class="lg:col-span-5">
+                <div
+                  class="bg-white p-6 rounded-2xl shadow-md lg:sticky lg:top-8"
+                >
+                  <h3
+                    class="text-2xl font-semibold font-display border-b pb-4 mb-4"
                   >
-                    Konfirmasi Pembayaran
-                  </button>
+                    Ringkasan Pesanan
+                  </h3>
+                  <div
+                    class="order-items space-y-4 max-h-64 overflow-y-auto pr-2"
+                    id="order-items"
+                  >
+                    <!-- Order items will be loaded here -->
+                  </div>
+
+                  <div
+                    class="order-total border-t mt-4 pt-4 space-y-2 text-sm text-gray-600"
+                  >
+                    <div class="flex justify-between">
+                      <span>Total Item:</span>
+                      <span id="total-items" class="font-medium text-gray-800"
+                        >0</span
+                      >
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Ongkos Kirim:</span>
+                      <span
+                        id="shipping-amount"
+                        class="font-medium text-gray-800"
+                        >Rp 0</span
+                      >
+                    </div>
+                    <div
+                      class="flex justify-between items-center text-lg mt-4 pt-4 border-t"
+                    >
+                      <span class="font-bold text-gray-800"
+                        >Total Pembayaran:</span
+                      >
+                      <span id="total-amount" class="font-bold text-pink-600"
+                        >Rp 0</span
+                      >
+                    </div>
+                  </div>
+
+                  <div class="mt-8 space-y-3">
+                    <button
+                      id="confirm-payment-btn"
+                      class="w-full bg-pink-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition duration-300 shadow-lg"
+                    >
+                      Konfirmasi & Bayar
+                    </button>
+                    <button
+                      onclick="goBack()"
+                      class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-300"
+                    >
+                      Kembali ke Keranjang
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="empty-checkout" id="empty-checkout" style="display: none">
-            <div class="empty-icon">🛒</div>
-            <h3>Tidak Ada Pesanan</h3>
-            <p>Keranjang Anda kosong. Silakan tambah produk terlebih dahulu.</p>
-            <a href="index.html" class="btn-primary">Mulai Belanja</a>
+          <div
+            class="text-center py-20"
+            id="empty-checkout"
+            style="display: none"
+          >
+            <div class="text-6xl mb-4">🛒</div>
+            <h3 class="text-3xl font-bold font-display text-gray-800">
+              Keranjang Anda Kosong
+            </h3>
+            <p class="text-gray-500 mt-2 mb-6">
+              Sepertinya Anda belum menambahkan produk apapun.
+            </p>
+            <a
+              href="index.html"
+              class="bg-pink-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-pink-700 transition duration-300 inline-block"
+              >Mulai Belanja</a
+            >
           </div>
         </section>
       </main>
 
-      <footer>
-        <p>&copy; 2025 JS Florist. Bunga segar setiap hari.</p>
+      <footer class="text-center mt-16 pt-8 border-t border-gray-200">
+        <p class="text-gray-500 text-sm">
+          &copy; 2025 JS Florist. Bunga segar setiap hari.
+        </p>
       </footer>
     </div>
 
-    <!-- Example trigger for silent receipt printing -->
-    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 1000">
-      <button id="btnPrintReceipt" class="btn-secondary">
+    <!-- Optional: Example trigger for silent receipt printing (kept for dev/testing) -->
+    <div style="position: fixed; bottom: 18px; right: 16px; z-index: 900">
+      <button
+        id="btnPrintReceipt"
+        class="bg-gray-200 text-gray-700 px-3 py-2 rounded shadow hover:bg-gray-300"
+      >
         Cetak Struk Penjualan
       </button>
     </div>
 
     <!-- Success modal -->
     <div id="success-modal" class="modal">
-      <div class="modal-content success-content">
+      <div class="modal-content relative">
+        <button
+          type="button"
+          aria-label="Close"
+          class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+          onclick="this.closest('.modal').style.display='none'"
+        >
+          &times;
+        </button>
         <div class="success-icon">✅</div>
-        <h3>Pembayaran Berhasil!</h3>
-        <p>Terima kasih atas pembelian Anda.</p>
-        <div class="order-info">
-          <p><strong>ID Pesanan:</strong> <span id="order-id"></span></p>
+        <h3 class="text-2xl font-bold font-display mb-2">
+          Pembayaran Berhasil!
+        </h3>
+        <p class="text-gray-600 mb-6">
+          Terima kasih atas pembelian Anda. Pesanan Anda sedang kami proses.
+        </p>
+        <div
+          class="order-info text-left bg-gray-50 p-4 rounded-lg mb-6 text-sm space-y-2"
+        >
           <p>
-            <strong>Total Pembayaran:</strong> <span id="final-amount"></span>
+            <strong>ID Pesanan:</strong>
+            <span id="order-id" class="font-mono"></span>
+          </p>
+          <p>
+            <strong>Total Pembayaran:</strong>
+            <span id="final-amount" class="font-bold text-pink-600"></span>
           </p>
           <p><strong>Waktu:</strong> <span id="order-time"></span></p>
           <p><strong>Pembeli:</strong> <span id="info-buyer"></span></p>
@@ -199,36 +484,58 @@
           </p>
           <p><strong>Catatan:</strong> <span id="info-notes"></span></p>
         </div>
-        <div class="modal-actions">
-          <button id="manual-print-btn" class="btn btn-secondary">
-            🖨️ Print Manual
+        <div class="flex gap-4">
+          <button
+            id="manual-print-btn"
+            class="flex-1 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+          >
+            🖨️ Cetak Struk
           </button>
-          <button id="new-order-btn" class="btn-primary">Pesanan Baru</button>
+          <button
+            id="new-order-btn"
+            class="flex-1 bg-pink-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-pink-700 transition"
+          >
+            Buat Pesanan Baru
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Loading modal -->
     <div id="processing-modal" class="modal">
-      <div class="modal-content">
-        <div class="spinner"></div>
-        <h3>Memproses Pembayaran...</h3>
-        <p>Mohon tunggu sebentar</p>
+      <div class="modal-content relative">
+        <button
+          type="button"
+          aria-label="Close"
+          class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+          onclick="this.closest('.modal').style.display='none'"
+        >
+          &times;
+        </button>
+        <div class="spinner" style="margin: 0 auto"></div>
+        <h3 class="text-2xl font-bold font-display mt-4">
+          Memproses Pembayaran...
+        </h3>
+        <p class="text-gray-600">
+          Mohon tunggu sebentar, kami sedang memfinalisasi pesanan Anda.
+        </p>
       </div>
     </div>
 
-    <!-- Success notification -->
+    <!-- Notification -->
     <div id="notification" class="notification">
       <span id="notification-text"></span>
-      <button id="notification-close">&times;</button>
+      <button id="notification-close" class="ml-2">&times;</button>
     </div>
 
     <script src="renderer.js"></script>
     <script src="navigation.js"></script>
+
     <script>
       let cartItems = [];
       let componentsMap = new Map();
       let totalAmount = 0;
+      let shippingFee = 0;
 
       // Initialize the checkout page
       document.addEventListener("DOMContentLoaded", async () => {
@@ -240,6 +547,13 @@
         } catch (_) {}
         await loadCheckoutData();
         setupEventListeners();
+        // Safety: ensure loading hidden even if something went wrong
+        setTimeout(() => {
+          const loadingEl = document.getElementById("loading");
+          if (loadingEl && loadingEl.style.display !== "none") {
+            loadingEl.style.display = "none";
+          }
+        }, 8000);
       });
 
       async function loadCheckoutData() {
@@ -249,21 +563,68 @@
 
         try {
           loading.style.display = "flex";
-          cartItems = await window.electronAPI.getCartItems();
+          // Helper: timeout wrapper to avoid hanging UI if IPC stalls
+          const withTimeout = (promise, ms = 5000) =>
+            Promise.race([
+              promise,
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("getCartItems timeout")), ms)
+              ),
+            ]);
+
+          // Prefer electron, fallback to empty
+          if (
+            window.electronAPI &&
+            typeof window.electronAPI.getCartItems === "function"
+          ) {
+            try {
+              cartItems = await withTimeout(
+                window.electronAPI.getCartItems(),
+                7000
+              );
+            } catch (e) {
+              console.warn("getCartItems failed or timed out:", e);
+              cartItems = [];
+            }
+          } else {
+            console.warn(
+              "electronAPI.getCartItems unavailable, using empty cart"
+            );
+            cartItems = [];
+          }
 
           if (cartItems.length === 0) {
             checkoutContent.style.display = "none";
             emptyCheckout.style.display = "block";
+            // remove loader to avoid residual UI artifacts
+            try {
+              loading.remove();
+            } catch (_) {}
           } else {
-            renderOrderSummary();
+            try {
+              renderOrderSummary();
+            } catch (e) {
+              console.error("renderOrderSummary error:", e);
+            }
             checkoutContent.style.display = "block";
             emptyCheckout.style.display = "none";
+            // remove loader to avoid residual UI artifacts
+            try {
+              loading.remove();
+            } catch (_) {}
           }
         } catch (error) {
           console.error("Error loading checkout data:", error);
           showNotification("Gagal memuat data pesanan", "error");
         } finally {
+          // Always hide loading, even if above throws or stalls
           loading.style.display = "none";
+          // and remove after a short delay to ensure layout clean
+          setTimeout(() => {
+            try {
+              loading.remove();
+            } catch (_) {}
+          }, 300);
         }
       }
 
@@ -273,30 +634,31 @@
         orderItemsContainer.innerHTML = cartItems
           .map(
             (item) => `
-                <div class="order-item">
-                    <div class="item-image">
-                        <img src="${
-                          item.image ||
-                          "https://via.placeholder.com/60x60/e0e0e0/666?text=No+Image"
-                        }" 
-                             alt="${item.name}"
-                             onerror="this.src='https://via.placeholder.com/60x60/e0e0e0/666?text=No+Image'">
-                    </div>
-                    <div class="item-details">
-                        <h4>${item.name}</h4>
-                        ${
-                          item.variant_name
-                            ? `<div class="small-note">Varian: ${item.variant_name}</div>`
-                            : ""
-                        }
-                        ${renderCustomDetails(item)}
-                        <p>${window.electronAPI.formatCurrency(item.price)} × ${
-              item.quantity
-            }</p>
-                    </div>
-                    <div class="item-total">
-                        ${window.electronAPI.formatCurrency(item.subtotal)}
-                    </div>
+                <div class="flex items-start gap-4 py-2">
+                  <div class="flex-shrink-0">
+                    <img src="${
+                      item.image ||
+                      "https://placehold.co/60x60/e0e0e0/666?text=N/A"
+                    }" 
+                         alt="${item.name}"
+                         class="w-16 h-16 rounded-md object-cover"
+                         onerror="this.src='https://placehold.co/60x60/e0e0e0/666?text=N/A'">
+                  </div>
+                  <div class="flex-grow">
+                    <h4 class="font-semibold text-sm">${item.name}</h4>
+                    ${
+                      item.variant_name
+                        ? `<p class=\"text-xs text-gray-500\">Varian: ${item.variant_name}</p>`
+                        : ""
+                    }
+                    <p class="text-xs text-gray-500">${window.electronAPI.formatCurrency(
+                      item.price
+                    )} × ${item.quantity}</p>
+                    ${renderCustomDetails(item)}
+                  </div>
+                  <div class="flex-shrink-0 font-semibold text-sm">
+                    ${window.electronAPI.formatCurrency(item.subtotal)}
+                  </div>
                 </div>
             `
           )
@@ -310,8 +672,19 @@
         totalAmount = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
 
         document.getElementById("total-items").textContent = totalItems;
+        updateTotalsDisplay();
+      }
+      function parseIDR(input) {
+        const s = String(input || "").replace(/[^0-9]/g, "");
+        return Number(s || 0);
+      }
+
+      function updateTotalsDisplay() {
+        const grand = (Number(totalAmount) || 0) + (Number(shippingFee) || 0);
+        document.getElementById("shipping-amount").textContent =
+          window.electronAPI.formatCurrency(shippingFee);
         document.getElementById("total-amount").textContent =
-          window.electronAPI.formatCurrency(totalAmount);
+          window.electronAPI.formatCurrency(grand);
       }
 
       function renderCustomDetails(item) {
@@ -408,6 +781,22 @@
             await processPayment();
           });
 
+        // Shipping fee input formatting and state
+        const shipInput = document.getElementById("shipping-fee");
+        if (shipInput) {
+          shipInput.addEventListener("input", (e) => {
+            // keep numeric only while typing
+            const v = parseIDR(e.target.value);
+            shippingFee = v;
+            updateTotalsDisplay();
+          });
+          shipInput.addEventListener("blur", (e) => {
+            // format to currency on blur
+            const v = parseIDR(e.target.value);
+            e.target.value = v ? window.electronAPI.formatIDR(v) : "0";
+          });
+        }
+
         // New order button in success modal
         document
           .getElementById("new-order-btn")
@@ -471,7 +860,9 @@
           await new Promise((resolve) => setTimeout(resolve, 2000));
 
           // Process checkout
-          const orderId = await window.electronAPI.checkout(totalAmount);
+          const orderId = await window.electronAPI.checkout(
+            totalAmount + shippingFee
+          );
 
           if (orderId) {
             // Hide processing modal
@@ -482,7 +873,7 @@
               .toString()
               .padStart(6, "0")}`;
             document.getElementById("final-amount").textContent =
-              window.electronAPI.formatCurrency(totalAmount);
+              window.electronAPI.formatCurrency(totalAmount + shippingFee);
             const nowStr = new Date().toLocaleString("id-ID");
             document.getElementById("order-time").textContent = nowStr;
             document.getElementById("info-buyer").textContent = buyerName;
@@ -533,6 +924,7 @@
                   type: deliveryType, // delivery | pickup
                   address,
                   datetime: deliveryDt,
+                  shippingFee,
                 },
                 customerNotes: notes,
                 businessName: "JS Florist",
@@ -612,7 +1004,14 @@
         const notificationText = document.getElementById("notification-text");
 
         notificationText.textContent = message;
-        notification.className = `notification show ${type}`;
+        notification.style.top = "auto";
+        notification.style.right = "auto";
+        notification.style.left = "50%";
+        notification.style.transform = "translateX(-50%)";
+        notification.className = `notification ${type}`;
+        // trigger reflow to restart animation
+        void notification.offsetWidth;
+        notification.classList.add("show");
 
         // Auto hide after 3 seconds
         setTimeout(() => {
@@ -771,9 +1170,10 @@
           const addressEl = document.getElementById("delivery-address");
           const dtEl = document.getElementById("delivery-datetime");
           const isPickup = type === "pickup";
-          if (addressGroup) addressGroup.style.display = isPickup ? "none" : "";
+          if (addressGroup)
+            addressGroup.style.display = isPickup ? "none" : "block";
           if (datetimeGroup)
-            datetimeGroup.style.display = isPickup ? "none" : "";
+            datetimeGroup.style.display = isPickup ? "none" : "block";
           if (addressEl) addressEl.disabled = isPickup;
           if (dtEl) dtEl.disabled = isPickup;
         };

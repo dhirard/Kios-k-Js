@@ -12,17 +12,28 @@ function navigateToPage(page) {
   }
 
   const doNavigate = () => {
+    // Always route via splash to show intro before entering target page
+    const target = page;
+    const viaSplash = (() => {
+      // Normalize if already a splash
+      if (/splash\.html$/i.test(target)) return target;
+      // Build splash URL with next query (keep relative to renderer root)
+      const url = new URL(window.location.origin + window.location.pathname);
+      const base = url.pathname.replace(/[^\/]*$/, ""); // directory of current page
+      // Use relative path so electronAPI.navigateTo works consistently
+      return `splash.html?next=${encodeURIComponent(target)}`;
+    })();
     try {
       if (window.electronAPI && window.electronAPI.navigateTo) {
         console.log("✅ Using electronAPI");
-        window.electronAPI.navigateTo(page);
+        window.electronAPI.navigateTo(viaSplash);
         return;
       }
       console.log("⚡ Using standard navigation");
-      window.location.href = page;
+      window.location.href = viaSplash;
     } catch (error) {
       console.error("❌ Navigation error:", error);
-      window.location.assign(page);
+      window.location.assign(viaSplash);
     }
   };
 

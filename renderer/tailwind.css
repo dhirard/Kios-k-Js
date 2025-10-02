@@ -17,13 +17,13 @@
     @apply inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-pink-400/50 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 hover:scale-105;
   }
   .btn-primary {
-    @apply text-white shadow active:scale-[.97] bg-gradient-to-r from-brand-pink-400 via-brand-pink-500 to-brand-pink-600 hover:from-brand-pink-500 hover:to-brand-pink-700;
+    @apply text-white shadow active:scale-[.97] bg-gradient-to-r from-brand-pink-400 via-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-500 hover:to-brand-pink-800;
   }
   .btn-secondary {
-    @apply text-white shadow active:scale-[.97] bg-gradient-to-r from-florist-200 to-florist-300 hover:from-florist-300 hover:to-brand-pink-400;
+    @apply text-white shadow active:scale-[.97] bg-gradient-to-r from-brand-stem-400 via-brand-stem-500 to-brand-stem-600 hover:from-brand-stem-500 hover:to-brand-stem-700;
   }
   .btn-danger {
-    @apply bg-brand-pink-800 hover:bg-brand-pink-700 text-white shadow active:scale-[.97];
+    @apply bg-red-700 hover:bg-red-600 text-white shadow active:scale-[.97];
   }
   .btn-large {
     @apply px-6 py-3 text-base w-full;
@@ -44,7 +44,7 @@
     @apply translate-x-0;
   }
   .notification.success {
-    @apply bg-brand-pink-600;
+    @apply bg-brand-stem-600;
   }
   .notification.error {
     @apply bg-red-600;
@@ -67,6 +67,6 @@
 
   /* Card component for main surfaces */
   .card {
-    @apply rounded-2xl shadow-lg border border-brand-pink-100 bg-white/90 backdrop-blur-sm;
+    @apply rounded-2xl shadow-lg border border-brand-pink-200 bg-white/90 backdrop-blur-sm;
   }
 }

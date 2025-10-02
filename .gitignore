@@ -40,6 +40,9 @@ Thumbs.db
 *.db
 /db/*.db
 
+# Map tiles and large geo data
+*.mbtiles
+
 # App uploads/media
 # App uploads/media
 /renderer/assets/uploads/

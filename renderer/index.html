@@ -15,7 +15,9 @@
   </head>
   <body class="kiosk-mode min-h-screen">
     <div class="container shadow-xl/30">
-      <header class="relative floral-header">
+      <header
+        class="relative floral-header rounded-2xl border border-pink-100/70 bg-white/60 backdrop-blur px-4 md:px-6 py-3 md:py-4 shadow-sm"
+      >
         <button
           class="btn btn-secondary btn-small"
           style="
@@ -53,13 +55,13 @@
         <nav class="items-center">
           <a
             href="index.html"
-            class="nav-link active"
+            class="nav-link active no-underline"
             onclick="navigateToPage('index.html'); return false;"
             >Katalog</a
           >
           <a
             href="admin-login.html"
-            class="nav-link admin-link"
+            class="nav-link admin-link no-underline"
             onclick="navigateToPage('admin-login.html'); return false;"
             >🔐 Admin</a
           >
@@ -69,7 +71,9 @@
       <main class="animate-fade-in shop-layout">
         <!-- Left: Product browsing -->
         <div class="catalog-column">
-          <section class="hero hero-compact">
+          <section
+            class="hero hero-compact rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 via-rose-50 to-white"
+          >
             <div class="hero-banner">
               <div class="hero-text">
                 <h2 class="store-name">Toko Bunga Segar</h2>
@@ -78,11 +82,7 @@
                 </p>
                 <div
                   id="active-florist"
-                  style="
-                    color: #6e5a67;
-                    margin: 0.2rem 0 0.6rem;
-                    font-weight: 600;
-                  "
+                  class="text-rose-800/70 font-semibold mt-1 mb-2"
                 ></div>
                 <div class="store-stats">
                   <div class="stat">
@@ -120,15 +120,9 @@
           <section
             id="filter-bar"
             aria-label="Filter tambahan"
-            style="
-              display: flex;
-              flex-wrap: wrap;
-              gap: 0.6rem;
-              align-items: center;
-              margin: 0.2rem 0 1rem;
-            "
+            class="flex flex-wrap items-center gap-2.5 my-1 mb-4"
           >
-            <div style="flex: 1 1 260px; min-width: 220px">
+            <div class="flex-1 min-w-[220px]">
               <input
                 type="search"
                 id="search-input"
@@ -136,14 +130,14 @@
                 aria-label="Cari produk"
               />
             </div>
-            <div style="display: flex; gap: 0.5rem; align-items: center">
+            <div class="flex items-center gap-2">
               <input
                 type="number"
                 id="min-price"
                 placeholder="Min harga"
                 min="0"
                 step="1000"
-                style="width: 140px"
+                class="w-36 md:w-40"
                 aria-label="Harga minimum"
               />
               <span style="color: #6e5a67">–</span>
@@ -153,7 +147,7 @@
                 placeholder="Max harga"
                 min="0"
                 step="1000"
-                style="width: 140px"
+                class="w-36 md:w-40"
                 aria-label="Harga maksimum"
               />
             </div>
@@ -239,7 +233,7 @@
             ></div>
             <div
               id="pm-price"
-              style="font-weight: 700; color: #ff2f92; margin-bottom: 0.6rem"
+              style="font-weight: 700; color: #d81b60; margin-bottom: 0.6rem"
             ></div>
             <p
               id="pm-desc"

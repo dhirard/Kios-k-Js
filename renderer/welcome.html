@@ -159,124 +159,309 @@
       }
     </style>
   </head>
-  <body class="kiosk-mode min-h-screen">
-    <script>
-      // Enforce florist selection before showing welcome
-      (function () {
-        try {
-          const chosen = localStorage.getItem("activeFlorist");
-          if (!chosen) {
-            // Use navigation helper if available
-            if (window.navigateToPage) {
-              window.navigateToPage("florist-select.html");
-            } else {
-              window.location.replace("florist-select.html");
-            }
-          }
-        } catch (_) {}
-      })();
-    </script>
-    <div class="welcome-hero">
-      <div class="bokeh" aria-hidden="true"></div>
-      <div class="brand-card animate-fade-in">
-        <div class="brand-header">
-          <img
-            src="assets/logo_js.png"
-            alt="Logo JS Florist"
-            onerror="this.style.display='none'"
-          />
-          <h1 class="brand-title">Selamat Datang di JS Florist</h1>
-        </div>
-        <p class="brand-sub">Pilih pengalaman belanja Anda</p>
-
-        <div style="margin: 0.6rem 0 1.2rem">
-          <div style="font-weight: 600; margin-bottom: 0.4rem">
-            Pilih Florist yang Melayani
-          </div>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-            <button
-              class="choice"
-              style="padding: 0.6rem 1rem; min-width: 110px"
-              data-florist="1"
-            >
-              <div class="emoji">👩‍🌾</div>
-              <div class="title">Florist 1</div>
-            </button>
-            <button
-              class="choice"
-              style="padding: 0.6rem 1rem; min-width: 110px"
-              data-florist="2"
-            >
-              <div class="emoji">👨‍🌾</div>
-              <div class="title">Florist 2</div>
-            </button>
-            <button
-              class="choice"
-              style="padding: 0.6rem 1rem; min-width: 110px"
-              data-florist="3"
-            >
-              <div class="emoji">👩‍🌾</div>
-              <div class="title">Florist 3</div>
-            </button>
-            <button
-              class="choice"
-              style="padding: 0.6rem 1rem; min-width: 110px"
-              data-florist="4"
-            >
-              <div class="emoji">👨‍🌾</div>
-              <div class="title">Florist 4</div>
-            </button>
-          </div>
-          <div
-            id="active-florist-label"
-            class="footer-note"
-            style="margin-top: 0.6rem"
-          ></div>
-        </div>
-
-        <div class="choice-grid">
-          <a class="choice" href="custom.html">
-            <div class="emoji">✨</div>
-            <div class="title">Custom</div>
-            <div class="desc">Rancang buket sesuai selera</div>
-          </a>
-          <a class="choice" href="index.html">
-            <div class="emoji">🛍️</div>
-            <div class="title">Katalog</div>
-            <div class="desc">Lihat koleksi siap beli</div>
-          </a>
-          <a class="choice" href="artificial.html">
-            <div class="emoji">🌸</div>
-            <div class="title">Artificial</div>
-            <div class="desc">Bunga artificial yang tahan lama</div>
-          </a>
-        </div>
-
-        <p class="footer-note">
-          Atau tekan Admin (Fitur di Menu) untuk pengelolaan produk
+  <body
+    class="kiosk-mode min-h-screen bg-gradient-to-b from-pink-50 via-pink-50/60 to-white"
+  >
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 lg:py-16">
+      <!-- Title (use div instead of header to avoid global header styles) -->
+      <div class="text-center">
+        <h1
+          class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight"
+        >
+          <span
+            class="bg-gradient-to-r from-pink-400 via-pink-500 to-pink-700 bg-clip-text text-transparent"
+            >JS Florist</span
+          >
+        </h1>
+        <p class="mt-3 text-gray-600 text-base sm:text-lg">
+          Rangkai Momen Spesial Anda
         </p>
       </div>
-    </div>
+      <hr class="w-24 border-t-2 border-pink-200 mx-auto mt-6 mb-10" />
+
+      <!-- Florist Selector -->
+      <section aria-labelledby="florist-heading" class="mt-8 sm:mt-10">
+        <div class="flex items-center justify-between">
+          <h2
+            id="florist-heading"
+            class="text-[0.8rem] font-semibold uppercase tracking-wider text-pink-700"
+          >
+            Pilih Florist
+          </h2>
+          <p id="activeFloristText" class="text-sm text-pink-700/80"></p>
+        </div>
+
+        <div
+          id="floristCards"
+          class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+        >
+          <!-- Florist 1 -->
+          <button
+            type="button"
+            data-florist="1"
+            class="group w-full rounded-2xl border border-pink-200 bg-white/60 p-4 text-center transition-all duration-300 hover:border-pink-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+            aria-label="Pilih Florist 1"
+          >
+            <div class="flex flex-col items-center">
+              <div
+                class="flex justify-center items-center w-16 h-16 bg-pink-100 rounded-full mb-3 text-pink-500"
+              >
+                <svg
+                  class="w-10 h-10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <span class="font-semibold text-gray-700">Florist 1</span>
+            </div>
+          </button>
+
+          <!-- Florist 2 -->
+          <button
+            type="button"
+            data-florist="2"
+            class="group w-full rounded-2xl border border-pink-200 bg-white/60 p-4 text-center transition-all duration-300 hover:border-pink-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+            aria-label="Pilih Florist 2"
+          >
+            <div class="flex flex-col items-center">
+              <div
+                class="flex justify-center items-center w-16 h-16 bg-pink-100 rounded-full mb-3 text-pink-500"
+              >
+                <svg
+                  class="w-10 h-10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <polyline points="17 11 19 13 23 9"></polyline>
+                </svg>
+              </div>
+              <span class="font-semibold text-gray-700">Florist 2</span>
+            </div>
+          </button>
+
+          <!-- Florist 3 -->
+          <button
+            type="button"
+            data-florist="3"
+            class="group w-full rounded-2xl border border-pink-200 bg-white/60 p-4 text-center transition-all duration-300 hover:border-pink-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+            aria-label="Pilih Florist 3"
+          >
+            <div class="flex flex-col items-center">
+              <div
+                class="flex justify-center items-center w-16 h-16 bg-pink-100 rounded-full mb-3 text-pink-500"
+              >
+                <svg
+                  class="w-10 h-10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <span class="font-semibold text-gray-700">Florist 3</span>
+            </div>
+          </button>
+
+          <!-- Florist 4 -->
+          <button
+            type="button"
+            data-florist="4"
+            class="group w-full rounded-2xl border border-pink-200 bg-white/60 p-4 text-center transition-all duration-300 hover:border-pink-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+            aria-label="Pilih Florist 4"
+          >
+            <div class="flex flex-col items-center">
+              <div
+                class="flex justify-center items-center w-16 h-16 bg-pink-100 rounded-full mb-3 text-pink-500"
+              >
+                <svg
+                  class="w-10 h-10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4h-3"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <span class="font-semibold text-gray-700">Florist 4</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Main Navigation Cards -->
+      <section aria-labelledby="nav-heading" class="mt-10 sm:mt-12">
+        <h2 id="nav-heading" class="sr-only">Navigasi utama</h2>
+        <div class="grid gap-4 sm:gap-6 md:grid-cols-3">
+          <!-- Katalog Produk -->
+          <a
+            href="index.html"
+            class="group block no-underline rounded-2xl border border-pink-200 bg-white/60 p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-300/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="grid h-14 w-14 place-items-center rounded-xl bg-pink-100 text-pink-700 ring-1 ring-pink-200"
+              >
+                <!-- bag icon -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="h-7 w-7"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M7 7V6a5 5 0 0110 0v1h2a1 1 0 011 1v11a2 2 0 01-2 2H6a2 2 0 01-2-2V8a1 1 0 011-1h2zm2 0h6V6a3 3 0 00-6 0v1z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-pink-900">
+                  Katalog Produk
+                </h3>
+                <p class="mt-1 text-sm text-pink-800/80">
+                  Lihat koleksi siap beli kami.
+                </p>
+              </div>
+            </div>
+          </a>
+
+          <!-- Bucket Custom -->
+          <a
+            href="custom-builder.html"
+            class="group block no-underline rounded-2xl border border-pink-200 bg-white/60 p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-300/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="grid h-14 w-14 place-items-center rounded-xl bg-pink-100 text-pink-700 ring-1 ring-pink-200"
+              >
+                <!-- magic wand icon -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="h-7 w-7"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 21l10.5-10.5 1.5 1.5L4.5 22.5 3 21zM14 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-pink-900">
+                  Bucket Custom
+                </h3>
+                <p class="mt-1 text-sm text-pink-800/80">
+                  Rancang buket sesuai selera.
+                </p>
+              </div>
+            </div>
+          </a>
+
+          <!-- Bunga Artificial -->
+          <a
+            href="artificial.html"
+            class="group block no-underline rounded-2xl border border-pink-200 bg-white/60 p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-300/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600/50"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="grid h-14 w-14 place-items-center rounded-xl bg-pink-100 text-pink-700 ring-1 ring-pink-200"
+              >
+                <!-- flower icon -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="h-7 w-7"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 12a3 3 0 110 6 3 3 0 010-6zm0-2.5c-.8 0-1.8-.5-2.3-1.2C9 7.4 9 6.4 9.5 5.6c.7-1 2-1.3 3-1 .9.3 1.6 1 1.9 1.9.3 1-.1 2.3-1 3-.8.6-1.8.6-2.4 0zM7.2 9.7c-.6-.5-1-1.5-.9-2.3.1-1.2 1-2.2 2.2-2.3.8-.1 1.8.3 2.3.9.7.8.7 1.8 0 2.6-.8.7-1.8.7-2.6.1zM16.8 9.7c.6-.5 1-1.5.9-2.3-.1-1.2-1-2.2-2.2-2.3-.8-.1-1.8.3-2.3.9-.7.8-.7 1.8 0 2.6.8.7 1.8.7 2.6.1z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-pink-900">
+                  Bunga Artificial
+                </h3>
+                <p class="mt-1 text-sm text-pink-800/80">
+                  Bunga cantik yang tahan lama.
+                </p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <p class="mt-8 text-center text-sm text-pink-800/70">
+        Untuk pengelolaan produk, buka menu Admin dari navigasi.
+      </p>
+    </main>
 
     <script src="navigation.js"></script>
     <script>
-      // Persist and show active florist selection
+      // Kelola seleksi florist (tanpa mengubah file JS eksternal)
       (function () {
-        const label = document.getElementById("active-florist-label");
-        const updateLabel = () => {
-          const n = localStorage.getItem("activeFlorist");
-          label.textContent = n
-            ? `Sedang melayani: Florist ${n}`
-            : "Belum memilih florist";
-        };
-        updateLabel();
+        const container = document.getElementById("floristCards");
+        const cards = container
+          ? container.querySelectorAll("[data-florist]")
+          : [];
+        const label = document.getElementById("activeFloristText");
 
-        document.addEventListener("click", (e) => {
-          const btn = e.target.closest("[data-florist]");
-          if (!btn) return;
-          const n = btn.getAttribute("data-florist");
-          localStorage.setItem("activeFlorist", n);
-          updateLabel();
+        function applySelected(n) {
+          cards.forEach((btn) => {
+            const isActive = btn.getAttribute("data-florist") === n;
+            // stronger selected effect: thicker border, ring, bigger shadow, subtle lift
+            btn.classList.toggle("border-pink-500", isActive);
+            btn.classList.toggle("ring-2", isActive);
+            btn.classList.toggle("ring-pink-600/50", isActive);
+            btn.classList.toggle("shadow-2xl", isActive);
+            btn.classList.toggle("shadow-pink-300/40", isActive);
+            btn.classList.toggle("scale-105", isActive);
+            btn.classList.toggle("-translate-y-1", isActive);
+            btn.setAttribute("aria-selected", isActive ? "true" : "false");
+          });
+          if (label) {
+            label.textContent = n
+              ? `Sedang melayani: Florist ${n}`
+              : "Belum memilih florist";
+          }
+        }
+
+        let current = localStorage.getItem("activeFlorist") || "";
+        applySelected(current);
+
+        cards.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const n = btn.getAttribute("data-florist");
+            localStorage.setItem("activeFlorist", n);
+            current = n;
+            applySelected(current);
+          });
         });
       })();
     </script>

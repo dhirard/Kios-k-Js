@@ -1,31 +1,33 @@
 /* =====================================================
-   CLEAN PINK THEME (reset setelah file sebelumnya rusak)
-   ===================================================== */
+  POPPY THEME — modern, elegant, poppy-inspired palette
+  ===================================================== */
 
 /* (Removed duplicate legacy button styles) */
 
 /* Variables */
 :root {
-  --pink-50: #fff5fa;
-  --pink-100: #ffe9f3;
-  --pink-200: #ffd3e8;
-  --pink-300: #ffb0d7;
-  --pink-400: #ff8cc8;
-  --pink-500: #ff5fb1;
-  --pink-600: #ff2f92;
-  --pink-700: #e01376;
-  --pink-800: #b00b5c;
-  --pink-900: #76023c;
-  --color-bg: #ffc0cb;
-  --color-surface: #fff;
-  --color-primary: #d63384;
-  --color-primary-soft: var(--pink-400);
-  --color-accent: var(--pink-500);
-  --color-accent-alt: var(--pink-400);
-  --color-text: #402636;
-  --color-text-muted: #6e5a67;
-  --shadow-sm: 0 4px 10px -2px rgba(255, 47, 146, 0.18);
-  --shadow-md: 0 10px 24px -4px rgba(255, 47, 146, 0.28);
+  /* Pastel pink palette aligned with Tailwind pink + brand accent */
+  --pink-50: #fdf2f8;
+  --pink-100: #fce7f3;
+  --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4;
+  --pink-400: #f472b6;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+  --pink-700: #be185d;
+  --pink-800: #9d174d;
+  --pink-900: #831843;
+
+  --color-bg: #fffafe; /* airy white/pink backdrop */
+  --color-surface: #ffffff; /* surfaces */
+  --color-primary: #d81b60; /* brand dark pink accent */
+  --color-primary-soft: var(--pink-100); /* soft wash */
+  --color-accent: #10b981; /* success/secondary (subtle) */
+  --color-accent-alt: #34d399;
+  --color-text: #2e2a2f; /* neutral dark */
+  --color-text-muted: #6b7280; /* gray-500 */
+  --shadow-sm: 0 4px 10px -2px rgba(216, 27, 96, 0.16);
+  --shadow-md: 0 10px 24px -4px rgba(216, 27, 96, 0.26);
   --radius-s: 6px;
   --radius-m: 12px;
   --radius-l: 18px;
@@ -48,8 +50,8 @@ body {
   font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.55;
   color: var(--color-text);
-  /* Soft pink gradient background */
-  background: linear-gradient(135deg, #ffeef2 0%, #ffd6e2 40%, #ffbfd2 100%);
+  /* Bright airy pastel background */
+  background: linear-gradient(135deg, #fffafe 0%, #ffffff 40%, #fdf2f8 100%);
   min-height: 100vh;
   opacity: 0;
   /* Avoid transform here to keep position:fixed elements viewport-relative */
@@ -64,22 +66,27 @@ body.modal-open {
   transform: none !important;
 }
 body.page-exiting {
-  background: linear-gradient(90deg, #ffb6c1 0%, #ffc0cb 60%, #f3a6b5 100%);
+  background: linear-gradient(
+    90deg,
+    var(--pink-200) 0%,
+    var(--pink-300) 60%,
+    var(--pink-400) 100%
+  );
   transform: scale(0.985) translateY(10px) !important;
 }
 body.kiosk-mode {
   user-select: none;
-  /* Soft pink gradient background */
-  background: linear-gradient(135deg, #ffeef2 0%, #ffd6e2 40%, #ffbfd2 100%);
+  /* Keep pastel in kiosk mode as well */
+  background: linear-gradient(135deg, #fffafe 0%, #ffffff 40%, #fdf2f8 100%);
   -webkit-user-select: none;
   touch-action: manipulation;
 }
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   min-height: 100vh;
-  box-shadow: 0 0 24px -4px rgba(255, 47, 146, 0.25);
+  box-shadow: 0 0 24px -4px rgba(216, 27, 96, 0.18);
   border-radius: var(--radius-l);
   display: flex;
   flex-direction: column;
@@ -93,10 +100,15 @@ main {
 
 /* Header + Nav */
 header {
-  background: linear-gradient(90deg, #ffb6c1 0%, #ffc0cb 60%, #f3a6b5 100%);
+  background: linear-gradient(
+    90deg,
+    var(--pink-300) 0%,
+    var(--pink-500) 55%,
+    var(--color-primary) 100%
+  );
   color: #fff;
   padding: 1rem 2rem 1.3rem;
-  box-shadow: 0 4px 12px -6px rgba(214, 51, 132, 0.35);
+  box-shadow: 0 4px 12px -6px rgba(216, 27, 96, 0.35);
   position: relative;
   overflow: hidden;
   border-top-left-radius: var(--radius-l);
@@ -104,13 +116,26 @@ header {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  border-bottom: 2px solid rgba(183, 110, 121, 0.35); /* rose gold accent */
+  border-bottom: 2px solid rgba(216, 27, 96, 0.25); /* subtle brand accent */
 }
 header:before {
   content: "";
   position: absolute;
   inset: 0;
-  background: none; /* remove gradient overlay */
+  background: none; /* base overlay removed, use floral watermark below */
+}
+/* Subtle poppy watermark based on provided logo */
+.floral-header::after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  width: 220px;
+  height: 220px;
+  background: url("../assets/poppy.PNG") center/contain no-repeat;
+  opacity: 0.12;
+  filter: saturate(1.15) contrast(0.95);
+  pointer-events: none;
 }
 header h1 {
   font-size: 2rem;
@@ -149,12 +174,12 @@ nav {
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.28);
   transform: translateY(-3px);
-  box-shadow: 0 4px 14px -4px rgba(255, 47, 146, 0.5);
+  box-shadow: 0 4px 14px -4px rgba(216, 27, 96, 0.45);
 }
 .nav-link.active {
   background: rgba(255, 255, 255, 0.42);
   font-weight: 600;
-  box-shadow: 0 4px 16px -4px rgba(255, 47, 146, 0.6);
+  box-shadow: 0 4px 16px -4px rgba(216, 27, 96, 0.5);
 }
 .cart-badge {
   background: var(--color-primary);
@@ -224,8 +249,8 @@ nav {
   color: #fff;
   padding: 1rem 1.25rem 1rem 1rem;
   border-radius: 18px;
-  box-shadow: 0 12px 28px rgba(214, 51, 132, 0.35),
-    0 4px 10px rgba(214, 51, 132, 0.25);
+  box-shadow: 0 12px 28px rgba(216, 27, 96, 0.32),
+    0 4px 10px rgba(216, 27, 96, 0.22);
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -238,7 +263,7 @@ nav {
 }
 .floating-cart:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 32px rgba(255, 47, 146, 0.45);
+  box-shadow: 0 16px 32px rgba(216, 27, 96, 0.42);
 }
 .floating-cart.fab-hidden {
   transform: translateY(120%);
@@ -248,7 +273,7 @@ nav {
 .fab-badge {
   min-width: 32px;
   height: 32px;
-  background: #2f3542;
+  background: var(--color-primary);
   color: #fff;
   border-radius: 12px;
   display: flex;
@@ -274,7 +299,8 @@ nav {
   background: #dc3545;
 }
 .notification.info {
-  background: var(--color-accent);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 #notification-close {
   background: none;
@@ -376,7 +402,7 @@ footer {
   margin: 2rem 0 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   gap: 0.5rem;
-  border: 1px solid #f2d1e3;
+  border: 1px solid var(--pink-200);
 }
 .tab-btn {
   flex: 1;
@@ -392,7 +418,7 @@ footer {
 .tab-btn.active {
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(214, 51, 132, 0.35);
+  box-shadow: 0 2px 10px rgba(225, 77, 77, 0.32);
 }
 .tab-btn:hover:not(.active) {
   background: var(--pink-100);
@@ -449,7 +475,7 @@ input:focus,
 select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(255, 47, 146, 0.25);
+  box-shadow: 0 0 0 3px rgba(216, 27, 96, 0.15);
 }
 label {
   font-weight: 600;
@@ -540,17 +566,27 @@ label {
 }
 
 .btn-primary {
-  background-image: linear-gradient(90deg, #f07fb2, #e2559a, #d63384);
+  background-image: linear-gradient(
+    90deg,
+    var(--pink-400),
+    var(--pink-500),
+    var(--color-primary)
+  );
   color: #fff;
 }
 .btn-primary:hover {
   transform: scale(1.05);
-  box-shadow: 0 12px 26px -8px rgba(214, 51, 132, 0.45);
+  box-shadow: 0 12px 26px -8px rgba(216, 27, 96, 0.44);
 }
 
 .btn-secondary {
-  background-image: linear-gradient(90deg, #ffb6c1, #ffc0cb);
-  color: #8a1d55;
+  background-image: linear-gradient(
+    90deg,
+    var(--pink-100),
+    var(--pink-200),
+    var(--pink-300)
+  );
+  color: var(--pink-900);
 }
 .btn-secondary:hover {
   filter: brightness(0.98);
@@ -658,9 +694,9 @@ label {
 }
 
 .qty-btn:hover {
-  background: #f8f9fa;
-  border-color: #667eea;
-  color: #667eea;
+  background: var(--pink-50);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .quantity {
@@ -672,7 +708,7 @@ label {
 .item-subtotal,
 .item-total {
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   font-size: 1.1rem;
 }
 
@@ -699,7 +735,7 @@ label {
 .grand-total {
   font-weight: 700;
   font-size: 1.3rem;
-  color: #667eea;
+  color: var(--color-primary);
   border-top: 2px solid #e0e0e0;
   padding-top: 1rem;
   margin-top: 1rem;
@@ -764,8 +800,8 @@ label {
 }
 
 .payment-option:hover {
-  border-color: #667eea;
-  background: #f8f9fa;
+  border-color: var(--color-primary);
+  background: var(--pink-50);
 }
 
 .payment-option input[type="radio"] {
@@ -773,7 +809,7 @@ label {
 }
 
 .payment-option input[type="radio"]:checked + .payment-label {
-  color: #667eea;
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -794,9 +830,9 @@ label {
 }
 #order-notes:focus {
   outline: none;
-  border-color: #d63384;
-  background: #ffe9f3;
-  box-shadow: 0 0 0 3px rgba(214, 51, 132, 0.15);
+  border-color: var(--color-primary);
+  background: var(--pink-100);
+  box-shadow: 0 0 0 3px rgba(225, 77, 77, 0.18);
 }
 
 /* Modal Styles */
@@ -823,7 +859,7 @@ label {
   width: 90%;
   text-align: left; /* left align form fields for clarity */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    0 2px 14px -2px rgba(216, 27, 96, 0.12);
   max-height: 90vh; /* constrain height */
   overflow-y: auto; /* internal scroll if very tall */
 }
@@ -886,7 +922,7 @@ label {
 }
 
 .notification.success {
-  background: var(--color-primary);
+  background: var(--color-accent);
 }
 
 .notification.error {
@@ -894,7 +930,8 @@ label {
 }
 
 .notification.info {
-  background: #f07fb2;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 #notification-close {
@@ -1061,8 +1098,8 @@ footer {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(216, 27, 96, 0.12);
 }
 
 .login-info {
@@ -1120,7 +1157,7 @@ footer {
 .tab-btn.active {
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(214, 51, 132, 0.3);
+  box-shadow: 0 2px 10px rgba(216, 27, 96, 0.3);
 }
 
 .tab-btn:hover:not(.active) {
@@ -1215,7 +1252,7 @@ footer {
 .rank {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   min-width: 40px;
 }
 
@@ -1349,7 +1386,7 @@ footer {
 
 .date-filter input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .sales-table-container {
@@ -1383,7 +1420,7 @@ footer {
 .product-form input:focus,
 .product-form select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 /* Logout Button */
@@ -1463,10 +1500,10 @@ footer {
 .cart-panel {
   width: 360px;
   background: #fff;
-  border: 1px solid #f2d1e3;
+  border: 1px solid var(--pink-200);
   border-radius: 24px;
   padding: 1.25rem 1.25rem 1.5rem;
-  box-shadow: 0 10px 30px -8px rgba(255, 47, 146, 0.25);
+  box-shadow: 0 10px 30px -8px rgba(216, 27, 96, 0.2);
   position: sticky;
   top: 1.5rem;
   max-height: calc(100vh - 4rem);
@@ -1627,7 +1664,7 @@ footer {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 8px 20px -4px rgba(255, 47, 146, 0.4);
+  box-shadow: 0 8px 20px -4px rgba(216, 27, 96, 0.35);
   transition: var(--trans);
 }
 .pay-btn:disabled {
@@ -1637,7 +1674,7 @@ footer {
 }
 .pay-btn:not(:disabled):hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 28px -6px rgba(255, 47, 146, 0.5);
+  box-shadow: 0 14px 28px -6px rgba(216, 27, 96, 0.45);
 }
 .view-cart-link {
   background: none;
@@ -1656,7 +1693,12 @@ footer {
 }
 .hero-banner {
   position: relative;
-  background: var(--color-primary);
+  background: linear-gradient(
+    90deg,
+    var(--pink-300),
+    var(--pink-500),
+    var(--color-primary)
+  );
   border-radius: 28px;
   padding: 1.7rem 1.9rem 1.6rem;
   overflow: hidden;
@@ -1761,7 +1803,7 @@ footer {
   cursor: pointer;
   position: relative;
   transition: var(--trans-fast);
-  box-shadow: 0 4px 12px -4px rgba(255, 47, 146, 0.25);
+  box-shadow: 0 4px 12px -4px rgba(225, 77, 77, 0.22);
 }
 .cat-chip .icon {
   font-size: 1.15rem;
@@ -1770,10 +1812,10 @@ footer {
 .cat-chip:hover {
   background: var(--pink-100);
   transform: translateY(-3px);
-  box-shadow: 0 10px 22px -6px rgba(255, 47, 146, 0.35);
+  box-shadow: 0 10px 22px -6px rgba(225, 77, 77, 0.32);
 }
 .cat-chip.active {
-  border-color: var(--pink-500);
+  border-color: var(--color-primary);
 }
 
 /* Floral product grid */
@@ -1789,7 +1831,7 @@ footer {
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 8px 24px -10px rgba(255, 47, 146, 0.25);
+  box-shadow: 0 8px 24px -10px rgba(216, 27, 96, 0.18);
   cursor: pointer;
   transition: var(--trans);
   animation: cardFadeInUp 0.5s ease;
@@ -1800,7 +1842,7 @@ footer {
 }
 .floral-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 34px -10px rgba(255, 47, 146, 0.38);
+  box-shadow: 0 16px 34px -10px rgba(216, 27, 96, 0.28);
 }
 .floral-thumb {
   height: 170px;
@@ -1858,12 +1900,12 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px -6px rgba(255, 47, 146, 0.45);
+  box-shadow: 0 8px 24px -6px rgba(216, 27, 96, 0.38);
   transition: var(--trans);
 }
 .add-circle:hover {
   transform: translateY(-4px) rotate(6deg);
-  box-shadow: 0 12px 32px -6px rgba(255, 47, 146, 0.55);
+  box-shadow: 0 12px 32px -6px rgba(216, 27, 96, 0.44);
 }
 .add-circle:active {
   transform: scale(0.9);

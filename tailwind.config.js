@@ -45,42 +45,52 @@ module.exports = {
           "0 4px 6px -1px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.10)",
       },
       colors: {
-        // Palet florist bertema pink elegan
+        // Poppy-inspired brand palette + stem greens
         maggie: {
-          bg: "#FFC0CB", // kompat: latar belakang default lama
-          primary: "#D63384",
+          bg: "#FAF3E0", // warm cream background
+          primary: "#E14D4D", // poppy
           white: "#FFFFFF",
           light: "#F8F9FA",
-          dark: "#444444",
+          dark: "#3A2B22",
         },
-        // Aksen rose gold
-        "rose-gold": "#B76E79",
-        // Palet florist khusus untuk gradient lembut
+        "rose-gold": "#B76E79", // keep for subtle accents if needed
+        // Soft neutrals/creams
         florist: {
-          50: "#FFF7FA",
-          100: "#FFEFF5",
-          200: "#FFB6C1", // pastel pink 2
-          300: "#FFC0CB", // pastel pink 1
-          400: "#F3A6B5",
-          500: "#E68EA0",
-          600: "#D9778B",
-          700: "#C56579",
-          800: "#A95364",
-          900: "#7A3A48",
+          50: "#FFF8EF",
+          100: "#FFF2E5",
+          200: "#F6E9DA",
+          300: "#ECDD C8".replace(/\s/g, ""),
+          400: "#F7C7C0",
+          500: "#F0B2A8",
+          600: "#E79C90",
+          700: "#CF8C82",
+          800: "#B5796E",
+          900: "#8C5A4F",
         },
-        // Perbarui skala brand-pink agar konsisten dengan tema di atas
         brand: {
           pink: {
-            50: "#FFF7FA",
-            100: "#FFEFF5",
-            200: "#FFB6C1", // pastel pink
-            300: "#FFC0CB", // pastel pink
-            400: "#F07FB2",
-            500: "#E2559A",
-            600: "#D63384", // deep pink (tombol/teks utama)
-            700: "#B0246B",
-            800: "#8A1D55",
-            900: "#5C1238",
+            50: "#FFF8EF", // very light cream
+            100: "#FFF2E5", // cream
+            200: "#F6E9DA", // light border
+            300: "#F7C7C0", // soft poppy tint
+            400: "#F26B6B", // salmon/poppy mid-light
+            500: "#F26B6B", // kept same for smoother gradients
+            600: "#E14D4D", // primary poppy
+            700: "#C43D3D",
+            800: "#9F3333",
+            900: "#6C2222",
+          },
+          stem: {
+            50: "#EEF7F1",
+            100: "#DBEFE3",
+            200: "#C4E6D2",
+            300: "#A8D5BA",
+            400: "#8CCFA9",
+            500: "#5AA469",
+            600: "#3E7C59",
+            700: "#2F5E44",
+            800: "#244A36",
+            900: "#183324",
           },
         },
       },
@@ -115,7 +125,7 @@ module.exports = {
           fontFamily: fontFamilySans,
           // Background global ditangani di style.css (gradient),
           // tetap set fallback warna lembut
-          backgroundColor: theme("colors.florist.100"),
+          backgroundColor: theme("colors.maggie.bg"),
           color: theme("colors.maggie.dark"),
         },
         h1: {
