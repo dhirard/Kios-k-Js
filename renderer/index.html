@@ -15,75 +15,101 @@
   </head>
   <body class="kiosk-mode min-h-screen">
     <div class="container shadow-xl/30">
-      <header
-        class="relative floral-header rounded-2xl border border-pink-100/70 bg-white/60 backdrop-blur px-4 md:px-6 py-3 md:py-4 shadow-sm"
-      >
-        <button
-          class="btn btn-secondary btn-small"
-          style="
-            position: absolute;
-            left: 0;
-            top: -6px;
-            padding: 0.35rem 0.6rem;
-          "
-          onclick="navigateToPage('welcome.html')"
-          aria-label="Kembali ke Menu Awal"
-        >
-          ← Kembali
-        </button>
-        <h1
-          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm logo-title"
-          style="display: flex; align-items: center; gap: 0.6rem"
-        >
-          <img
-            src="assets/logo_js.png"
-            alt="Logo JS Florist"
-            class="logo-img"
-            style="
-              width: 40px;
-              height: 40px;
-              object-fit: contain;
-              border-radius: 8px;
-              background: rgba(255, 255, 255, 0.35);
-              padding: 4px;
-              box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.25);
-            "
-            onerror="this.style.display='none'"
-          />
-          JS Florist
-        </h1>
-        <nav class="items-center">
-          <a
-            href="index.html"
-            class="nav-link active no-underline"
-            onclick="navigateToPage('index.html'); return false;"
-            >Katalog</a
-          >
-          <a
-            href="admin-login.html"
-            class="nav-link admin-link no-underline"
-            onclick="navigateToPage('admin-login.html'); return false;"
-            >🔐 Admin</a
-          >
-        </nav>
-      </header>
-
       <main class="animate-fade-in shop-layout">
-        <!-- Left: Product browsing -->
+        <!-- Sidebar: Filters -->
+        <aside class="filters-column" aria-label="Filter produk">
+          <div class="filter-card" style="padding: 0.6rem 0.8rem">
+            <a
+              href="#"
+              onclick="navigateToPage('welcome.html'); return false;"
+              aria-label="Kembali ke Menu Awal"
+              style="
+                text-decoration: none;
+                color: #6b7280;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+              "
+            >
+              <span aria-hidden="true">←</span>
+              <span>Kembali</span>
+            </a>
+          </div>
+          <div class="filter-card">
+            <h4 class="filter-title">Cari & Harga</h4>
+            <section id="filter-bar" aria-label="Filter tambahan">
+              <div class="filter-field">
+                <label for="search-input">Pencarian</label>
+                <input
+                  type="search"
+                  id="search-input"
+                  placeholder="Cari produk (nama/deskipsi)..."
+                  aria-label="Cari produk"
+                />
+              </div>
+              <div class="filter-fields-row">
+                <div class="filter-field">
+                  <label for="min-price">Harga Minimum</label>
+                  <input
+                    type="number"
+                    id="min-price"
+                    placeholder="Min harga"
+                    min="0"
+                    step="1000"
+                    aria-label="Harga minimum"
+                  />
+                </div>
+                <div class="filter-field">
+                  <label for="max-price">Harga Maksimum</label>
+                  <input
+                    type="number"
+                    id="max-price"
+                    placeholder="Max harga"
+                    min="0"
+                    step="1000"
+                    aria-label="Harga maksimum"
+                  />
+                </div>
+              </div>
+              <button
+                id="clear-price"
+                class="btn btn-secondary btn-small"
+                type="button"
+                aria-label="Reset filter"
+              >
+                Reset
+              </button>
+            </section>
+          </div>
+          <div class="filter-card">
+            <h4 class="filter-title">Kategori</h4>
+            <div class="filter-field">
+              <label for="category-select">Pilih Kategori</label>
+              <select id="category-select" aria-label="Pilih kategori"></select>
+            </div>
+          </div>
+          <div class="filter-card">
+            <h4 class="filter-title">Occasion</h4>
+            <div class="filter-field">
+              <label for="occasion-select">Pilih Occasion</label>
+              <select id="occasion-select" aria-label="Pilih occasion"></select>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main: Product browsing -->
         <div class="catalog-column">
-          <section
-            class="hero hero-compact rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 via-rose-50 to-white"
-          >
+          <section class="hero-compact hero-soft">
             <div class="hero-banner">
               <div class="hero-text">
-                <h2 class="store-name">Toko Bunga Segar</h2>
+                <h2 class="store-name" style="color: #2e2a2f">
+                  Toko Bunga Segar
+                </h2>
                 <p class="tagline">
                   Buket & rangkaian indah untuk setiap momen
                 </p>
-                <div
-                  id="active-florist"
-                  class="text-rose-800/70 font-semibold mt-1 mb-2"
-                ></div>
+                <div id="active-florist" class="font-semibold mt-1 mb-2"></div>
                 <div class="store-stats">
                   <div class="stat">
                     <span id="total-items-stat">0</span><label>Item</label>
@@ -96,69 +122,6 @@
               </div>
               <div class="hero-art" aria-hidden="true"></div>
             </div>
-          </section>
-
-          <!-- Category chips -->
-          <section
-            class="category-strip"
-            id="category-strip"
-            aria-label="Kategori produk"
-          >
-            <!-- Populated by JS -->
-          </section>
-
-          <!-- Occasion chips -->
-          <section
-            class="category-strip"
-            id="occasion-strip"
-            aria-label="Occasion / Acara"
-          >
-            <!-- Populated by JS -->
-          </section>
-
-          <!-- Text & Price Filters -->
-          <section
-            id="filter-bar"
-            aria-label="Filter tambahan"
-            class="flex flex-wrap items-center gap-2.5 my-1 mb-4"
-          >
-            <div class="flex-1 min-w-[220px]">
-              <input
-                type="search"
-                id="search-input"
-                placeholder="Cari produk (nama/deskipsi)..."
-                aria-label="Cari produk"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <input
-                type="number"
-                id="min-price"
-                placeholder="Min harga"
-                min="0"
-                step="1000"
-                class="w-36 md:w-40"
-                aria-label="Harga minimum"
-              />
-              <span style="color: #6e5a67">–</span>
-              <input
-                type="number"
-                id="max-price"
-                placeholder="Max harga"
-                min="0"
-                step="1000"
-                class="w-36 md:w-40"
-                aria-label="Harga maksimum"
-              />
-            </div>
-            <button
-              id="clear-price"
-              class="btn btn-secondary btn-small"
-              type="button"
-              aria-label="Reset filter"
-            >
-              Reset
-            </button>
           </section>
 
           <section class="products" aria-live="polite">
@@ -421,8 +384,8 @@
           ]);
           DB_CATEGORIES = Array.isArray(cats) ? cats : [];
           DB_OCCASIONS = Array.isArray(occs) ? occs : [];
-          renderCategoryStrip(DB_CATEGORIES);
-          renderOccasionStrip(DB_OCCASIONS);
+          renderCategorySelect(DB_CATEGORIES);
+          renderOccasionSelect(DB_OCCASIONS);
           const catStat = document.getElementById("total-categories-stat");
           if (catStat) catStat.textContent = DB_CATEGORIES.length;
         } catch (err) {
@@ -432,78 +395,42 @@
         }
       }
 
-      function renderCategoryStrip(categories) {
-        const wrap = document.getElementById("category-strip");
-        if (!wrap) return;
-        const chips = [
-          { id: "all", name: "Semua", icon: "🌼" },
-          ...categories.map((c) => ({
-            id: String(c.id),
-            name: c.name,
-            icon: "🏷️",
-          })),
+      function renderCategorySelect(categories) {
+        const sel = document.getElementById("category-select");
+        if (!sel) return;
+        const options = [
+          { id: "all", name: "Semua Kategori" },
+          ...categories.map((c) => ({ id: String(c.id), name: c.name })),
         ];
-        wrap.innerHTML = chips
-          .map(
-            (cat, idx) => `
-          <button class="cat-chip${idx === 0 ? " active" : ""}" data-id="${
-              cat.id
-            }" data-group="category" aria-pressed="${idx === 0}">
-            <span class="icon">${cat.icon}</span>
-            <span class="label">${escapeHtml(cat.name)}</span>
-          </button>`
-          )
+        sel.innerHTML = options
+          .map((o) => `<option value="${o.id}">${escapeHtml(o.name)}</option>`)
           .join("");
-        // default selection
-        activeCategoryId = null; // "Semua"
-        wrap.addEventListener("click", (e) => {
-          const btn = e.target.closest('.cat-chip[data-group="category"]');
-          if (!btn) return;
-          const id = btn.dataset.id;
-          activeCategoryId = id === "all" ? null : parseInt(id, 10);
-          for (const b of wrap.querySelectorAll(".cat-chip")) {
-            b.classList.toggle("active", b === btn);
-            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-          }
+        sel.value = "all";
+        activeCategoryId = null;
+        sel.onchange = () => {
+          const v = sel.value;
+          activeCategoryId = v === "all" ? null : parseInt(v, 10);
           filterAndRenderProducts();
-        });
+        };
       }
 
-      function renderOccasionStrip(occasions) {
-        const wrap = document.getElementById("occasion-strip");
-        if (!wrap) return;
-        const chips = [
-          { id: "all", name: "Semua Occasion", icon: "🗂️" },
-          ...occasions.map((o) => ({
-            id: String(o.id),
-            name: o.name,
-            icon: "🎉",
-          })),
+      function renderOccasionSelect(occasions) {
+        const sel = document.getElementById("occasion-select");
+        if (!sel) return;
+        const options = [
+          { id: "all", name: "Semua Occasion" },
+          ...occasions.map((o) => ({ id: String(o.id), name: o.name })),
         ];
-        wrap.innerHTML = chips
-          .map(
-            (occ, idx) => `
-          <button class="cat-chip${idx === 0 ? " active" : ""}" data-id="${
-              occ.id
-            }" data-group="occasion" aria-pressed="${idx === 0}">
-            <span class="icon">${occ.icon}</span>
-            <span class="label">${escapeHtml(occ.name)}</span>
-          </button>`
-          )
+        sel.innerHTML = options
+          .map((o) => `<option value="${o.id}">${escapeHtml(o.name)}</option>`)
           .join("");
-        // default selection
-        activeOccasionId = null; // "Semua"
-        wrap.addEventListener("click", (e) => {
-          const btn = e.target.closest('.cat-chip[data-group="occasion"]');
-          if (!btn) return;
-          const id = btn.dataset.id;
-          activeOccasionId = id === "all" ? null : parseInt(id, 10);
-          for (const b of wrap.querySelectorAll(".cat-chip")) {
-            b.classList.toggle("active", b === btn);
-            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-          }
+        sel.value = "all";
+        activeOccasionId = null;
+        sel.onchange = () => {
+          const v = sel.value;
+          activeOccasionId = v === "all" ? null : parseInt(v, 10);
           filterAndRenderProducts();
-        });
+        };
       }
 
       async function loadProducts() {
@@ -713,6 +640,7 @@
           renderCartPanel(items);
           // Ensure FAB not obstructing after update
           const nowY = window.scrollY;
+          const fab = document.getElementById("floating-cart");
           if (fab && nowY > 0) fab.classList.add("fab-hidden");
           setTimeout(() => fab && fab.classList.remove("fab-hidden"), 200);
         } catch (err) {

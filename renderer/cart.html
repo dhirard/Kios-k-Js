@@ -15,36 +15,32 @@
   </head>
   <body class="kiosk-mode min-h-screen">
     <div class="container">
-      <header class="relative floral-header">
-        <h1
-          class="text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm"
-        >
-          🌸 JS Florist
-        </h1>
-        <nav class="items-center">
-          <a
-            href="index.html"
-            class="nav-link"
-            onclick="navigateToPage('index.html'); return false;"
-            >Katalog</a
-          >
-          <a
-            href="cart.html"
-            class="nav-link active"
-            onclick="navigateToPage('cart.html'); return false;"
-            >Keranjang</a
-          >
-          <a
-            href="admin-login.html"
-            class="nav-link admin-link"
-            onclick="navigateToPage('admin-login.html'); return false;"
-          >
-            🔐 Admin
-          </a>
-        </nav>
-      </header>
-
       <main class="animate-fade-in">
+        <!-- Top toolbar: back + simple stepper -->
+        <div class="page-toolbar">
+          <div class="toolbar-left">
+            <a
+              href="welcome.html"
+              class="back-link"
+              onclick="navigateToPage('welcome.html'); return false;"
+              aria-label="Kembali ke Menu Awal"
+            >
+              ← Kembali
+            </a>
+            <a
+              href="index.html"
+              class="link-pill"
+              onclick="navigateToPage('index.html'); return false;"
+            >
+              Katalog
+            </a>
+          </div>
+          <div class="stepper" aria-label="Progres Pemesanan">
+            <div class="step active">Keranjang</div>
+            <div class="step">Checkout</div>
+          </div>
+        </div>
+
         <section class="cart-section">
           <h2>Keranjang Belanja</h2>
 
@@ -380,6 +376,17 @@
               window.location.href = "index.html";
             }
           } else if (
+            e.target.matches('a[href="welcome.html"]') ||
+            e.target.closest('a[href="welcome.html"]')
+          ) {
+            e.preventDefault();
+            console.log("Navigating to welcome.html");
+            if (window.electronAPI && window.electronAPI.navigateTo) {
+              window.electronAPI.navigateTo("welcome.html");
+            } else {
+              window.location.href = "welcome.html";
+            }
+          } else if (
             e.target.matches('a[href="admin-login.html"]') ||
             e.target.closest('a[href="admin-login.html"]')
           ) {
@@ -409,12 +416,3 @@
     </script>
   </body>
 </html>
-
-<button
-  class="btn btn-secondary btn-small"
-  onclick="navigateToPage('welcome.html')"
-  aria-label="Kembali ke Menu Awal"
-  style="margin-right: 0.6rem"
->
-  ← Kembali
-</button>

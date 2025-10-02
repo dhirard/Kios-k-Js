@@ -14,132 +14,36 @@
     <!-- Keep existing styles in case other pages depend on them -->
     <link rel="stylesheet" href="dist/tailwind.generated.css" />
     <link rel="stylesheet" href="style.css" />
-    <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f8f9fa;
-      }
-      h1,
-      h2,
-      h3,
-      .font-display {
-        font-family: "Playfair Display", serif;
-      }
-      .floral-header {
-        font-family: "Playfair Display", serif;
-        color: #333;
-      }
-      .spinner {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border-left-color: #4a5568;
-        animation: spin 1s ease infinite;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000; /* align with global modal layering */
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-      }
-      .modal-content {
-        background-color: #fff;
-        margin: auto;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        width: 90%;
-        max-width: 540px;
-        text-align: center;
-        animation: fadeIn 0.2s;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: scale(0.98);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-      .success-icon {
-        font-size: 2.5rem;
-        line-height: 1;
-        margin-bottom: 0.75rem;
-      }
-      .notification {
-        position: fixed;
-        /* reset conflicting positions from global style.css */
-        top: auto !important;
-        right: auto !important;
-        bottom: -100px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        color: white;
-        font-size: 0.875rem;
-        z-index: 100;
-        transition: bottom 0.5s ease-in-out;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        max-width: 90vw;
-      }
-      .notification.show {
-        bottom: 20px;
-        transform: translateX(
-          -50%
-        ) !important; /* keep centered, override global */
-      }
-      .notification.info {
-        background-color: #3b82f6;
-      }
-      .notification.success {
-        background-color: #22c55e;
-      }
-      .notification.warning {
-        background-color: #f97316;
-      }
-      .notification.error {
-        background-color: #ef4444;
-      }
-      .notification button {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.25rem;
-        margin-left: 0.75rem;
-        cursor: pointer;
-      }
-    </style>
   </head>
-  <body class="bg-gray-50 text-gray-800">
-    <div class="mx-auto px-4 py-8 max-w-7xl">
-      <div class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-bold floral-header">
-          🌸 JS Florist
-        </h1>
-        <p class="text-gray-500 mt-2">
-          Selesaikan pesanan Anda dengan mudah dan aman.
-        </p>
-      </div>
-      <main style="padding: 0">
-        <section class="checkout-section" style="max-width: none; margin: 0">
+  <body class="kiosk-mode min-h-screen">
+    <div class="container">
+      <main class="animate-fade-in">
+        <!-- Top toolbar to mirror cart page -->
+        <div class="page-toolbar">
+          <div class="toolbar-left">
+            <a
+              href="welcome.html"
+              class="back-link"
+              onclick="navigateToPage('welcome.html'); return false;"
+              aria-label="Kembali ke Menu Awal"
+            >
+              ← Kembali
+            </a>
+            <a
+              href="index.html"
+              class="link-pill"
+              onclick="navigateToPage('index.html'); return false;"
+            >
+              Katalog
+            </a>
+          </div>
+          <div class="stepper" aria-label="Progres Pemesanan">
+            <div class="step">Keranjang</div>
+            <div class="step active">Checkout</div>
+          </div>
+        </div>
+
+        <section class="checkout-section">
           <div
             class="flex flex-col items-center justify-center text-center py-16 min-h-[120px]"
             id="loading"
@@ -150,7 +54,10 @@
           </div>
 
           <div id="checkout-content" style="display: none">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <div
+              id="checkout-grid"
+              class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12"
+            >
               <!-- Left: Delivery & Payment Details -->
               <div class="lg:col-span-7 space-y-6">
                 <div class="bg-white p-6 rounded-2xl shadow-md">
@@ -341,17 +248,15 @@
               <!-- Right: Order Summary -->
               <div class="lg:col-span-5">
                 <div
-                  class="bg-white p-6 rounded-2xl shadow-md lg:sticky lg:top-8"
+                  id="checkout-summary"
+                  class="bg-white p-6 rounded-2xl shadow-md self-start"
                 >
                   <h3
                     class="text-2xl font-semibold font-display border-b pb-4 mb-4"
                   >
                     Ringkasan Pesanan
                   </h3>
-                  <div
-                    class="order-items space-y-4 max-h-64 overflow-y-auto pr-2"
-                    id="order-items"
-                  >
+                  <div class="order-items space-y-4" id="order-items">
                     <!-- Order items will be loaded here -->
                   </div>
 
@@ -424,22 +329,12 @@
         </section>
       </main>
 
-      <footer class="text-center mt-16 pt-8 border-t border-gray-200">
-        <p class="text-gray-500 text-sm">
-          &copy; 2025 JS Florist. Bunga segar setiap hari.
-        </p>
+      <footer>
+        <p>&copy; 2025 JS Florist. Bunga segar setiap hari.</p>
       </footer>
     </div>
 
     <!-- Optional: Example trigger for silent receipt printing (kept for dev/testing) -->
-    <div style="position: fixed; bottom: 18px; right: 16px; z-index: 900">
-      <button
-        id="btnPrintReceipt"
-        class="bg-gray-200 text-gray-700 px-3 py-2 rounded shadow hover:bg-gray-300"
-      >
-        Cetak Struk Penjualan
-      </button>
-    </div>
 
     <!-- Success modal -->
     <div id="success-modal" class="modal">
@@ -1004,14 +899,7 @@
         const notificationText = document.getElementById("notification-text");
 
         notificationText.textContent = message;
-        notification.style.top = "auto";
-        notification.style.right = "auto";
-        notification.style.left = "50%";
-        notification.style.transform = "translateX(-50%)";
-        notification.className = `notification ${type}`;
-        // trigger reflow to restart animation
-        void notification.offsetWidth;
-        notification.classList.add("show");
+        notification.className = `notification show ${type}`;
 
         // Auto hide after 3 seconds
         setTimeout(() => {
@@ -1042,6 +930,16 @@
         ) {
           e.preventDefault();
           window.electronAPI.navigateTo("cart.html");
+        } else if (
+          e.target.matches('a[href="welcome.html"]') ||
+          e.target.closest('a[href="welcome.html"]')
+        ) {
+          e.preventDefault();
+          if (window.electronAPI && window.electronAPI.navigateTo) {
+            window.electronAPI.navigateTo("welcome.html");
+          } else {
+            window.location.href = "welcome.html";
+          }
         }
       });
 
